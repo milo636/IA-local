@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SAW Local</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="side-panel side-panel-left" aria-label="Panel de estado">
+        <header class="brand">
+          <div class="brand-mark" aria-hidden="true">SL</div>
+          <div>
+            <h1>SAW Local</h1>
+            <p>Atenea Local</p>
+          </div>
+        </header>
+
+        <section class="status-block" aria-labelledby="safe-mode-title">
+          <div class="section-heading">
+            <h2 id="safe-mode-title">Modo seguro</h2>
+            <span id="safeModeBadge" class="status-pill status-ok">Activo</span>
+          </div>
+          <div class="signal-row">
+            <span class="signal-dot" aria-hidden="true"></span>
+            <span>localhost · sin telemetria</span>
+          </div>
+        </section>
+
+        <section class="status-block" aria-labelledby="permissions-title">
+          <div class="section-heading">
+            <h2 id="permissions-title">Permisos</h2>
+          </div>
+          <div id="settingsList" class="settings-list"></div>
+        </section>
+
+        <section class="status-block" aria-labelledby="actions-title">
+          <div class="section-heading">
+            <h2 id="actions-title">Acciones</h2>
+          </div>
+          <div id="actionsList" class="action-list"></div>
+        </section>
+      </aside>
+
+      <main class="chat-panel" aria-label="Chat local">
+        <header class="chat-header">
+          <div>
+            <span class="chat-kicker">Asistente local para Windows</span>
+            <h2>Chat</h2>
+          </div>
+          <div class="header-actions">
+            <button id="debugModeButton" class="icon-button ghost-button" type="button" title="Modo debug" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <path d="M7 8h10" />
+                <path d="M5 11h14" />
+                <path d="M7 22h10" />
+                <path d="M6 8v7a6 6 0 0 0 12 0V8" />
+              </svg>
+              <span>Modo debug</span>
+            </button>
+            <button id="clearChatButton" class="icon-button ghost-button" type="button" title="Limpiar chat">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 7h16" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M6 7l1 13h10l1-13" />
+                <path d="M9 7V4h6v3" />
+              </svg>
+              <span>Limpiar chat</span>
+            </button>
+          </div>
+        </header>
+
+        <div id="pendingBanner" class="pending-banner" hidden>
+          <div>
+            <strong>Confirmacion pendiente</strong>
+            <span>Escribi CONFIRMAR para continuar.</span>
+          </div>
+          <button id="confirmButton" type="button" class="confirm-button">CONFIRMAR</button>
+        </div>
+
+        <section id="messages" class="messages" aria-live="polite"></section>
+
+        <form id="chatForm" class="composer">
+          <input
+            id="messageInput"
+            name="message"
+            type="text"
+            autocomplete="off"
+            placeholder="Escribi un comando local..."
+            maxlength="2000"
+            required
+          />
+          <button id="sendButton" class="send-button" type="submit">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M22 2 11 13" />
+              <path d="m22 2-7 20-4-9-9-4 20-7Z" />
+            </svg>
+            <span>Enviar</span>
+          </button>
+        </form>
+      </main>
+
+      <aside class="side-panel side-panel-right" aria-label="Panel de logs">
+        <section class="status-block ai-block" aria-labelledby="ai-title">
+          <div class="section-heading">
+            <h2 id="ai-title">IA local</h2>
+            <span id="aiModelBadge" class="status-pill status-warn">Sin modelo</span>
+          </div>
+          <div class="ai-metrics">
+            <div class="metric-row">
+              <span>Ejemplos</span>
+              <strong id="aiExampleCount">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Intenciones</span>
+              <strong id="aiIntentCount">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Ultimo entrenamiento</span>
+              <strong id="aiLastTrained">Nunca</strong>
+            </div>
+          </div>
+          <button id="retrainAIButton" class="icon-button retrain-button" type="button" title="Reentrenar IA local">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+              <path d="M21 3v6h-6" />
+            </svg>
+            <span>Reentrenar</span>
+          </button>
+        </section>
+
+        <section class="status-block" aria-labelledby="quick-title">
+          <div class="section-heading">
+            <h2 id="quick-title">Comandos</h2>
+          </div>
+          <div id="quickCommands" class="quick-grid"></div>
+        </section>
+
+        <section class="status-block logs-block" aria-labelledby="logs-title">
+          <div class="section-heading">
+            <h2 id="logs-title">Ultimos logs</h2>
+            <button id="exportLogsButton" class="icon-button export-button" type="button" title="Exportar logs">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 3v12" />
+                <path d="m7 10 5 5 5-5" />
+                <path d="M5 21h14" />
+              </svg>
+              <span>Exportar logs</span>
+            </button>
+          </div>
+          <div id="logsList" class="logs-list"></div>
+        </section>
+      </aside>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

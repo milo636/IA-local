@@ -1,0 +1,1233 @@
+{
+  "modelVersion": 1,
+  "trainedAt": "2026-06-22T03:30:51.509Z",
+  "minConfidence": 0.34,
+  "intents": [
+    "help",
+    "open_app",
+    "create_folder",
+    "list_downloads",
+    "search_files",
+    "create_note",
+    "system_status",
+    "organize_downloads",
+    "unknown"
+  ],
+  "tokenWeights": {
+    "ayuda": 3.8622,
+    "help": 4.5553,
+    "comandos": 4.1499,
+    "hay": 4.1499,
+    "mostrame": 4.1499,
+    "necesito": 4.1499,
+    "lista": 4.1499,
+    "como": 4.1499,
+    "te": 4.5553,
+    "uso": 4.5553,
+    "podes": 4.5553,
+    "hacer": 3.8622,
+    "abrir": 3.4567,
+    "chrome": 3.3026,
+    "abri": 3.6391,
+    "abre": 4.1499,
+    "google": 4.5553,
+    "iniciar": 4.5553,
+    "bloc": 4.1499,
+    "notas": 3.6391,
+    "notepad": 4.5553,
+    "explorador": 3.8622,
+    "archivos": 2.8506,
+    "favor": 4.5553,
+    "crear": 3.1691,
+    "carpeta": 2.9459,
+    "llamada": 2.7636,
+    "prueba": 4.1499,
+    "crea": 4.5553,
+    "documentos": 4.1499,
+    "trabajo": 4.5553,
+    "escritorio": 4.1499,
+    "nueva": 4.1499,
+    "fotos": 4.5553,
+    "proyecto": 4.5553,
+    "listar": 4.1499,
+    "descargas": 2.6835,
+    "mostrar": 3.8622,
+    "ver": 3.8622,
+    "descargados": 4.5553,
+    "downloads": 4.5553,
+    "buscar": 3.8622,
+    "contengan": 4.1499,
+    "factura": 4.5553,
+    "busca": 4.5553,
+    "presupuesto": 4.5553,
+    "encontrar": 4.1499,
+    "llamados": 4.5553,
+    "informe": 4.5553,
+    "pdf": 4.5553,
+    "localizar": 4.5553,
+    "foto": 4.5553,
+    "contrato": 4.5553,
+    "archivo": 4.1499,
+    "nota": 3.3026,
+    "ideas": 4.5553,
+    "texto": 3.3026,
+    "hola": 4.5553,
+    "compras": 4.5553,
+    "leche": 4.5553,
+    "guardar": 4.5553,
+    "recordatorio": 4.5553,
+    "llamar": 4.5553,
+    "pendientes": 4.5553,
+    "revisar": 4.5553,
+    "escribir": 4.5553,
+    "contenido": 4.5553,
+    "llamado": 4.5553,
+    "diario": 4.5553,
+    "hoy": 4.5553,
+    "estado": 3.6391,
+    "sistema": 3.8622,
+    "computadora": 4.5553,
+    "esta": 4.5553,
+    "pc": 4.5553,
+    "informacion": 4.5553,
+    "windows": 4.5553,
+    "memoria": 4.5553,
+    "cpu": 4.5553,
+    "organizar": 4.5553,
+    "tipo": 3.8622,
+    "ordena": 4.5553,
+    "acomodar": 4.5553,
+    "extension": 4.5553,
+    "separar": 4.5553,
+    "clasificar": 4.5553,
+    "organiza": 4.5553,
+    "mover": 4.5553,
+    "carpetas": 4.5553,
+    "contame": 4.5553,
+    "chiste": 4.5553,
+    "clima": 4.5553,
+    "hace": 4.5553,
+    "comprar": 4.5553,
+    "entradas": 4.5553,
+    "mandar": 4.5553,
+    "email": 4.5553,
+    "subir": 4.5553,
+    "reproducir": 4.5553,
+    "musica": 4.5553,
+    "transferencia": 4.5553,
+    "cuenta": 4.5553
+  },
+  "profiles": {
+    "help": {
+      "ayuda": 0.6642,
+      "help": 0.2811,
+      "comandos": 0.3976,
+      "hay": 0.1988,
+      "mostrame": 0.2058,
+      "necesito": 0.2058,
+      "lista": 0.1988,
+      "como": 0.1522,
+      "te": 0.1671,
+      "uso": 0.1671,
+      "podes": 0.2144,
+      "hacer": 0.1818
+    },
+    "open_app": {
+      "abrir": 0.5088,
+      "chrome": 0.5648,
+      "abri": 0.3819,
+      "abre": 0.2076,
+      "google": 0.1021,
+      "iniciar": 0.1268,
+      "bloc": 0.1981,
+      "notas": 0.1737,
+      "notepad": 0.1248,
+      "explorador": 0.3239,
+      "archivos": 0.0741,
+      "favor": 0.1065
+    },
+    "create_folder": {
+      "crear": 0.3207,
+      "carpeta": 0.6437,
+      "llamada": 0.5034,
+      "prueba": 0.1371,
+      "crea": 0.1348,
+      "documentos": 0.1229,
+      "hacer": 0.1013,
+      "trabajo": 0.1194,
+      "escritorio": 0.2598,
+      "nueva": 0.1229,
+      "fotos": 0.1348,
+      "proyecto": 0.1448,
+      "necesito": 0.1323,
+      "notas": 0.1161
+    },
+    "list_downloads": {
+      "listar": 0.4073,
+      "descargas": 0.674,
+      "archivos": 0.3509,
+      "mostrar": 0.2134,
+      "ver": 0.1517,
+      "descargados": 0.1789,
+      "hay": 0.2182,
+      "mostrame": 0.1875,
+      "carpeta": 0.1331,
+      "lista": 0.1588,
+      "downloads": 0.1744
+    },
+    "search_files": {
+      "buscar": 0.4907,
+      "archivos": 0.4304,
+      "contengan": 0.3049,
+      "factura": 0.1711,
+      "busca": 0.1897,
+      "presupuesto": 0.1897,
+      "encontrar": 0.3253,
+      "llamados": 0.1635,
+      "informe": 0.1635,
+      "pdf": 0.2238,
+      "localizar": 0.1635,
+      "foto": 0.1635,
+      "documentos": 0.1674,
+      "contrato": 0.1838,
+      "archivo": 0.1764,
+      "notas": 0.1547
+    },
+    "create_note": {
+      "crear": 0.253,
+      "nota": 0.5277,
+      "llamada": 0.3756,
+      "ideas": 0.1275,
+      "texto": 0.5277,
+      "hola": 0.1275,
+      "compras": 0.1275,
+      "leche": 0.1275,
+      "guardar": 0.1198,
+      "recordatorio": 0.1198,
+      "llamar": 0.1198,
+      "nueva": 0.1113,
+      "pendientes": 0.1222,
+      "revisar": 0.1222,
+      "escribir": 0.1222,
+      "prueba": 0.1113,
+      "contenido": 0.1222,
+      "archivo": 0.0991,
+      "llamado": 0.1087,
+      "diario": 0.1087,
+      "hoy": 0.1087
+    },
+    "system_status": {
+      "mostrar": 0.2947,
+      "estado": 0.6211,
+      "sistema": 0.4842,
+      "ver": 0.2777,
+      "computadora": 0.1697,
+      "como": 0.141,
+      "esta": 0.1548,
+      "pc": 0.1548,
+      "informacion": 0.1668,
+      "windows": 0.2035,
+      "memoria": 0.158,
+      "cpu": 0.158
+    },
+    "organize_downloads": {
+      "organizar": 0.1727,
+      "descargas": 0.7296,
+      "tipo": 0.4131,
+      "ordena": 0.1727,
+      "acomodar": 0.1621,
+      "extension": 0.1621,
+      "separar": 0.1883,
+      "archivos": 0.1178,
+      "clasificar": 0.2139,
+      "organiza": 0.1869,
+      "carpeta": 0.1208,
+      "mover": 0.1418,
+      "carpetas": 0.1418
+    },
+    "unknown": {
+      "contame": 0.25,
+      "chiste": 0.25,
+      "clima": 0.25,
+      "hace": 0.25,
+      "comprar": 0.25,
+      "entradas": 0.25,
+      "mandar": 0.25,
+      "email": 0.25,
+      "subir": 0.2997,
+      "archivos": 0.1876,
+      "reproducir": 0.25,
+      "musica": 0.25,
+      "hacer": 0.2286,
+      "transferencia": 0.2697,
+      "crear": 0.2019,
+      "cuenta": 0.2902
+    }
+  },
+  "examples": [
+    {
+      "intent": "help",
+      "text": "ayuda",
+      "tokens": [
+        "ayuda"
+      ],
+      "vector": {
+        "ayuda": 1
+      }
+    },
+    {
+      "intent": "help",
+      "text": "help",
+      "tokens": [
+        "help"
+      ],
+      "vector": {
+        "help": 1
+      }
+    },
+    {
+      "intent": "help",
+      "text": "que comandos hay",
+      "tokens": [
+        "comandos",
+        "hay"
+      ],
+      "vector": {
+        "comandos": 0.7071,
+        "hay": 0.7071
+      }
+    },
+    {
+      "intent": "help",
+      "text": "mostrame la ayuda",
+      "tokens": [
+        "mostrame",
+        "ayuda"
+      ],
+      "vector": {
+        "mostrame": 0.732,
+        "ayuda": 0.6813
+      }
+    },
+    {
+      "intent": "help",
+      "text": "necesito ayuda",
+      "tokens": [
+        "necesito",
+        "ayuda"
+      ],
+      "vector": {
+        "necesito": 0.732,
+        "ayuda": 0.6813
+      }
+    },
+    {
+      "intent": "help",
+      "text": "lista de comandos",
+      "tokens": [
+        "lista",
+        "comandos"
+      ],
+      "vector": {
+        "lista": 0.7071,
+        "comandos": 0.7071
+      }
+    },
+    {
+      "intent": "help",
+      "text": "como te uso",
+      "tokens": [
+        "como",
+        "te",
+        "uso"
+      ],
+      "vector": {
+        "como": 0.5415,
+        "te": 0.5944,
+        "uso": 0.5944
+      }
+    },
+    {
+      "intent": "help",
+      "text": "que podes hacer",
+      "tokens": [
+        "podes",
+        "hacer"
+      ],
+      "vector": {
+        "podes": 0.7627,
+        "hacer": 0.6467
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrir chrome",
+      "tokens": [
+        "abrir",
+        "chrome"
+      ],
+      "vector": {
+        "abrir": 0.723,
+        "chrome": 0.6908
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrí chrome",
+      "tokens": [
+        "abri",
+        "chrome"
+      ],
+      "vector": {
+        "abri": 0.7405,
+        "chrome": 0.672
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abre google chrome",
+      "tokens": [
+        "abre",
+        "google",
+        "chrome"
+      ],
+      "vector": {
+        "abre": 0.5936,
+        "google": 0.6516,
+        "chrome": 0.4724
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "quiero abrir chrome",
+      "tokens": [
+        "abrir",
+        "chrome"
+      ],
+      "vector": {
+        "abrir": 0.723,
+        "chrome": 0.6908
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "iniciar chrome",
+      "tokens": [
+        "iniciar",
+        "chrome"
+      ],
+      "vector": {
+        "iniciar": 0.8096,
+        "chrome": 0.587
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrir bloc de notas",
+      "tokens": [
+        "abrir",
+        "bloc",
+        "notas"
+      ],
+      "vector": {
+        "abrir": 0.5308,
+        "bloc": 0.6372,
+        "notas": 0.5588
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrí el bloc de notas",
+      "tokens": [
+        "abri",
+        "bloc",
+        "notas"
+      ],
+      "vector": {
+        "abri": 0.5504,
+        "bloc": 0.6277,
+        "notas": 0.5504
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrir notepad",
+      "tokens": [
+        "abrir",
+        "notepad"
+      ],
+      "vector": {
+        "abrir": 0.6045,
+        "notepad": 0.7966
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrir explorador",
+      "tokens": [
+        "abrir",
+        "explorador"
+      ],
+      "vector": {
+        "abrir": 0.6669,
+        "explorador": 0.7451
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrí el explorador de archivos",
+      "tokens": [
+        "abri",
+        "explorador",
+        "archivos"
+      ],
+      "vector": {
+        "abri": 0.6041,
+        "explorador": 0.6412,
+        "archivos": 0.4732
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abre el explorador",
+      "tokens": [
+        "abre",
+        "explorador"
+      ],
+      "vector": {
+        "abre": 0.732,
+        "explorador": 0.6813
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrí chrome por favor",
+      "tokens": [
+        "abri",
+        "chrome",
+        "favor"
+      ],
+      "vector": {
+        "abri": 0.5431,
+        "chrome": 0.4929,
+        "favor": 0.6798
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "crear carpeta llamada prueba",
+      "tokens": [
+        "crear",
+        "carpeta",
+        "llamada",
+        "prueba"
+      ],
+      "vector": {
+        "crear": 0.4801,
+        "carpeta": 0.4462,
+        "llamada": 0.4186,
+        "prueba": 0.6286
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "crea una carpeta llamada documentos",
+      "tokens": [
+        "crea",
+        "carpeta",
+        "llamada",
+        "documentos"
+      ],
+      "vector": {
+        "crea": 0.6182,
+        "carpeta": 0.3998,
+        "llamada": 0.3751,
+        "documentos": 0.5632
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "hacer carpeta llamada trabajo en escritorio",
+      "tokens": [
+        "hacer",
+        "carpeta",
+        "llamada",
+        "trabajo",
+        "escritorio"
+      ],
+      "vector": {
+        "hacer": 0.4643,
+        "carpeta": 0.3541,
+        "llamada": 0.3322,
+        "trabajo": 0.5476,
+        "escritorio": 0.4988
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "nueva carpeta llamada fotos",
+      "tokens": [
+        "nueva",
+        "carpeta",
+        "llamada",
+        "fotos"
+      ],
+      "vector": {
+        "nueva": 0.5632,
+        "carpeta": 0.3998,
+        "llamada": 0.3751,
+        "fotos": 0.6182
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "crear carpeta en el escritorio",
+      "tokens": [
+        "crear",
+        "carpeta",
+        "escritorio"
+      ],
+      "vector": {
+        "crear": 0.5286,
+        "carpeta": 0.4914,
+        "escritorio": 0.6922
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "crear una carpeta llamada proyecto",
+      "tokens": [
+        "crear",
+        "carpeta",
+        "llamada",
+        "proyecto"
+      ],
+      "vector": {
+        "crear": 0.4617,
+        "carpeta": 0.4292,
+        "llamada": 0.4026,
+        "proyecto": 0.6637
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "necesito una carpeta llamada notas",
+      "tokens": [
+        "necesito",
+        "carpeta",
+        "llamada",
+        "notas"
+      ],
+      "vector": {
+        "necesito": 0.6067,
+        "carpeta": 0.4307,
+        "llamada": 0.4041,
+        "notas": 0.5321
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "listar descargas",
+      "tokens": [
+        "listar",
+        "descargas"
+      ],
+      "vector": {
+        "listar": 0.8397,
+        "descargas": 0.543
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "listar archivos de descargas",
+      "tokens": [
+        "listar",
+        "archivos",
+        "descargas"
+      ],
+      "vector": {
+        "listar": 0.7274,
+        "archivos": 0.4997,
+        "descargas": 0.4704
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "mostrar descargas",
+      "tokens": [
+        "mostrar",
+        "descargas"
+      ],
+      "vector": {
+        "mostrar": 0.8212,
+        "descargas": 0.5706
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "ver archivos descargados",
+      "tokens": [
+        "ver",
+        "archivos",
+        "descargados"
+      ],
+      "vector": {
+        "ver": 0.5836,
+        "archivos": 0.4308,
+        "descargados": 0.6884
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "que hay en descargas",
+      "tokens": [
+        "hay",
+        "descargas"
+      ],
+      "vector": {
+        "hay": 0.8397,
+        "descargas": 0.543
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "mostrame la carpeta descargas",
+      "tokens": [
+        "mostrame",
+        "carpeta",
+        "descargas"
+      ],
+      "vector": {
+        "mostrame": 0.7213,
+        "carpeta": 0.512,
+        "descargas": 0.4664
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "lista los archivos de downloads",
+      "tokens": [
+        "lista",
+        "archivos",
+        "downloads"
+      ],
+      "vector": {
+        "lista": 0.6112,
+        "archivos": 0.4198,
+        "downloads": 0.6709
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "buscar archivos que contengan factura",
+      "tokens": [
+        "buscar",
+        "archivos",
+        "contengan",
+        "factura"
+      ],
+      "vector": {
+        "buscar": 0.4944,
+        "archivos": 0.3649,
+        "contengan": 0.5313,
+        "factura": 0.5832
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "busca archivos con presupuesto",
+      "tokens": [
+        "busca",
+        "archivos",
+        "presupuesto"
+      ],
+      "vector": {
+        "busca": 0.6466,
+        "archivos": 0.4046,
+        "presupuesto": 0.6466
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "encontrar archivos llamados informe",
+      "tokens": [
+        "encontrar",
+        "archivos",
+        "llamados",
+        "informe"
+      ],
+      "vector": {
+        "encontrar": 0.5076,
+        "archivos": 0.3486,
+        "llamados": 0.5571,
+        "informe": 0.5571
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "buscar pdf",
+      "tokens": [
+        "buscar",
+        "pdf"
+      ],
+      "vector": {
+        "buscar": 0.6467,
+        "pdf": 0.7627
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "localizar archivos que contengan foto",
+      "tokens": [
+        "localizar",
+        "archivos",
+        "contengan",
+        "foto"
+      ],
+      "vector": {
+        "localizar": 0.5571,
+        "archivos": 0.3486,
+        "contengan": 0.5076,
+        "foto": 0.5571
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "buscar documentos con contrato",
+      "tokens": [
+        "buscar",
+        "documentos",
+        "contrato"
+      ],
+      "vector": {
+        "buscar": 0.5311,
+        "documentos": 0.5706,
+        "contrato": 0.6264
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "encontrar archivo notas",
+      "tokens": [
+        "encontrar",
+        "archivo",
+        "notas"
+      ],
+      "vector": {
+        "encontrar": 0.601,
+        "archivo": 0.601,
+        "notas": 0.527
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "crear nota llamada ideas con este texto hola",
+      "tokens": [
+        "crear",
+        "nota",
+        "llamada",
+        "ideas",
+        "texto",
+        "hola"
+      ],
+      "vector": {
+        "crear": 0.3521,
+        "nota": 0.367,
+        "llamada": 0.3071,
+        "ideas": 0.5062,
+        "texto": 0.367,
+        "hola": 0.5062
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "crear nota llamada compras con este texto leche",
+      "tokens": [
+        "crear",
+        "nota",
+        "llamada",
+        "compras",
+        "texto",
+        "leche"
+      ],
+      "vector": {
+        "crear": 0.3521,
+        "nota": 0.367,
+        "llamada": 0.3071,
+        "compras": 0.5062,
+        "texto": 0.367,
+        "leche": 0.5062
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "guardar nota llamada recordatorio con este texto llamar",
+      "tokens": [
+        "guardar",
+        "nota",
+        "llamada",
+        "recordatorio",
+        "texto",
+        "llamar"
+      ],
+      "vector": {
+        "guardar": 0.4757,
+        "nota": 0.3449,
+        "llamada": 0.2886,
+        "recordatorio": 0.4757,
+        "texto": 0.3449,
+        "llamar": 0.4757
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "nueva nota llamada pendientes con este texto revisar",
+      "tokens": [
+        "nueva",
+        "nota",
+        "llamada",
+        "pendientes",
+        "texto",
+        "revisar"
+      ],
+      "vector": {
+        "nueva": 0.4419,
+        "nota": 0.3517,
+        "llamada": 0.2943,
+        "pendientes": 0.4851,
+        "texto": 0.3517,
+        "revisar": 0.4851
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "escribir nota llamada prueba con este texto contenido",
+      "tokens": [
+        "escribir",
+        "nota",
+        "llamada",
+        "prueba",
+        "texto",
+        "contenido"
+      ],
+      "vector": {
+        "escribir": 0.4851,
+        "nota": 0.3517,
+        "llamada": 0.2943,
+        "prueba": 0.4419,
+        "texto": 0.3517,
+        "contenido": 0.4851
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "crear archivo de nota llamado diario con este texto hoy",
+      "tokens": [
+        "crear",
+        "archivo",
+        "nota",
+        "llamado",
+        "diario",
+        "texto",
+        "hoy"
+      ],
+      "vector": {
+        "crear": 0.3003,
+        "archivo": 0.3933,
+        "nota": 0.313,
+        "llamado": 0.4317,
+        "diario": 0.4317,
+        "texto": 0.313,
+        "hoy": 0.4317
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "mostrar estado del sistema",
+      "tokens": [
+        "mostrar",
+        "estado",
+        "sistema"
+      ],
+      "vector": {
+        "mostrar": 0.5885,
+        "estado": 0.5545,
+        "sistema": 0.5885
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "estado del sistema",
+      "tokens": [
+        "estado",
+        "sistema"
+      ],
+      "vector": {
+        "estado": 0.6858,
+        "sistema": 0.7278
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "ver estado de la computadora",
+      "tokens": [
+        "ver",
+        "estado",
+        "computadora"
+      ],
+      "vector": {
+        "ver": 0.5522,
+        "estado": 0.5203,
+        "computadora": 0.6514
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "como esta mi pc",
+      "tokens": [
+        "como",
+        "esta",
+        "pc"
+      ],
+      "vector": {
+        "como": 0.5415,
+        "esta": 0.5944,
+        "pc": 0.5944
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "mostrar informacion del sistema",
+      "tokens": [
+        "mostrar",
+        "informacion",
+        "sistema"
+      ],
+      "vector": {
+        "mostrar": 0.543,
+        "informacion": 0.6405,
+        "sistema": 0.543
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "estado de windows",
+      "tokens": [
+        "estado",
+        "windows"
+      ],
+      "vector": {
+        "estado": 0.6242,
+        "windows": 0.7813
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "ver memoria y cpu",
+      "tokens": [
+        "ver",
+        "memoria",
+        "cpu"
+      ],
+      "vector": {
+        "ver": 0.5142,
+        "memoria": 0.6065,
+        "cpu": 0.6065
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "organizar descargas por tipo",
+      "tokens": [
+        "organizar",
+        "descargas",
+        "tipo"
+      ],
+      "vector": {
+        "organizar": 0.6957,
+        "descargas": 0.4099,
+        "tipo": 0.5899
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "ordena descargas por tipo",
+      "tokens": [
+        "ordena",
+        "descargas",
+        "tipo"
+      ],
+      "vector": {
+        "ordena": 0.6957,
+        "descargas": 0.4099,
+        "tipo": 0.5899
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "acomodar descargas por extension",
+      "tokens": [
+        "acomodar",
+        "descargas",
+        "extension"
+      ],
+      "vector": {
+        "acomodar": 0.6527,
+        "descargas": 0.3845,
+        "extension": 0.6527
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "separar archivos de descargas",
+      "tokens": [
+        "separar",
+        "archivos",
+        "descargas"
+      ],
+      "vector": {
+        "separar": 0.7584,
+        "archivos": 0.4746,
+        "descargas": 0.4468
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "clasificar descargas",
+      "tokens": [
+        "clasificar",
+        "descargas"
+      ],
+      "vector": {
+        "clasificar": 0.8616,
+        "descargas": 0.5076
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "organiza la carpeta descargas",
+      "tokens": [
+        "organiza",
+        "carpeta",
+        "descargas"
+      ],
+      "vector": {
+        "organiza": 0.7527,
+        "carpeta": 0.4867,
+        "descargas": 0.4434
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "mover descargas a carpetas por tipo",
+      "tokens": [
+        "mover",
+        "descargas",
+        "carpetas",
+        "tipo"
+      ],
+      "vector": {
+        "mover": 0.5711,
+        "descargas": 0.3364,
+        "carpetas": 0.5711,
+        "tipo": 0.4842
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "contame un chiste",
+      "tokens": [
+        "contame",
+        "chiste"
+      ],
+      "vector": {
+        "contame": 0.7071,
+        "chiste": 0.7071
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "que clima hace",
+      "tokens": [
+        "clima",
+        "hace"
+      ],
+      "vector": {
+        "clima": 0.7071,
+        "hace": 0.7071
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "comprar entradas",
+      "tokens": [
+        "comprar",
+        "entradas"
+      ],
+      "vector": {
+        "comprar": 0.7071,
+        "entradas": 0.7071
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "mandar un email",
+      "tokens": [
+        "mandar",
+        "email"
+      ],
+      "vector": {
+        "mandar": 0.7071,
+        "email": 0.7071
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "subir mis archivos",
+      "tokens": [
+        "subir",
+        "archivos"
+      ],
+      "vector": {
+        "subir": 0.8477,
+        "archivos": 0.5305
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "reproducir musica",
+      "tokens": [
+        "reproducir",
+        "musica"
+      ],
+      "vector": {
+        "reproducir": 0.7071,
+        "musica": 0.7071
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "hacer una transferencia",
+      "tokens": [
+        "hacer",
+        "transferencia"
+      ],
+      "vector": {
+        "hacer": 0.6467,
+        "transferencia": 0.7627
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "crear una cuenta",
+      "tokens": [
+        "crear",
+        "cuenta"
+      ],
+      "vector": {
+        "crear": 0.5711,
+        "cuenta": 0.8209
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "safeMode": true,
+  "allowOpenApps": true,
+  "allowFileRead": true,
+  "allowFileWrite": true,
+  "allowDelete": false,
+  "allowShellCommands": false,
+  "allowNetwork": false
+}

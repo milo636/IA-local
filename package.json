@@ -1,0 +1,26 @@
+{
+  "name": "saw-local",
+  "version": "0.1.0",
+  "description": "Asistente local, gratuito y open source para automatizar tareas personales en Windows.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "train": "node src/trainLocalAI.js",
+    "test": "node --test --test-concurrency=1"
+  },
+  "keywords": [
+    "local-first",
+    "assistant",
+    "windows",
+    "automation",
+    "privacy",
+    "open-source"
+  ],
+  "author": "SAW Local contributors",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
