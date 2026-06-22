@@ -39,6 +39,7 @@ No agregues intenciones nuevas sin actualizar primero la seguridad, los permisos
 - La IA no debe ejecutar acciones directamente.
 - Toda accion debe pasar por `safety.js` y `permissions.js`.
 - No se aceptan ejemplos que pidan borrar archivos, robar datos, leer secretos, enviar mensajes, hacer compras o subir archivos a internet.
+- No se aceptan ejemplos con emails reales, tokens/API keys, rutas personales, numeros privados o claves privadas.
 - No se aceptan APIs externas obligatorias ni telemetria.
 
 ## Antes de abrir un pull request

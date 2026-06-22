@@ -162,7 +162,9 @@ Archivos:
 
 ```text
 src/localAI.js
+src/sensitiveText.js
 src/trainLocalAI.js
+data/baseTrainingData.json
 data/trainingData.json
 data/localAIModel.json
 ```
@@ -197,6 +199,16 @@ Tambien se puede ensenar desde la interfaz web:
 5. Elegir una intencion permitida del selector.
 6. Guardar el ejemplo. Atenea lo agrega a `data/trainingData.json` y reentrena `data/localAIModel.json`.
 
+Fase 2.1 agrega control seguro del dataset desde la UI:
+
+- deteccion de emails, contrasenas, tokens/API keys, rutas personales, numeros largos y posibles claves privadas
+- advertencia con opcion de cancelar o guardar igualmente
+- panel `Ejemplos aprendidos` para filtrar por intencion
+- edicion y borrado de ejemplos sin ejecutar acciones locales
+- backup automatico en `data/backups/` antes de modificar `trainingData.json`
+- exportacion del dataset
+- restauracion de `data/baseTrainingData.json`
+
 El panel `IA local` muestra:
 
 - estado del modelo
@@ -209,8 +221,13 @@ Endpoints locales de aprendizaje:
 
 ```text
 GET  /api/ai/intents
+GET  /api/ai/examples
 POST /api/ai/learn
 POST /api/ai/train
+PUT  /api/ai/examples/:id
+DELETE /api/ai/examples/:id
+POST /api/ai/dataset/export
+POST /api/ai/dataset/restore-base
 ```
 
 Ejemplo de `POST /api/ai/learn`:
@@ -265,6 +282,7 @@ atenea-local/
     memory.json
     settings.json
     logs.json
+    baseTrainingData.json
     trainingData.json
     localAIModel.json
 ```

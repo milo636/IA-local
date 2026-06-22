@@ -3,9 +3,12 @@ const state = {
   actions: [],
   busy: false,
   debugMode: localStorage.getItem("sawLocalDebug") === "true",
+  examples: [],
+  examplesFilter: "all",
   intents: [],
   logs: [],
   memory: { messages: [], pendingAction: null },
+  pendingSensitive: null,
   settings: {}
 };
 
@@ -15,19 +18,28 @@ const elements = {
   aiIntentCount: document.querySelector("#aiIntentCount"),
   aiLastTrained: document.querySelector("#aiLastTrained"),
   aiModelBadge: document.querySelector("#aiModelBadge"),
+  cancelSensitiveButton: document.querySelector("#cancelSensitiveButton"),
   chatForm: document.querySelector("#chatForm"),
   clearChatButton: document.querySelector("#clearChatButton"),
   confirmButton: document.querySelector("#confirmButton"),
+  confirmSensitiveButton: document.querySelector("#confirmSensitiveButton"),
   debugModeButton: document.querySelector("#debugModeButton"),
+  examplesIntentFilter: document.querySelector("#examplesIntentFilter"),
+  examplesList: document.querySelector("#examplesList"),
+  exportDatasetButton: document.querySelector("#exportDatasetButton"),
   exportLogsButton: document.querySelector("#exportLogsButton"),
   logsList: document.querySelector("#logsList"),
   messageInput: document.querySelector("#messageInput"),
   messages: document.querySelector("#messages"),
   pendingBanner: document.querySelector("#pendingBanner"),
   quickCommands: document.querySelector("#quickCommands"),
+  refreshExamplesButton: document.querySelector("#refreshExamplesButton"),
   retrainAIButton: document.querySelector("#retrainAIButton"),
+  restoreDatasetButton: document.querySelector("#restoreDatasetButton"),
   safeModeBadge: document.querySelector("#safeModeBadge"),
   sendButton: document.querySelector("#sendButton"),
+  sensitiveBanner: document.querySelector("#sensitiveBanner"),
+  sensitiveWarningText: document.querySelector("#sensitiveWarningText"),
   settingsList: document.querySelector("#settingsList")
 };
 
@@ -65,6 +77,16 @@ elements.confirmButton.addEventListener("click", () => {
   sendMessage("CONFIRMAR");
 });
 
+elements.confirmSensitiveButton.addEventListener("click", () => {
+  confirmSensitiveSave();
+});
+
+elements.cancelSensitiveButton.addEventListener("click", () => {
+  state.pendingSensitive = null;
+  renderSensitiveBanner();
+  addTransientAssistantMessage("Guardado cancelado. No cambie el dataset.");
+});
+
 elements.clearChatButton.addEventListener("click", async () => {
   const response = await fetch("/api/chat/clear", { method: "POST" });
   const payload = await response.json();
@@ -82,6 +104,23 @@ elements.exportLogsButton.addEventListener("click", () => {
   window.location.href = "/api/logs/export";
 });
 
+elements.refreshExamplesButton.addEventListener("click", () => {
+  refreshExamples();
+});
+
+elements.examplesIntentFilter.addEventListener("change", () => {
+  state.examplesFilter = elements.examplesIntentFilter.value;
+  renderExamplesPanel();
+});
+
+elements.exportDatasetButton.addEventListener("click", () => {
+  exportDataset();
+});
+
+elements.restoreDatasetButton.addEventListener("click", () => {
+  restoreBaseDataset();
+});
+
 elements.retrainAIButton.addEventListener("click", () => {
   retrainAI();
 });
@@ -94,6 +133,8 @@ async function boot() {
   if (!state.intents.length) {
     await refreshIntents();
   }
+
+  await refreshExamples();
 
   if (window.matchMedia("(min-width: 821px)").matches) {
     elements.messageInput.focus();
@@ -123,15 +164,26 @@ async function sendMessage(message) {
   }
 }
 
-async function learnIntent(text, intent) {
+async function learnIntent(text, intent, options = {}) {
   setBusy(true);
   try {
     const response = await fetch("/api/ai/learn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, intent })
+      body: JSON.stringify({ text, intent, confirmSensitive: options.confirmSensitive === true })
     });
     const payload = await response.json();
+
+    if (response.status === 409 && payload.requiresConfirmation) {
+      showSensitiveWarning({
+        operation: "learn",
+        text,
+        intent,
+        findings: payload.findings || [],
+        warning: payload.warning
+      });
+      return;
+    }
 
     if (!response.ok) {
       addTransientAssistantMessage(payload.error || "No pude guardar el ejemplo.");
@@ -139,6 +191,7 @@ async function learnIntent(text, intent) {
     }
 
     applyState(payload.state);
+    await refreshExamples();
     addTransientAssistantMessage(payload.added ? "Aprendi el ejemplo y reentrene la IA local." : "Ese ejemplo ya existia. Reentrene la IA local.");
   } catch (error) {
     addTransientAssistantMessage(`No pude entrenar la IA local: ${error.message}`);
@@ -173,7 +226,29 @@ async function refreshIntents() {
   state.intents = payload.intents || [];
   state.ai = payload.status || state.ai;
   renderAiPanel();
+  renderExamplesFilter();
   renderMessages();
+}
+
+async function refreshExamples() {
+  try {
+    const response = await fetch("/api/ai/examples");
+    const payload = await response.json();
+
+    if (!response.ok) {
+      addTransientAssistantMessage(payload.error || "No pude cargar los ejemplos.");
+      return;
+    }
+
+    state.examples = payload.dataset?.examples || [];
+    state.intents = payload.intents || state.intents;
+    state.ai = payload.status || state.ai;
+    renderAiPanel();
+    renderExamplesFilter();
+    renderExamplesPanel();
+  } catch (error) {
+    addTransientAssistantMessage(`No pude cargar los ejemplos: ${error.message}`);
+  }
 }
 
 function applyState(nextState) {
@@ -192,6 +267,9 @@ function applyState(nextState) {
   renderLogs();
   renderPending();
   renderDebugButton();
+  renderSensitiveBanner();
+  renderExamplesFilter();
+  renderExamplesPanel();
 }
 
 function renderAiPanel() {
@@ -409,6 +487,252 @@ function createCorrectionForm(meta) {
   return wrapper;
 }
 
+function renderExamplesFilter() {
+  const currentValue = state.examplesFilter;
+  elements.examplesIntentFilter.replaceChildren();
+
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = "Todas las intenciones";
+  elements.examplesIntentFilter.append(allOption);
+
+  state.intents.forEach((intent) => {
+    const option = document.createElement("option");
+    option.value = intent.id;
+    option.textContent = `${intent.label} (${intent.exampleCount})`;
+    elements.examplesIntentFilter.append(option);
+  });
+
+  elements.examplesIntentFilter.value = state.intents.some((intent) => intent.id === currentValue) ? currentValue : "all";
+  state.examplesFilter = elements.examplesIntentFilter.value;
+}
+
+function renderExamplesPanel() {
+  elements.examplesList.replaceChildren();
+
+  const examples = state.examplesFilter === "all"
+    ? state.examples
+    : state.examples.filter((example) => example.intent === state.examplesFilter);
+
+  if (!examples.length) {
+    const empty = document.createElement("p");
+    empty.className = "log-message";
+    empty.textContent = "Sin ejemplos para mostrar.";
+    elements.examplesList.append(empty);
+    return;
+  }
+
+  examples.forEach((example) => {
+    elements.examplesList.append(createExampleNode(example));
+  });
+}
+
+function createExampleNode(example) {
+  const item = document.createElement("article");
+  item.className = "example-item";
+
+  const top = document.createElement("div");
+  top.className = "example-top";
+
+  const label = document.createElement("strong");
+  label.textContent = example.label || example.intent;
+
+  const badge = document.createElement("span");
+  badge.className = `status-pill ${example.isBase ? "status-ok" : "status-warn"}`;
+  badge.textContent = example.isBase ? "Base" : "Aprendido";
+
+  top.append(label, badge);
+
+  const textarea = document.createElement("textarea");
+  textarea.value = example.text;
+  textarea.maxLength = 500;
+  textarea.rows = 3;
+  textarea.setAttribute("aria-label", `Editar ejemplo ${example.intent}`);
+
+  const select = document.createElement("select");
+  select.setAttribute("aria-label", "Intencion del ejemplo");
+  state.intents.forEach((intent) => {
+    const option = document.createElement("option");
+    option.value = intent.id;
+    option.textContent = intent.label;
+    select.append(option);
+  });
+  select.value = example.intent;
+
+  const actions = document.createElement("div");
+  actions.className = "example-actions";
+
+  const save = document.createElement("button");
+  save.type = "button";
+  save.className = "learn-button";
+  save.textContent = "Guardar";
+  save.addEventListener("click", () => {
+    updateExample(example.id, textarea.value, select.value);
+  });
+
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "danger-button icon-button";
+  remove.textContent = "Borrar";
+  remove.addEventListener("click", () => {
+    deleteExample(example.id);
+  });
+
+  actions.append(save, remove);
+  item.append(top, textarea, select, actions);
+  return item;
+}
+
+async function updateExample(id, text, intent, options = {}) {
+  setBusy(true);
+  try {
+    const response = await fetch(`/api/ai/examples/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, intent, confirmSensitive: options.confirmSensitive === true })
+    });
+    const payload = await response.json();
+
+    if (response.status === 409 && payload.requiresConfirmation) {
+      showSensitiveWarning({
+        operation: "edit",
+        id,
+        text,
+        intent,
+        findings: payload.findings || [],
+        warning: payload.warning
+      });
+      return;
+    }
+
+    if (!response.ok) {
+      addTransientAssistantMessage(payload.error || "No pude editar el ejemplo.");
+      return;
+    }
+
+    applyState(payload.state);
+    await refreshExamples();
+    addTransientAssistantMessage("Ejemplo editado y modelo reentrenado.");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude editar el ejemplo: ${error.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function deleteExample(id) {
+  if (!window.confirm("Borrar este ejemplo del dataset local?")) return;
+
+  setBusy(true);
+  try {
+    const response = await fetch(`/api/ai/examples/${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      addTransientAssistantMessage(payload.error || "No pude borrar el ejemplo.");
+      return;
+    }
+
+    applyState(payload.state);
+    await refreshExamples();
+    addTransientAssistantMessage("Ejemplo borrado y modelo reentrenado.");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude borrar el ejemplo: ${error.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function exportDataset() {
+  setBusy(true);
+  try {
+    const response = await fetch("/api/ai/dataset/export", { method: "POST" });
+
+    if (!response.ok) {
+      const payload = await response.json();
+      addTransientAssistantMessage(payload.error || "No pude exportar el dataset.");
+      return;
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `atenea-local-dataset-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    addTransientAssistantMessage("Dataset exportado.");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude exportar el dataset: ${error.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function restoreBaseDataset() {
+  if (!window.confirm("Restaurar el dataset base? Se creara un backup antes de cambiarlo.")) return;
+
+  setBusy(true);
+  try {
+    const response = await fetch("/api/ai/dataset/restore-base", { method: "POST" });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      addTransientAssistantMessage(payload.error || "No pude restaurar el dataset base.");
+      return;
+    }
+
+    applyState(payload.state);
+    await refreshExamples();
+    addTransientAssistantMessage("Dataset base restaurado y modelo reentrenado.");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude restaurar el dataset: ${error.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function showSensitiveWarning(details) {
+  state.pendingSensitive = details;
+  renderSensitiveBanner();
+}
+
+async function confirmSensitiveSave() {
+  const pending = state.pendingSensitive;
+  if (!pending) return;
+
+  state.pendingSensitive = null;
+  renderSensitiveBanner();
+
+  if (pending.operation === "learn") {
+    await learnIntent(pending.text, pending.intent, { confirmSensitive: true });
+    return;
+  }
+
+  if (pending.operation === "edit") {
+    await updateExample(pending.id, pending.text, pending.intent, { confirmSensitive: true });
+  }
+}
+
+function renderSensitiveBanner() {
+  const pending = state.pendingSensitive;
+  elements.sensitiveBanner.hidden = !pending;
+
+  if (!pending) {
+    elements.sensitiveWarningText.textContent = "";
+    return;
+  }
+
+  const labels = (pending.findings || []).map((finding) => finding.label).join(", ");
+  elements.sensitiveWarningText.textContent = labels
+    ? `${pending.warning || "Se detecto texto sensible."} Hallazgos: ${labels}.`
+    : pending.warning || "Se detecto texto sensible.";
+}
+
 function renderLogs() {
   elements.logsList.replaceChildren();
 
@@ -474,6 +798,10 @@ function setBusy(value) {
   elements.sendButton.disabled = value;
   elements.messageInput.disabled = value;
   elements.retrainAIButton.disabled = value;
+  elements.refreshExamplesButton.disabled = value;
+  elements.exportDatasetButton.disabled = value;
+  elements.restoreDatasetButton.disabled = value;
+  elements.confirmSensitiveButton.disabled = value;
   elements.chatForm.classList.toggle("is-busy", value);
 }
 

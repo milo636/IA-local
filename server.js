@@ -8,6 +8,7 @@ const logger = require("./src/logger");
 const localAI = require("./src/localAI");
 const memory = require("./src/memory");
 const permissions = require("./src/permissions");
+const { detectSensitiveText } = require("./src/sensitiveText");
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -81,6 +82,7 @@ app.post("/api/ai/learn", (req, res) => {
   try {
     const text = typeof req.body.text === "string" ? req.body.text.trim() : "";
     const intent = typeof req.body.intent === "string" ? req.body.intent.trim() : "";
+    const confirmSensitive = req.body.confirmSensitive === true;
 
     if (!text) {
       return res.status(400).json({ error: "El ejemplo no puede estar vacio." });
@@ -88,6 +90,22 @@ app.post("/api/ai/learn", (req, res) => {
 
     if (!localAI.VALID_INTENTS.has(intent)) {
       return res.status(400).json({ error: "La intencion seleccionada no esta permitida." });
+    }
+
+    const sensitivity = detectSensitiveText(text);
+    if (sensitivity.sensitive && !confirmSensitive) {
+      logger.writeLog({
+        level: "warn",
+        action: "ai.learn.sensitive_warning",
+        message: "Ejemplo sensible detectado antes de aprender",
+        details: {
+          intent,
+          findingTypes: sensitivity.findings.map((finding) => finding.type),
+          textLength: text.length
+        }
+      });
+
+      return res.status(409).json(buildSensitiveWarning(sensitivity));
     }
 
     const learnResult = localAI.addTrainingExample(intent, text);
@@ -100,6 +118,8 @@ app.post("/api/ai/learn", (req, res) => {
       details: {
         intent,
         added: learnResult.added,
+        backup: learnResult.backup?.name || null,
+        sensitiveConfirmed: sensitivity.sensitive && confirmSensitive,
         textLength: text.length,
         examples: model.examples.length
       }
@@ -120,6 +140,197 @@ app.post("/api/ai/learn", (req, res) => {
       details: { error: error.message }
     });
     res.status(400).json({ error: error.message });
+  }
+});
+
+app.get("/api/ai/examples", (req, res) => {
+  try {
+    res.json({
+      dataset: localAI.getTrainingDataset(),
+      intents: localAI.listIntents(),
+      status: localAI.getModelStatus()
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "ai.examples.failed",
+      message: "No se pudieron listar los ejemplos",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude listar los ejemplos del dataset." });
+  }
+});
+
+app.put("/api/ai/examples/:id", (req, res) => {
+  try {
+    const exampleId = String(req.params.id || "").trim();
+    const text = typeof req.body.text === "string" ? req.body.text.trim() : "";
+    const intent = typeof req.body.intent === "string" ? req.body.intent.trim() : "";
+    const confirmSensitive = req.body.confirmSensitive === true;
+
+    if (!exampleId) {
+      return res.status(400).json({ error: "Falta el ID del ejemplo." });
+    }
+
+    if (!text) {
+      return res.status(400).json({ error: "El ejemplo no puede estar vacio." });
+    }
+
+    if (intent && !localAI.VALID_INTENTS.has(intent)) {
+      return res.status(400).json({ error: "La intencion seleccionada no esta permitida." });
+    }
+
+    const sensitivity = detectSensitiveText(text);
+    if (sensitivity.sensitive && !confirmSensitive) {
+      logger.writeLog({
+        level: "warn",
+        action: "ai.example.update.sensitive_warning",
+        message: "Ejemplo sensible detectado antes de editar",
+        details: {
+          exampleId,
+          intent: intent || null,
+          findingTypes: sensitivity.findings.map((finding) => finding.type),
+          textLength: text.length
+        }
+      });
+
+      return res.status(409).json(buildSensitiveWarning(sensitivity));
+    }
+
+    const updateResult = localAI.updateTrainingExample(exampleId, { text, intent });
+    const model = localAI.trainAndSave();
+
+    logger.writeLog({
+      level: "info",
+      action: "ai.example.update",
+      message: "Ejemplo del dataset editado y modelo reentrenado",
+      details: {
+        exampleId,
+        newExampleId: updateResult.example.id,
+        intent: updateResult.example.intent,
+        backup: updateResult.backup.name,
+        sensitiveConfirmed: sensitivity.sensitive && confirmSensitive,
+        examples: model.examples.length
+      }
+    });
+
+    res.json({
+      ok: true,
+      example: updateResult.example,
+      status: localAI.getModelStatus(),
+      state: buildState()
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "warn",
+      action: "ai.example.update.denied",
+      message: "No se pudo editar el ejemplo",
+      details: { error: error.message }
+    });
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete("/api/ai/examples/:id", (req, res) => {
+  try {
+    const exampleId = String(req.params.id || "").trim();
+    if (!exampleId) {
+      return res.status(400).json({ error: "Falta el ID del ejemplo." });
+    }
+
+    const deleteResult = localAI.deleteTrainingExample(exampleId);
+    const model = localAI.trainAndSave();
+
+    logger.writeLog({
+      level: "info",
+      action: "ai.example.delete",
+      message: "Ejemplo del dataset borrado y modelo reentrenado",
+      details: {
+        exampleId,
+        intent: deleteResult.example.intent,
+        backup: deleteResult.backup.name,
+        examples: model.examples.length
+      }
+    });
+
+    res.json({
+      ok: true,
+      deleted: true,
+      status: localAI.getModelStatus(),
+      state: buildState()
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "warn",
+      action: "ai.example.delete.denied",
+      message: "No se pudo borrar el ejemplo",
+      details: { error: error.message }
+    });
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/api/ai/dataset/export", (req, res) => {
+  try {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      app: "SAW Local",
+      dataset: localAI.loadTrainingData()
+    };
+    const fileName = `atenea-local-dataset-${new Date().toISOString().slice(0, 10)}.json`;
+
+    logger.writeLog({
+      level: "info",
+      action: "ai.dataset.export",
+      message: "Dataset exportado por el usuario",
+      details: {
+        examples: localAI.getTrainingDataset().totalExamples
+      }
+    });
+
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.send(JSON.stringify(payload, null, 2));
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "ai.dataset.export.failed",
+      message: "No se pudo exportar el dataset",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude exportar el dataset." });
+  }
+});
+
+app.post("/api/ai/dataset/restore-base", (req, res) => {
+  try {
+    const restoreResult = localAI.restoreBaseTrainingData();
+    const model = localAI.trainAndSave();
+
+    logger.writeLog({
+      level: "info",
+      action: "ai.dataset.restore_base",
+      message: "Dataset base restaurado y modelo reentrenado",
+      details: {
+        backup: restoreResult.backup.name,
+        examples: model.examples.length
+      }
+    });
+
+    res.json({
+      ok: true,
+      restored: true,
+      status: localAI.getModelStatus(),
+      state: buildState()
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "ai.dataset.restore_base.failed",
+      message: "No se pudo restaurar el dataset base",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude restaurar el dataset base." });
   }
 });
 
@@ -184,6 +395,15 @@ function buildState() {
     memory: memory.getMemory(),
     logs: logger.getRecentLogs(30),
     actions: actions.listActions()
+  };
+}
+
+function buildSensitiveWarning(sensitivity) {
+  return {
+    error: "El ejemplo parece contener datos sensibles.",
+    requiresConfirmation: true,
+    warning: "Se detecto texto sensible. Podes cancelar o confirmar igualmente si estas seguro.",
+    findings: sensitivity.findings
   };
 }
 

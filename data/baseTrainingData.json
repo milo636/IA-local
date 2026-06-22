@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "minConfidence": 0.34,
+  "intents": {
+    "help": [
+      "ayuda",
+      "help",
+      "que comandos hay",
+      "mostrame la ayuda",
+      "necesito ayuda",
+      "lista de comandos",
+      "como te uso",
+      "que podes hacer"
+    ],
+    "open_app": [
+      "abrir chrome",
+      "abrÃ­ chrome",
+      "abre google chrome",
+      "quiero abrir chrome",
+      "iniciar chrome",
+      "abrir bloc de notas",
+      "abrÃ­ el bloc de notas",
+      "abrir notepad",
+      "abrir explorador",
+      "abrÃ­ el explorador de archivos",
+      "abre el explorador",
+      "abrÃ­ chrome por favor"
+    ],
+    "create_folder": [
+      "crear carpeta llamada prueba",
+      "crea una carpeta llamada documentos",
+      "hacer carpeta llamada trabajo en escritorio",
+      "nueva carpeta llamada fotos",
+      "crear carpeta en el escritorio",
+      "crear una carpeta llamada proyecto",
+      "necesito una carpeta llamada notas"
+    ],
+    "list_downloads": [
+      "listar descargas",
+      "listar archivos de descargas",
+      "mostrar descargas",
+      "ver archivos descargados",
+      "que hay en descargas",
+      "mostrame la carpeta descargas",
+      "lista los archivos de downloads"
+    ],
+    "search_files": [
+      "buscar archivos que contengan factura",
+      "busca archivos con presupuesto",
+      "encontrar archivos llamados informe",
+      "buscar pdf",
+      "localizar archivos que contengan foto",
+      "buscar documentos con contrato",
+      "encontrar archivo notas"
+    ],
+    "create_note": [
+      "crear nota llamada ideas con este texto hola",
+      "crear nota llamada compras con este texto leche",
+      "guardar nota llamada recordatorio con este texto llamar",
+      "nueva nota llamada pendientes con este texto revisar",
+      "escribir nota llamada prueba con este texto contenido",
+      "crear archivo de nota llamado diario con este texto hoy"
+    ],
+    "system_status": [
+      "mostrar estado del sistema",
+      "estado del sistema",
+      "ver estado de la computadora",
+      "como esta mi pc",
+      "mostrar informacion del sistema",
+      "estado de windows",
+      "ver memoria y cpu"
+    ],
+    "organize_downloads": [
+      "organizar descargas por tipo",
+      "ordena descargas por tipo",
+      "acomodar descargas por extension",
+      "separar archivos de descargas",
+      "clasificar descargas",
+      "organiza la carpeta descargas",
+      "mover descargas a carpetas por tipo"
+    ],
+    "unknown": [
+      "contame un chiste",
+      "que clima hace",
+      "comprar entradas",
+      "mandar un email",
+      "subir mis archivos",
+      "reproducir musica",
+      "hacer una transferencia",
+      "crear una cuenta"
+    ]
+  }
+}

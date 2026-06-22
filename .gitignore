@@ -6,6 +6,7 @@ Thumbs.db
 .env.*
 *.local
 data/*.broken-*
+data/backups/
 server.out.log
 server.err.log
 output/
