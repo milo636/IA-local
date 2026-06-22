@@ -4,6 +4,8 @@ SAW Local es local-first: la Fase 1 no incluye cuentas, telemetria, analytics, p
 
 La Fase 2.1 mantiene el aprendizaje local y agrega advertencias antes de guardar ejemplos que parezcan contener datos sensibles.
 
+La Fase 3 agrega conversacion local basica. La conversacion no ejecuta acciones: solo responde desde datasets locales y todo comando real sigue pasando por `safety.js` y `permissions.js`.
+
 ## Alcance
 
 Se consideran reportes de seguridad:
@@ -14,6 +16,7 @@ Se consideran reportes de seguridad:
 - Cualquier envio de datos a red no solicitado por el usuario.
 - Persistencia de logs o memoria con informacion sensible innecesaria.
 - Guardado de ejemplos de entrenamiento con emails, contrasenas, tokens, rutas personales, numeros largos o claves privadas sin advertencia previa.
+- Respuestas conversacionales que intenten saltar permisos, ejecutar acciones o enviar datos.
 - Bypass del modo seguro o de permisos locales.
 
 ## Fuera de alcance en Fase 1

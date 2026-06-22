@@ -579,13 +579,16 @@ button {
   color: var(--amber);
 }
 
-.correction-form {
+.correction-form,
+.conversation-learn-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
 }
 
-.correction-form select {
+.correction-form select,
+.conversation-learn-form select,
+.conversation-learn-form textarea {
   min-width: 0;
   min-height: 36px;
   border: 1px solid var(--line-strong);
@@ -593,6 +596,13 @@ button {
   background: #0f1620;
   color: var(--text);
   padding: 0 10px;
+}
+
+.conversation-learn-form textarea {
+  grid-column: 1 / -1;
+  min-height: 72px;
+  padding: 9px 10px;
+  resize: vertical;
 }
 
 .learn-button {
@@ -854,7 +864,8 @@ button {
     max-height: none;
   }
 
-  .correction-form {
+  .correction-form,
+  .conversation-learn-form {
     grid-template-columns: 1fr;
   }
 }

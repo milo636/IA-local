@@ -2,6 +2,8 @@ const state = {
   ai: {},
   actions: [],
   busy: false,
+  conversation: {},
+  conversationIntents: [],
   debugMode: localStorage.getItem("sawLocalDebug") === "true",
   examples: [],
   examplesFilter: "all",
@@ -23,6 +25,10 @@ const elements = {
   clearChatButton: document.querySelector("#clearChatButton"),
   confirmButton: document.querySelector("#confirmButton"),
   confirmSensitiveButton: document.querySelector("#confirmSensitiveButton"),
+  conversationLastTrained: document.querySelector("#conversationLastTrained"),
+  conversationLearnedCount: document.querySelector("#conversationLearnedCount"),
+  conversationModelBadge: document.querySelector("#conversationModelBadge"),
+  conversationResponseCount: document.querySelector("#conversationResponseCount"),
   debugModeButton: document.querySelector("#debugModeButton"),
   examplesIntentFilter: document.querySelector("#examplesIntentFilter"),
   examplesList: document.querySelector("#examplesList"),
@@ -35,6 +41,7 @@ const elements = {
   quickCommands: document.querySelector("#quickCommands"),
   refreshExamplesButton: document.querySelector("#refreshExamplesButton"),
   retrainAIButton: document.querySelector("#retrainAIButton"),
+  retrainConversationButton: document.querySelector("#retrainConversationButton"),
   restoreDatasetButton: document.querySelector("#restoreDatasetButton"),
   safeModeBadge: document.querySelector("#safeModeBadge"),
   sendButton: document.querySelector("#sendButton"),
@@ -125,6 +132,10 @@ elements.retrainAIButton.addEventListener("click", () => {
   retrainAI();
 });
 
+elements.retrainConversationButton.addEventListener("click", () => {
+  retrainConversation();
+});
+
 async function boot() {
   const response = await fetch("/api/state");
   const payload = await response.json();
@@ -132,6 +143,10 @@ async function boot() {
 
   if (!state.intents.length) {
     await refreshIntents();
+  }
+
+  if (!state.conversationIntents.length) {
+    await refreshConversationIntents();
   }
 
   await refreshExamples();
@@ -220,6 +235,26 @@ async function retrainAI() {
   }
 }
 
+async function retrainConversation() {
+  setBusy(true);
+  try {
+    const response = await fetch("/api/conversation/train", { method: "POST" });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      addTransientAssistantMessage(payload.error || "No pude reentrenar la conversacion.");
+      return;
+    }
+
+    applyState(payload.state);
+    addTransientAssistantMessage("Modelo conversacional reentrenado.");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude reentrenar la conversacion: ${error.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
 async function refreshIntents() {
   const response = await fetch("/api/ai/intents");
   const payload = await response.json();
@@ -228,6 +263,56 @@ async function refreshIntents() {
   renderAiPanel();
   renderExamplesFilter();
   renderMessages();
+}
+
+async function refreshConversationIntents() {
+  const response = await fetch("/api/conversation/intents");
+  const payload = await response.json();
+  state.conversationIntents = payload.intents || [];
+  state.conversation = payload.status || state.conversation;
+  renderConversationPanel();
+  renderMessages();
+}
+
+async function learnConversationResponse(text, intent, responseText, options = {}) {
+  setBusy(true);
+  try {
+    const response = await fetch("/api/conversation/learn", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        intent,
+        response: responseText,
+        confirmSensitive: options.confirmSensitive === true
+      })
+    });
+    const payload = await response.json();
+
+    if (response.status === 409 && payload.requiresConfirmation) {
+      showSensitiveWarning({
+        operation: "conversation",
+        text,
+        intent,
+        responseText,
+        findings: payload.findings || [],
+        warning: payload.warning
+      });
+      return;
+    }
+
+    if (!response.ok) {
+      addTransientAssistantMessage(payload.error || "No pude aprender la respuesta.");
+      return;
+    }
+
+    applyState(payload.state);
+    addTransientAssistantMessage(payload.addedResponse ? "Aprendi la respuesta y reentrene la conversacion." : "Esa respuesta ya existia. Reentrene la conversacion.");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude aprender la respuesta: ${error.message}`);
+  } finally {
+    setBusy(false);
+  }
 }
 
 async function refreshExamples() {
@@ -254,12 +339,15 @@ async function refreshExamples() {
 function applyState(nextState) {
   state.ai = nextState.ai || state.ai || {};
   state.actions = nextState.actions || [];
+  state.conversation = nextState.conversation || state.conversation || {};
+  state.conversationIntents = nextState.conversationIntents || state.conversationIntents || [];
   state.intents = nextState.intents || state.intents || [];
   state.logs = nextState.logs || [];
   state.memory = nextState.memory || { messages: [], pendingAction: null };
   state.settings = nextState.settings || {};
 
   renderAiPanel();
+  renderConversationPanel();
   renderSettings();
   renderActions();
   renderQuickCommands();
@@ -279,6 +367,15 @@ function renderAiPanel() {
   elements.aiExampleCount.textContent = String(state.ai.exampleCount || 0);
   elements.aiIntentCount.textContent = String(state.ai.intentCount || state.intents.length || 0);
   elements.aiLastTrained.textContent = state.ai.lastTrainedAt ? formatDateTime(state.ai.lastTrainedAt) : "Nunca";
+}
+
+function renderConversationPanel() {
+  const available = Boolean(state.conversation.available);
+  elements.conversationModelBadge.textContent = available ? "Entrenado" : "Sin modelo";
+  elements.conversationModelBadge.className = `status-pill ${available ? "status-ok" : "status-warn"}`;
+  elements.conversationResponseCount.textContent = String(state.conversation.responseCount || 0);
+  elements.conversationLearnedCount.textContent = String(state.conversation.learnedResponseCount || 0);
+  elements.conversationLastTrained.textContent = state.conversation.lastTrainedAt ? formatDateTime(state.conversation.lastTrainedAt) : "Nunca";
 }
 
 function renderDebugButton() {
@@ -431,11 +528,25 @@ function createDebugPanel(message) {
   const local = document.createElement("span");
   local.textContent = meta.usedLocalAI ? "IA local: si" : "IA local: no";
 
-  debugLine.append(intent, confidence, local);
+  const domain = document.createElement("span");
+  domain.textContent = `Modo: ${meta.aiDomain || "sistema"}`;
+
+  debugLine.append(intent, confidence, local, domain);
+
+  if (meta.aiDomain === "conversation") {
+    const origin = document.createElement("span");
+    origin.textContent = `Origen: ${meta.responseOrigin || "base"}`;
+    debugLine.append(origin);
+  }
+
   panel.append(debugLine);
 
   if (meta.canLearn && meta.originalText && state.intents.length) {
     panel.append(createCorrectionForm(meta));
+  }
+
+  if (meta.canLearnResponse && meta.originalText && state.conversationIntents.length) {
+    panel.append(createConversationLearningForm(meta));
   }
 
   return panel;
@@ -477,6 +588,60 @@ function createCorrectionForm(meta) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     await learnIntent(meta.originalText, select.value);
+  });
+
+  toggle.addEventListener("click", () => {
+    form.hidden = !form.hidden;
+  });
+
+  wrapper.append(toggle, form);
+  return wrapper;
+}
+
+function createConversationLearningForm(meta) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "correction-box";
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "correction-toggle";
+  toggle.textContent = "Aprender respuesta";
+
+  const form = document.createElement("form");
+  form.className = "conversation-learn-form";
+  form.hidden = true;
+
+  const select = document.createElement("select");
+  select.setAttribute("aria-label", "Seleccionar intencion conversacional");
+
+  state.conversationIntents
+    .filter((intent) => intent.id !== "unknown")
+    .forEach((intent) => {
+      const option = document.createElement("option");
+      option.value = intent.id;
+      option.textContent = `${intent.label} (${intent.id})`;
+      select.append(option);
+    });
+
+  if (meta.detectedIntent && state.conversationIntents.some((intent) => intent.id === meta.detectedIntent && intent.id !== "unknown")) {
+    select.value = meta.detectedIntent;
+  }
+
+  const response = document.createElement("textarea");
+  response.rows = 3;
+  response.maxLength = 500;
+  response.placeholder = "Escribi la respuesta correcta...";
+  response.setAttribute("aria-label", "Nueva respuesta conversacional");
+
+  const submit = document.createElement("button");
+  submit.type = "submit";
+  submit.className = "learn-button";
+  submit.textContent = "Guardar respuesta";
+
+  form.append(select, response, submit);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await learnConversationResponse(meta.originalText, select.value, response.value);
   });
 
   toggle.addEventListener("click", () => {
@@ -715,6 +880,11 @@ async function confirmSensitiveSave() {
 
   if (pending.operation === "edit") {
     await updateExample(pending.id, pending.text, pending.intent, { confirmSensitive: true });
+    return;
+  }
+
+  if (pending.operation === "conversation") {
+    await learnConversationResponse(pending.text, pending.intent, pending.responseText, { confirmSensitive: true });
   }
 }
 
@@ -798,6 +968,7 @@ function setBusy(value) {
   elements.sendButton.disabled = value;
   elements.messageInput.disabled = value;
   elements.retrainAIButton.disabled = value;
+  elements.retrainConversationButton.disabled = value;
   elements.refreshExamplesButton.disabled = value;
   elements.exportDatasetButton.disabled = value;
   elements.restoreDatasetButton.disabled = value;

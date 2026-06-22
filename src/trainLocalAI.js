@@ -1,4 +1,5 @@
 const localAI = require("./localAI");
+const conversationAI = require("./conversationAI");
 
 function main() {
   const [command, intent, ...textParts] = process.argv.slice(2);
@@ -14,7 +15,9 @@ function main() {
   }
 
   const model = localAI.trainAndSave();
+  const conversationModel = conversationAI.trainAndSave();
   console.log(`Modelo local entrenado: ${model.examples.length} ejemplos, ${model.intents.length} intenciones.`);
+  console.log(`Modelo conversacional entrenado: ${conversationModel.examples.length} ejemplos, ${conversationModel.intents.length} intenciones.`);
 }
 
 try {

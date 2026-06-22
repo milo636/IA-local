@@ -1,0 +1,821 @@
+{
+  "modelVersion": 1,
+  "trainedAt": "2026-06-22T13:49:55.445Z",
+  "minConfidence": 0.34,
+  "maxContextMessages": 6,
+  "intents": [
+    "greeting",
+    "farewell",
+    "identity",
+    "capabilities",
+    "how_it_works",
+    "help",
+    "thanks",
+    "acknowledgement",
+    "unknown"
+  ],
+  "tokenWeights": {
+    "hola": 3.8904,
+    "buenas": 3.6027,
+    "buen": 4.2958,
+    "dia": 4.2958,
+    "tardes": 4.2958,
+    "tal": 4.2958,
+    "como": 2.9095,
+    "estas": 4.2958,
+    "atenea": 3.1972,
+    "noches": 4.2958,
+    "chau": 4.2958,
+    "hasta": 3.8904,
+    "luego": 4.2958,
+    "nos": 4.2958,
+    "vemos": 4.2958,
+    "adios": 4.2958,
+    "voy": 4.2958,
+    "despues": 4.2958,
+    "quien": 3.8904,
+    "sos": 3.6027,
+    "eres": 4.2958,
+    "te": 3.8904,
+    "llamas": 4.2958,
+    "presentate": 4.2958,
+    "podes": 3.6027,
+    "hacer": 3.6027,
+    "sabes": 4.2958,
+    "para": 3.8904,
+    "servis": 4.2958,
+    "funciones": 3.8904,
+    "tenes": 4.2958,
+    "ayudar": 4.2958,
+    "tareas": 4.2958,
+    "funcionas": 4.2958,
+    "trabajas": 4.2958,
+    "entendes": 4.2958,
+    "mensajes": 4.2958,
+    "usas": 3.8904,
+    "internet": 4.2958,
+    "servidores": 4.2958,
+    "aprende": 4.2958,
+    "mostrar": 4.2958,
+    "comandos": 3.8904,
+    "explicar": 3.8904,
+    "permisos": 3.8904,
+    "ayudame": 4.2958,
+    "usar": 3.8904,
+    "uso": 4.2958,
+    "puedo": 4.2958,
+    "gracias": 3.3795,
+    "muchas": 4.2958,
+    "agradezco": 4.2958,
+    "mil": 4.2958,
+    "perfecto": 4.2958,
+    "entendido": 4.2958,
+    "genial": 4.2958,
+    "ok": 4.2958,
+    "dale": 4.2958,
+    "bien": 4.2958,
+    "listo": 4.2958,
+    "no": 4.2958,
+    "se": 4.2958,
+    "decir": 4.2958,
+    "cualquier": 4.2958,
+    "cosa": 4.2958,
+    "rara": 4.2958,
+    "texto": 4.2958,
+    "sin": 4.2958,
+    "sentido": 4.2958,
+    "conversar": 4.2958
+  },
+  "profiles": {
+    "greeting": {
+      "hola": 0.4927,
+      "buenas": 0.6352,
+      "buen": 0.1966,
+      "dia": 0.1966,
+      "tardes": 0.213,
+      "tal": 0.278,
+      "como": 0.1559,
+      "estas": 0.2302,
+      "atenea": 0.1765,
+      "noches": 0.213
+    },
+    "farewell": {
+      "chau": 0.3807,
+      "hasta": 0.5111,
+      "luego": 0.2821,
+      "nos": 0.2692,
+      "vemos": 0.2692,
+      "adios": 0.3807,
+      "voy": 0.3807,
+      "despues": 0.2821
+    },
+    "identity": {
+      "quien": 0.4264,
+      "sos": 0.7367,
+      "eres": 0.225,
+      "como": 0.1362,
+      "te": 0.1821,
+      "llamas": 0.201,
+      "atenea": 0.2015,
+      "presentate": 0.3035
+    },
+    "capabilities": {
+      "podes": 0.5769,
+      "hacer": 0.5769,
+      "sabes": 0.2338,
+      "para": 0.2049,
+      "servis": 0.2262,
+      "funciones": 0.2049,
+      "tenes": 0.2262,
+      "ayudar": 0.2338,
+      "tareas": 0.1967
+    },
+    "how_it_works": {
+      "como": 0.6428,
+      "funcionas": 0.2621,
+      "trabajas": 0.2621,
+      "entendes": 0.2018,
+      "mensajes": 0.2018,
+      "usas": 0.4249,
+      "internet": 0.2346,
+      "servidores": 0.2346,
+      "aprende": 0.2231,
+      "atenea": 0.166
+    },
+    "help": {
+      "mostrar": 0.2437,
+      "comandos": 0.4039,
+      "explicar": 0.4649,
+      "funciones": 0.2325,
+      "permisos": 0.4297,
+      "ayudame": 0.2134,
+      "usar": 0.3765,
+      "atenea": 0.1588,
+      "como": 0.1475,
+      "uso": 0.2178,
+      "puedo": 0.2023
+    },
+    "thanks": {
+      "gracias": 0.8742,
+      "muchas": 0.2319,
+      "te": 0.1981,
+      "agradezco": 0.2187,
+      "mil": 0.2319,
+      "atenea": 0.2028
+    },
+    "acknowledgement": {
+      "perfecto": 0.378,
+      "entendido": 0.378,
+      "genial": 0.378,
+      "ok": 0.378,
+      "dale": 0.378,
+      "bien": 0.378,
+      "listo": 0.378
+    },
+    "unknown": {
+      "no": 0.3333,
+      "se": 0.3333,
+      "decir": 0.3333,
+      "cualquier": 0.3333,
+      "cosa": 0.3333,
+      "rara": 0.3333,
+      "texto": 0.263,
+      "sin": 0.263,
+      "sentido": 0.263,
+      "para": 0.2381,
+      "conversar": 0.263
+    }
+  },
+  "examples": [
+    {
+      "intent": "greeting",
+      "text": "hola",
+      "tokens": [
+        "hola"
+      ],
+      "vector": {
+        "hola": 1
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "buenas",
+      "tokens": [
+        "buenas"
+      ],
+      "vector": {
+        "buenas": 1
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "buen dia",
+      "tokens": [
+        "buen",
+        "dia"
+      ],
+      "vector": {
+        "buen": 0.7071,
+        "dia": 0.7071
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "buenas tardes",
+      "tokens": [
+        "buenas",
+        "tardes"
+      ],
+      "vector": {
+        "buenas": 0.6426,
+        "tardes": 0.7662
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "que tal",
+      "tokens": [
+        "tal"
+      ],
+      "vector": {
+        "tal": 1
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "como estas",
+      "tokens": [
+        "como",
+        "estas"
+      ],
+      "vector": {
+        "como": 0.5608,
+        "estas": 0.828
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "hola atenea",
+      "tokens": [
+        "hola",
+        "atenea"
+      ],
+      "vector": {
+        "hola": 0.7726,
+        "atenea": 0.6349
+      }
+    },
+    {
+      "intent": "greeting",
+      "text": "buenas noches",
+      "tokens": [
+        "buenas",
+        "noches"
+      ],
+      "vector": {
+        "buenas": 0.6426,
+        "noches": 0.7662
+      }
+    },
+    {
+      "intent": "farewell",
+      "text": "chau",
+      "tokens": [
+        "chau"
+      ],
+      "vector": {
+        "chau": 1
+      }
+    },
+    {
+      "intent": "farewell",
+      "text": "hasta luego",
+      "tokens": [
+        "hasta",
+        "luego"
+      ],
+      "vector": {
+        "hasta": 0.6713,
+        "luego": 0.7412
+      }
+    },
+    {
+      "intent": "farewell",
+      "text": "nos vemos",
+      "tokens": [
+        "nos",
+        "vemos"
+      ],
+      "vector": {
+        "nos": 0.7071,
+        "vemos": 0.7071
+      }
+    },
+    {
+      "intent": "farewell",
+      "text": "adios",
+      "tokens": [
+        "adios"
+      ],
+      "vector": {
+        "adios": 1
+      }
+    },
+    {
+      "intent": "farewell",
+      "text": "me voy",
+      "tokens": [
+        "voy"
+      ],
+      "vector": {
+        "voy": 1
+      }
+    },
+    {
+      "intent": "farewell",
+      "text": "hasta despues",
+      "tokens": [
+        "hasta",
+        "despues"
+      ],
+      "vector": {
+        "hasta": 0.6713,
+        "despues": 0.7412
+      }
+    },
+    {
+      "intent": "identity",
+      "text": "quien sos",
+      "tokens": [
+        "quien",
+        "sos"
+      ],
+      "vector": {
+        "quien": 0.7337,
+        "sos": 0.6795
+      }
+    },
+    {
+      "intent": "identity",
+      "text": "quien eres",
+      "tokens": [
+        "quien",
+        "eres"
+      ],
+      "vector": {
+        "quien": 0.6713,
+        "eres": 0.7412
+      }
+    },
+    {
+      "intent": "identity",
+      "text": "como te llamas",
+      "tokens": [
+        "como",
+        "te",
+        "llamas"
+      ],
+      "vector": {
+        "como": 0.4487,
+        "te": 0.5999,
+        "llamas": 0.6624
+      }
+    },
+    {
+      "intent": "identity",
+      "text": "sos atenea",
+      "tokens": [
+        "sos",
+        "atenea"
+      ],
+      "vector": {
+        "sos": 0.7479,
+        "atenea": 0.6638
+      }
+    },
+    {
+      "intent": "identity",
+      "text": "que sos",
+      "tokens": [
+        "sos"
+      ],
+      "vector": {
+        "sos": 1
+      }
+    },
+    {
+      "intent": "identity",
+      "text": "presentate",
+      "tokens": [
+        "presentate"
+      ],
+      "vector": {
+        "presentate": 1
+      }
+    },
+    {
+      "intent": "capabilities",
+      "text": "que podes hacer",
+      "tokens": [
+        "podes",
+        "hacer"
+      ],
+      "vector": {
+        "podes": 0.7071,
+        "hacer": 0.7071
+      }
+    },
+    {
+      "intent": "capabilities",
+      "text": "que sabes hacer",
+      "tokens": [
+        "sabes",
+        "hacer"
+      ],
+      "vector": {
+        "sabes": 0.7662,
+        "hacer": 0.6426
+      }
+    },
+    {
+      "intent": "capabilities",
+      "text": "para que servis",
+      "tokens": [
+        "para",
+        "servis"
+      ],
+      "vector": {
+        "para": 0.6713,
+        "servis": 0.7412
+      }
+    },
+    {
+      "intent": "capabilities",
+      "text": "que funciones tenes",
+      "tokens": [
+        "funciones",
+        "tenes"
+      ],
+      "vector": {
+        "funciones": 0.6713,
+        "tenes": 0.7412
+      }
+    },
+    {
+      "intent": "capabilities",
+      "text": "en que me podes ayudar",
+      "tokens": [
+        "podes",
+        "ayudar"
+      ],
+      "vector": {
+        "podes": 0.6426,
+        "ayudar": 0.7662
+      }
+    },
+    {
+      "intent": "capabilities",
+      "text": "que tareas podes hacer",
+      "tokens": [
+        "tareas",
+        "podes",
+        "hacer"
+      ],
+      "vector": {
+        "tareas": 0.6446,
+        "podes": 0.5406,
+        "hacer": 0.5406
+      }
+    },
+    {
+      "intent": "how_it_works",
+      "text": "como funcionas",
+      "tokens": [
+        "como",
+        "funcionas"
+      ],
+      "vector": {
+        "como": 0.5608,
+        "funcionas": 0.828
+      }
+    },
+    {
+      "intent": "how_it_works",
+      "text": "como trabajas",
+      "tokens": [
+        "como",
+        "trabajas"
+      ],
+      "vector": {
+        "como": 0.5608,
+        "trabajas": 0.828
+      }
+    },
+    {
+      "intent": "how_it_works",
+      "text": "como entendes los mensajes",
+      "tokens": [
+        "como",
+        "entendes",
+        "mensajes"
+      ],
+      "vector": {
+        "como": 0.4319,
+        "entendes": 0.6377,
+        "mensajes": 0.6377
+      }
+    },
+    {
+      "intent": "how_it_works",
+      "text": "usas internet",
+      "tokens": [
+        "usas",
+        "internet"
+      ],
+      "vector": {
+        "usas": 0.6713,
+        "internet": 0.7412
+      }
+    },
+    {
+      "intent": "how_it_works",
+      "text": "usas servidores",
+      "tokens": [
+        "usas",
+        "servidores"
+      ],
+      "vector": {
+        "usas": 0.6713,
+        "servidores": 0.7412
+      }
+    },
+    {
+      "intent": "how_it_works",
+      "text": "como aprende atenea",
+      "tokens": [
+        "como",
+        "aprende",
+        "atenea"
+      ],
+      "vector": {
+        "como": 0.4774,
+        "aprende": 0.7049,
+        "atenea": 0.5246
+      }
+    },
+    {
+      "intent": "help",
+      "text": "mostrar comandos",
+      "tokens": [
+        "mostrar",
+        "comandos"
+      ],
+      "vector": {
+        "mostrar": 0.7412,
+        "comandos": 0.6713
+      }
+    },
+    {
+      "intent": "help",
+      "text": "explicar funciones",
+      "tokens": [
+        "explicar",
+        "funciones"
+      ],
+      "vector": {
+        "explicar": 0.7071,
+        "funciones": 0.7071
+      }
+    },
+    {
+      "intent": "help",
+      "text": "explicar permisos",
+      "tokens": [
+        "explicar",
+        "permisos"
+      ],
+      "vector": {
+        "explicar": 0.7071,
+        "permisos": 0.7071
+      }
+    },
+    {
+      "intent": "help",
+      "text": "ayudame a usar atenea",
+      "tokens": [
+        "ayudame",
+        "usar",
+        "atenea"
+      ],
+      "vector": {
+        "ayudame": 0.649,
+        "usar": 0.5878,
+        "atenea": 0.483
+      }
+    },
+    {
+      "intent": "help",
+      "text": "como uso los permisos",
+      "tokens": [
+        "como",
+        "uso",
+        "permisos"
+      ],
+      "vector": {
+        "como": 0.4487,
+        "uso": 0.6624,
+        "permisos": 0.5999
+      }
+    },
+    {
+      "intent": "help",
+      "text": "que comandos puedo usar",
+      "tokens": [
+        "comandos",
+        "puedo",
+        "usar"
+      ],
+      "vector": {
+        "comandos": 0.5573,
+        "puedo": 0.6154,
+        "usar": 0.5573
+      }
+    },
+    {
+      "intent": "thanks",
+      "text": "gracias",
+      "tokens": [
+        "gracias"
+      ],
+      "vector": {
+        "gracias": 1
+      }
+    },
+    {
+      "intent": "thanks",
+      "text": "muchas gracias",
+      "tokens": [
+        "muchas",
+        "gracias"
+      ],
+      "vector": {
+        "muchas": 0.7859,
+        "gracias": 0.6183
+      }
+    },
+    {
+      "intent": "thanks",
+      "text": "te agradezco",
+      "tokens": [
+        "te",
+        "agradezco"
+      ],
+      "vector": {
+        "te": 0.6713,
+        "agradezco": 0.7412
+      }
+    },
+    {
+      "intent": "thanks",
+      "text": "mil gracias",
+      "tokens": [
+        "mil",
+        "gracias"
+      ],
+      "vector": {
+        "mil": 0.7859,
+        "gracias": 0.6183
+      }
+    },
+    {
+      "intent": "thanks",
+      "text": "gracias atenea",
+      "tokens": [
+        "gracias",
+        "atenea"
+      ],
+      "vector": {
+        "gracias": 0.7264,
+        "atenea": 0.6872
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "perfecto",
+      "tokens": [
+        "perfecto"
+      ],
+      "vector": {
+        "perfecto": 1
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "entendido",
+      "tokens": [
+        "entendido"
+      ],
+      "vector": {
+        "entendido": 1
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "genial",
+      "tokens": [
+        "genial"
+      ],
+      "vector": {
+        "genial": 1
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "ok",
+      "tokens": [
+        "ok"
+      ],
+      "vector": {
+        "ok": 1
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "dale",
+      "tokens": [
+        "dale"
+      ],
+      "vector": {
+        "dale": 1
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "bien",
+      "tokens": [
+        "bien"
+      ],
+      "vector": {
+        "bien": 1
+      }
+    },
+    {
+      "intent": "acknowledgement",
+      "text": "listo",
+      "tokens": [
+        "listo"
+      ],
+      "vector": {
+        "listo": 1
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "no se que decir",
+      "tokens": [
+        "no",
+        "se",
+        "decir"
+      ],
+      "vector": {
+        "no": 0.5774,
+        "se": 0.5774,
+        "decir": 0.5774
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "cualquier cosa rara",
+      "tokens": [
+        "cualquier",
+        "cosa",
+        "rara"
+      ],
+      "vector": {
+        "cualquier": 0.5774,
+        "cosa": 0.5774,
+        "rara": 0.5774
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "texto sin sentido para conversar",
+      "tokens": [
+        "texto",
+        "sin",
+        "sentido",
+        "para",
+        "conversar"
+      ],
+      "vector": {
+        "texto": 0.4555,
+        "sin": 0.4555,
+        "sentido": 0.4555,
+        "para": 0.4125,
+        "conversar": 0.4555
+      }
+    }
+  ],
+  "responseCount": 22,
+  "learnedResponseCount": 0
+}

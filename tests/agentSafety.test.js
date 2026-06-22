@@ -39,6 +39,22 @@ test("la respuesta de chat incluye metadata de IA local", async () => {
   });
 });
 
+test("la conversacion basica no ejecuta acciones", async () => {
+  await withLocalDataBackup(async () => {
+    resetRuntimeData();
+    const result = await handleMessage("hola");
+
+    assert.equal(result.detectedIntent, "greeting");
+    assert.equal(result.usedLocalAI, true);
+    assert.equal(result.canLearnResponse, true);
+    assert.match(result.reply, /Hola|Buenas/);
+
+    const logs = JSON.parse(fs.readFileSync(LOGS_PATH, "utf8"));
+    assert.ok(logs.some((log) => log.action === "conversation.greeting"));
+    assert.equal(logs.some((log) => String(log.action).startsWith("action.")), false);
+  });
+});
+
 async function withLocalDataBackup(callback) {
   const originalMemory = fs.readFileSync(MEMORY_PATH, "utf8");
   const originalLogs = fs.readFileSync(LOGS_PATH, "utf8");
@@ -49,4 +65,9 @@ async function withLocalDataBackup(callback) {
     fs.writeFileSync(MEMORY_PATH, originalMemory, "utf8");
     fs.writeFileSync(LOGS_PATH, originalLogs, "utf8");
   }
+}
+
+function resetRuntimeData() {
+  fs.writeFileSync(LOGS_PATH, "[]\n", "utf8");
+  fs.writeFileSync(MEMORY_PATH, '{\n  "messages": [],\n  "pendingAction": null\n}\n', "utf8");
 }

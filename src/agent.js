@@ -1,10 +1,11 @@
 const actions = require("./actions");
+const conversationAI = require("./conversationAI");
 const logger = require("./logger");
 const localAI = require("./localAI");
 const memory = require("./memory");
 const permissions = require("./permissions");
 const safety = require("./safety");
-const { parseActionFromIntent } = require("./commandParser");
+const { parseActionFromIntent, parseCommand } = require("./commandParser");
 
 async function handleMessage(message) {
   const text = String(message || "").trim();
@@ -25,6 +26,13 @@ async function handleMessage(message) {
   const responseAiMeta = buildAiMeta(aiResult, text, true);
   const parsedAction = parseActionFromIntent(aiResult.intent, text);
   parsedAction.original = text;
+  const conversationResult = conversationAI.respondToConversation(text, {
+    history: memory.getMemory().messages
+  });
+
+  if (shouldUseConversation(text, parsedAction, conversationResult)) {
+    return respondConversation(conversationResult, text, aiResult);
+  }
 
   if (aiResult.intent === "unknown" || parsedAction.type === "unknown") {
     return respond(
@@ -86,6 +94,23 @@ async function handleMessage(message) {
   }
 
   return executeAllowedAction(parsedAction);
+}
+
+function shouldUseConversation(text, parsedAction, conversationResult) {
+  const exactAction = parseCommand(text);
+  if (conversationResult.intent === "unknown") {
+    return parsedAction.type === "unknown";
+  }
+
+  if (parsedAction.type === "unknown") {
+    return true;
+  }
+
+  if (exactAction.type !== "unknown") {
+    return false;
+  }
+
+  return conversationResult.confidence >= 0.46;
 }
 
 function cancelPendingActionIfUserContinues(text) {
@@ -177,6 +202,32 @@ async function executeAllowedAction(action, meta = {}) {
   }
 }
 
+function respondConversation(conversationResult, originalText, commandAiResult) {
+  const conversationMeta = buildConversationMeta(conversationResult, originalText, commandAiResult);
+  logger.writeLog({
+    level: conversationResult.intent === "unknown" ? "info" : "info",
+    action: `conversation.${conversationResult.intent}`,
+    message: conversationResult.intent === "unknown" ? "Respuesta conversacional fallback" : "Respuesta conversacional generada",
+    details: {
+      intent: conversationResult.intent,
+      confidence: conversationResult.confidence,
+      responseOrigin: conversationResult.responseOrigin,
+      commandIntent: commandAiResult?.intent || null,
+      commandConfidence: commandAiResult?.confidence || 0
+    }
+  });
+
+  return respond(
+    conversationResult.reply,
+    {
+      level: "info",
+      action: `conversation.${conversationResult.intent}`,
+      summary: "Respuesta conversacional."
+    },
+    { skipLog: true, aiMeta: conversationMeta }
+  );
+}
+
 function guardAction(action) {
   const definition = actions.getActionDefinition(action.type);
   if (!definition) {
@@ -223,13 +274,18 @@ function respond(content, logEntry, options = {}) {
   const responseAiMeta = options.aiMeta || buildAiMeta(null, null, false);
 
   memory.addMessage("assistant", content, {
+    aiDomain: responseAiMeta.aiDomain,
     action: logEntry.action,
     level: logEntry.level,
     detectedIntent: responseAiMeta.detectedIntent,
     confidence: responseAiMeta.confidence,
     usedLocalAI: responseAiMeta.usedLocalAI,
     canLearn: responseAiMeta.canLearn,
-    originalText: responseAiMeta.originalText
+    canLearnResponse: responseAiMeta.canLearnResponse,
+    originalText: responseAiMeta.originalText,
+    responseOrigin: responseAiMeta.responseOrigin,
+    commandIntent: responseAiMeta.commandIntent || null,
+    commandConfidence: responseAiMeta.commandConfidence || 0
   });
 
   if (!options.skipLog) {
@@ -259,11 +315,29 @@ function respond(content, logEntry, options = {}) {
 
 function buildAiMeta(aiResult, originalText, canLearn) {
   return {
+    aiDomain: aiResult ? "command" : null,
     detectedIntent: aiResult?.intent || null,
     confidence: Number(aiResult?.confidence || 0),
     usedLocalAI: Boolean(aiResult),
     canLearn: Boolean(canLearn && aiResult && originalText),
-    originalText: originalText || null
+    canLearnResponse: false,
+    originalText: originalText || null,
+    responseOrigin: null
+  };
+}
+
+function buildConversationMeta(conversationResult, originalText, commandAiResult) {
+  return {
+    aiDomain: "conversation",
+    detectedIntent: conversationResult.intent,
+    confidence: Number(conversationResult.confidence || 0),
+    usedLocalAI: true,
+    canLearn: false,
+    canLearnResponse: Boolean(originalText),
+    originalText: originalText || null,
+    responseOrigin: conversationResult.responseOrigin || "base",
+    commandIntent: commandAiResult?.intent || null,
+    commandConfidence: Number(commandAiResult?.confidence || 0)
   };
 }
 

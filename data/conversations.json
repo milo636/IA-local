@@ -1,0 +1,211 @@
+{
+  "version": 1,
+  "minConfidence": 0.34,
+  "maxContextMessages": 6,
+  "intents": {
+    "greeting": {
+      "label": "Saludos",
+      "examples": [
+        "hola",
+        "buenas",
+        "buen dia",
+        "buenas tardes",
+        "que tal",
+        "como estas",
+        "hola atenea",
+        "buenas noches"
+      ],
+      "responses": [
+        {
+          "text": "Hola. En que puedo ayudarte?",
+          "source": "base"
+        },
+        {
+          "text": "Hola, soy Atenea Local. Estoy lista para ayudarte desde esta computadora.",
+          "source": "base"
+        },
+        {
+          "text": "Buenas. Decime que queres hacer.",
+          "source": "base"
+        }
+      ]
+    },
+    "farewell": {
+      "label": "Despedidas",
+      "examples": [
+        "chau",
+        "hasta luego",
+        "nos vemos",
+        "adios",
+        "me voy",
+        "hasta despues"
+      ],
+      "responses": [
+        {
+          "text": "Hasta luego.",
+          "source": "base"
+        },
+        {
+          "text": "Nos vemos. Cuando vuelvas sigo aca, local y lista.",
+          "source": "base"
+        },
+        {
+          "text": "Chau. Que tengas un buen dia.",
+          "source": "base"
+        }
+      ]
+    },
+    "identity": {
+      "label": "Identidad",
+      "examples": [
+        "quien sos",
+        "quien eres",
+        "como te llamas",
+        "sos atenea",
+        "que sos",
+        "presentate"
+      ],
+      "responses": [
+        {
+          "text": "Soy Atenea Local, una IA que funciona en tu computadora.",
+          "source": "base"
+        },
+        {
+          "text": "Soy Atenea Local. Estoy pensada para ayudarte con tareas locales sin mandar tus datos a servidores externos.",
+          "source": "base"
+        }
+      ]
+    },
+    "capabilities": {
+      "label": "Capacidades",
+      "examples": [
+        "que podes hacer",
+        "que sabes hacer",
+        "para que servis",
+        "que funciones tenes",
+        "en que me podes ayudar",
+        "que tareas podes hacer"
+      ],
+      "responses": [
+        {
+          "text": "Puedo ayudarte con automatizaciones, archivos y tareas locales.",
+          "source": "base"
+        },
+        {
+          "text": "Puedo abrir apps permitidas, crear carpetas, listar descargas, buscar archivos, crear notas y explicar mis permisos.",
+          "source": "base"
+        }
+      ]
+    },
+    "how_it_works": {
+      "label": "Funcionamiento",
+      "examples": [
+        "como funcionas",
+        "como trabajas",
+        "como entendes los mensajes",
+        "usas internet",
+        "usas servidores",
+        "como aprende atenea"
+      ],
+      "responses": [
+        {
+          "text": "Funciono localmente. Uso datasets JSON y clasificadores simples hechos en Node.js.",
+          "source": "base"
+        },
+        {
+          "text": "No uso modelos externos. Interpreto texto con ejemplos locales, pesos por palabra y reglas de seguridad.",
+          "source": "base"
+        }
+      ]
+    },
+    "help": {
+      "label": "Ayuda conversacional",
+      "examples": [
+        "mostrar comandos",
+        "explicar funciones",
+        "explicar permisos",
+        "ayudame a usar atenea",
+        "como uso los permisos",
+        "que comandos puedo usar"
+      ],
+      "responses": [
+        {
+          "text": "Puedo explicarte comandos, permisos y modo seguro. Para ver la lista operativa completa escribi ayuda.",
+          "source": "base"
+        },
+        {
+          "text": "Los permisos controlan que acciones locales puedo intentar. Las acciones riesgosas requieren confirmacion.",
+          "source": "base"
+        }
+      ]
+    },
+    "thanks": {
+      "label": "Agradecimientos",
+      "examples": [
+        "gracias",
+        "muchas gracias",
+        "te agradezco",
+        "mil gracias",
+        "gracias atenea"
+      ],
+      "responses": [
+        {
+          "text": "De nada.",
+          "source": "base"
+        },
+        {
+          "text": "De nada. Seguimos.",
+          "source": "base"
+        },
+        {
+          "text": "A vos. Cuando quieras seguimos.",
+          "source": "base"
+        }
+      ]
+    },
+    "acknowledgement": {
+      "label": "Confirmaciones simples",
+      "examples": [
+        "perfecto",
+        "entendido",
+        "genial",
+        "ok",
+        "dale",
+        "bien",
+        "listo"
+      ],
+      "responses": [
+        {
+          "text": "Perfecto.",
+          "source": "base"
+        },
+        {
+          "text": "Entendido.",
+          "source": "base"
+        },
+        {
+          "text": "Genial.",
+          "source": "base"
+        }
+      ]
+    },
+    "unknown": {
+      "label": "Desconocida",
+      "examples": [
+        "no se que decir",
+        "cualquier cosa rara",
+        "texto sin sentido para conversar"
+      ],
+      "responses": [
+        {
+          "text": "No estoy segura de haber entendido. Puedo conversar de forma basica o ayudarte con comandos locales.",
+          "source": "base"
+        },
+        {
+          "text": "Todavia no entiendo eso. Podes ensenarme una respuesta o escribir ayuda.",
+          "source": "base"
+        }
+      ]
+    }
+  }
+}

@@ -3,6 +3,7 @@ const path = require("path");
 
 const { handleMessage } = require("./src/agent");
 const actions = require("./src/actions");
+const conversationAI = require("./src/conversationAI");
 const fileManager = require("./src/fileManager");
 const logger = require("./src/logger");
 const localAI = require("./src/localAI");
@@ -358,6 +359,121 @@ app.post("/api/ai/train", (req, res) => {
   }
 });
 
+app.get("/api/conversation/intents", (req, res) => {
+  try {
+    res.json({
+      intents: conversationAI.listConversationIntents(),
+      status: conversationAI.getModelStatus()
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "conversation.intents.failed",
+      message: "No se pudieron listar intenciones conversacionales",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude listar las intenciones conversacionales." });
+  }
+});
+
+app.post("/api/conversation/learn", (req, res) => {
+  try {
+    const text = typeof req.body.text === "string" ? req.body.text.trim() : "";
+    const intent = typeof req.body.intent === "string" ? req.body.intent.trim() : "";
+    const responseText = typeof req.body.response === "string" ? req.body.response.trim() : "";
+    const confirmSensitive = req.body.confirmSensitive === true;
+
+    if (!text) {
+      return res.status(400).json({ error: "El ejemplo conversacional no puede estar vacio." });
+    }
+
+    if (!responseText) {
+      return res.status(400).json({ error: "La respuesta conversacional no puede estar vacia." });
+    }
+
+    const allowedIntents = new Set(conversationAI.listConversationIntents().map((item) => item.id));
+    if (!allowedIntents.has(intent) || intent === "unknown") {
+      return res.status(400).json({ error: "La intencion conversacional seleccionada no esta permitida." });
+    }
+
+    const sensitivity = mergeSensitivity([detectSensitiveText(text), detectSensitiveText(responseText)]);
+    if (sensitivity.sensitive && !confirmSensitive) {
+      logger.writeLog({
+        level: "warn",
+        action: "conversation.learn.sensitive_warning",
+        message: "Texto sensible detectado antes de aprender respuesta conversacional",
+        details: {
+          intent,
+          findingTypes: sensitivity.findings.map((finding) => finding.type),
+          textLength: text.length,
+          responseLength: responseText.length
+        }
+      });
+
+      return res.status(409).json(buildSensitiveWarning(sensitivity));
+    }
+
+    const learnResult = conversationAI.addConversationExample(intent, text, responseText);
+    const model = conversationAI.trainAndSave();
+
+    logger.writeLog({
+      level: "info",
+      action: "conversation.learn",
+      message: "Respuesta conversacional aprendida y modelo reentrenado",
+      details: {
+        intent,
+        addedExample: learnResult.addedExample,
+        addedResponse: learnResult.addedResponse,
+        sensitiveConfirmed: sensitivity.sensitive && confirmSensitive,
+        examples: model.examples.length,
+        responses: model.responseCount
+      }
+    });
+
+    res.json({
+      ok: true,
+      intent,
+      addedExample: learnResult.addedExample,
+      addedResponse: learnResult.addedResponse,
+      status: conversationAI.getModelStatus(),
+      state: buildState()
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "warn",
+      action: "conversation.learn.denied",
+      message: "No se pudo aprender la respuesta conversacional",
+      details: { error: error.message }
+    });
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/api/conversation/train", (req, res) => {
+  try {
+    const model = conversationAI.trainAndSave();
+    logger.writeLog({
+      level: "info",
+      action: "conversation.train",
+      message: "Modelo conversacional reentrenado manualmente",
+      details: {
+        examples: model.examples.length,
+        intents: model.intents.length,
+        responses: model.responseCount
+      }
+    });
+    res.json({ ok: true, status: conversationAI.getModelStatus(), state: buildState() });
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "conversation.train.failed",
+      message: "No se pudo reentrenar el modelo conversacional",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/api/chat/clear", (req, res) => {
   memory.clearMessages();
   logger.writeLog({
@@ -391,6 +507,8 @@ function buildState() {
   return {
     ai: localAI.getModelStatus(),
     intents: localAI.listIntents(),
+    conversation: conversationAI.getModelStatus(),
+    conversationIntents: conversationAI.listConversationIntents(),
     settings: permissions.getSettings(),
     memory: memory.getMemory(),
     logs: logger.getRecentLogs(30),
@@ -404,6 +522,25 @@ function buildSensitiveWarning(sensitivity) {
     requiresConfirmation: true,
     warning: "Se detecto texto sensible. Podes cancelar o confirmar igualmente si estas seguro.",
     findings: sensitivity.findings
+  };
+}
+
+function mergeSensitivity(results) {
+  const findings = [];
+  const seen = new Set();
+
+  for (const result of results) {
+    for (const finding of result.findings || []) {
+      if (!seen.has(finding.type)) {
+        seen.add(finding.type);
+        findings.push(finding);
+      }
+    }
+  }
+
+  return {
+    sensitive: findings.length > 0,
+    findings
   };
 }
 

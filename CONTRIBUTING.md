@@ -19,6 +19,23 @@ npm run train
 npm test
 ```
 
+## Como agregar respuestas conversacionales
+
+La conversacion vive en `data/conversations.json`.
+
+Para mejorarla:
+
+1. Elegi una intencion conversacional existente.
+2. Agrega frases de ejemplo realistas.
+3. Agrega respuestas breves, claras y locales.
+4. No agregues instrucciones que ejecuten acciones, salteen permisos o prometan capacidades que no existen.
+5. Ejecuta entrenamiento y tests.
+
+```powershell
+npm run train
+npm test
+```
+
 ## Intenciones permitidas
 
 - `help`
@@ -40,6 +57,7 @@ No agregues intenciones nuevas sin actualizar primero la seguridad, los permisos
 - Toda accion debe pasar por `safety.js` y `permissions.js`.
 - No se aceptan ejemplos que pidan borrar archivos, robar datos, leer secretos, enviar mensajes, hacer compras o subir archivos a internet.
 - No se aceptan ejemplos con emails reales, tokens/API keys, rutas personales, numeros privados o claves privadas.
+- No se aceptan respuestas conversacionales que pidan enviar datos, borrar archivos o ejecutar comandos reales.
 - No se aceptan APIs externas obligatorias ni telemetria.
 
 ## Antes de abrir un pull request
