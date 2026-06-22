@@ -24,7 +24,7 @@
           </div>
           <div class="signal-row">
             <span class="signal-dot" aria-hidden="true"></span>
-            <span>localhost · sin telemetria</span>
+            <span>localhost / sin telemetria</span>
           </div>
         </section>
 
@@ -45,9 +45,13 @@
 
       <main class="chat-panel" aria-label="Chat local">
         <header class="chat-header">
-          <div>
+          <div class="chat-title-group">
             <span class="chat-kicker">Asistente local para Windows</span>
             <h2>Chat</h2>
+            <div id="activityStatus" class="activity-status status-ready" aria-live="polite">
+              <span class="activity-dot" aria-hidden="true"></span>
+              <span>Atenea esta lista</span>
+            </div>
           </div>
           <div class="header-actions">
             <button id="debugModeButton" class="icon-button ghost-button" type="button" title="Modo debug" aria-pressed="false">
@@ -227,6 +231,8 @@
         </section>
       </aside>
     </div>
+
+    <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
     <script src="/app.js" defer></script>
   </body>

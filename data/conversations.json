@@ -7,13 +7,16 @@
       "label": "Saludos",
       "examples": [
         "hola",
+        "hola atenea",
         "buenas",
         "buen dia",
         "buenas tardes",
+        "buenas noches",
+        "que onda",
         "que tal",
         "como estas",
-        "hola atenea",
-        "buenas noches"
+        "todo bien",
+        "hey atenea"
       ],
       "responses": [
         {
@@ -27,6 +30,10 @@
         {
           "text": "Buenas. Decime que queres hacer.",
           "source": "base"
+        },
+        {
+          "text": "Hola. Puedo ayudarte con comandos locales o responder dudas basicas.",
+          "source": "base"
         }
       ]
     },
@@ -38,7 +45,10 @@
         "nos vemos",
         "adios",
         "me voy",
-        "hasta despues"
+        "hasta despues",
+        "hablamos despues",
+        "nos hablamos",
+        "cierro por ahora"
       ],
       "responses": [
         {
@@ -60,10 +70,14 @@
       "examples": [
         "quien sos",
         "quien eres",
+        "que sos",
         "como te llamas",
         "sos atenea",
-        "que sos",
-        "presentate"
+        "sos una ia",
+        "sos local",
+        "presentate",
+        "cual es tu nombre",
+        "que es atenea local"
       ],
       "responses": [
         {
@@ -72,6 +86,10 @@
         },
         {
           "text": "Soy Atenea Local. Estoy pensada para ayudarte con tareas locales sin mandar tus datos a servidores externos.",
+          "source": "base"
+        },
+        {
+          "text": "Me llamo Atenea Local. Soy un asistente local hecho en Node.js.",
           "source": "base"
         }
       ]
@@ -83,8 +101,13 @@
         "que sabes hacer",
         "para que servis",
         "que funciones tenes",
+        "que comandos tenes",
+        "como me ayudas",
         "en que me podes ayudar",
-        "que tareas podes hacer"
+        "que tareas podes hacer",
+        "podes controlar mi pc",
+        "podes abrir programas",
+        "podes manejar archivos"
       ],
       "responses": [
         {
@@ -93,6 +116,10 @@
         },
         {
           "text": "Puedo abrir apps permitidas, crear carpetas, listar descargas, buscar archivos, crear notas y explicar mis permisos.",
+          "source": "base"
+        },
+        {
+          "text": "Puedo intentar acciones locales permitidas. Las acciones riesgosas pasan por permisos y confirmacion.",
           "source": "base"
         }
       ]
@@ -103,9 +130,10 @@
         "como funcionas",
         "como trabajas",
         "como entendes los mensajes",
-        "usas internet",
-        "usas servidores",
-        "como aprende atenea"
+        "como aprende atenea",
+        "como entrenas",
+        "como elegis respuestas",
+        "tenes un modelo local"
       ],
       "responses": [
         {
@@ -115,12 +143,55 @@
         {
           "text": "No uso modelos externos. Interpreto texto con ejemplos locales, pesos por palabra y reglas de seguridad.",
           "source": "base"
+        },
+        {
+          "text": "Comparo tu mensaje con ejemplos entrenados y elijo una intencion con un nivel de confianza.",
+          "source": "base"
+        }
+      ]
+    },
+    "security": {
+      "label": "Seguridad local",
+      "examples": [
+        "mis datos salen de mi pc",
+        "usas internet",
+        "usas servidores",
+        "guardas mis datos",
+        "donde guardas mis datos",
+        "podes borrar archivos",
+        "podes ejecutar comandos",
+        "podes subir mis archivos",
+        "mandas informacion privada",
+        "hay telemetria",
+        "es seguro"
+      ],
+      "responses": [
+        {
+          "text": "No envio tus datos a servidores del proyecto. Todo esta pensado para correr en localhost.",
+          "source": "base"
+        },
+        {
+          "text": "Guardo memoria, logs y datasets en archivos JSON locales. No hay telemetria ni analytics.",
+          "source": "base"
+        },
+        {
+          "text": "No borro archivos por defecto y no ejecuto comandos arbitrarios sin permisos y confirmacion.",
+          "source": "base"
+        },
+        {
+          "text": "No subo archivos a internet. Las acciones reales pasan por seguridad y permisos.",
+          "source": "base"
         }
       ]
     },
     "help": {
       "label": "Ayuda conversacional",
       "examples": [
+        "ayuda",
+        "no entiendo",
+        "como uso esto",
+        "explicame como funciona",
+        "que hago ahora",
         "mostrar comandos",
         "explicar funciones",
         "explicar permisos",
@@ -136,6 +207,10 @@
         {
           "text": "Los permisos controlan que acciones locales puedo intentar. Las acciones riesgosas requieren confirmacion.",
           "source": "base"
+        },
+        {
+          "text": "Proba con ayuda, listar archivos de descargas o mostrar estado del sistema.",
+          "source": "base"
         }
       ]
     },
@@ -146,7 +221,9 @@
         "muchas gracias",
         "te agradezco",
         "mil gracias",
-        "gracias atenea"
+        "gracias atenea",
+        "buenisimo gracias",
+        "joya gracias"
       ],
       "responses": [
         {
@@ -172,7 +249,9 @@
         "ok",
         "dale",
         "bien",
-        "listo"
+        "listo",
+        "esta bien",
+        "de acuerdo"
       ],
       "responses": [
         {
@@ -185,6 +264,34 @@
         },
         {
           "text": "Genial.",
+          "source": "base"
+        }
+      ]
+    },
+    "error_feedback": {
+      "label": "Errores y correcciones",
+      "examples": [
+        "no funciona",
+        "no entendiste",
+        "te equivocaste",
+        "eso no era",
+        "fallo",
+        "salio mal",
+        "hiciste otra cosa",
+        "esa respuesta esta mal",
+        "no era lo que queria"
+      ],
+      "responses": [
+        {
+          "text": "Gracias por avisar. Podes activar debug y corregir la intencion o ensenarme una respuesta.",
+          "source": "base"
+        },
+        {
+          "text": "Entendido. Si me corregis desde el modo debug, guardo el aprendizaje localmente.",
+          "source": "base"
+        },
+        {
+          "text": "Puede pasar. Decime de nuevo que querias hacer y lo intento con mas contexto.",
           "source": "base"
         }
       ]

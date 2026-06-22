@@ -34,6 +34,30 @@ Abrir:
 
 El servidor escucha solo en `127.0.0.1`.
 
+## Interfaz
+
+La interfaz esta pensada para uso local y diario:
+
+- Chat principal con estados como `Atenea esta lista`, `Entrenando modelo...` y `Modelo actualizado`.
+- Panel izquierdo con modo seguro, permisos y acciones disponibles.
+- Panel derecho con IA local, conversacion, ejemplos aprendidos, comandos rapidos y logs.
+- Modo debug para inspeccionar intencion, confidence y origen de respuesta.
+- Boton para copiar respuestas del asistente.
+- Toasts simples para exito, error y advertencias.
+- Diseno oscuro responsive para desktop y mobile.
+
+## Captura / placeholder de interfaz
+
+```text
++----------------------+--------------------------------+----------------------+
+| Modo seguro          | Chat                           | IA local             |
+| Permisos             | Atenea esta lista              | Conversacion         |
+| Acciones             | Mensajes + debug opcional      | Ejemplos / Logs      |
++----------------------+--------------------------------+----------------------+
+```
+
+Cuando haya capturas reales, se pueden guardar en `docs/screenshots/`.
+
 ## Instalacion
 
 Requisitos:
@@ -100,6 +124,21 @@ ok
 
 La conversacion no ejecuta acciones. Solo genera respuestas locales desde `data/conversations.json` y `data/conversationModel.json`.
 
+## Entrenamiento conversacional
+
+El motor conversacional usa ejemplos locales para detectar intenciones como saludos, despedidas, agradecimientos, identidad, funciones, seguridad, ayuda y errores.
+
+Desde la UI:
+
+1. Activar `Modo debug`.
+2. Enviar una frase.
+3. Usar `Aprender respuesta`.
+4. Elegir una intencion conversacional permitida.
+5. Escribir la respuesta correcta.
+6. Guardar y reentrenar localmente.
+
+No se permiten intenciones arbitrarias desde la UI. Aprender una respuesta no ejecuta acciones.
+
 ## Entrenar Atenea
 
 Entrenar modelos locales:
@@ -142,7 +181,7 @@ El modo debug muestra:
 - modo `command` o `conversation`
 - origen de respuesta conversacional: `base` o `learned`
 
-## Seguridad
+## Seguridad local
 
 Atenea Local aplica estas reglas:
 
@@ -276,11 +315,11 @@ Reglas principales:
 
 ## Roadmap
 
-Fase 3.1:
+Fase 3.1 completada:
 
-- Mejorar contexto conversacional.
-- Panel para editar respuestas aprendidas.
-- Backups para `data/conversations.json`.
+- Mejora visual completa de la UI.
+- Entrenamiento conversacional ampliado.
+- Estados de carga, toasts y copia de respuestas.
 
 Fase 4:
 

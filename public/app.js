@@ -11,11 +11,13 @@ const state = {
   logs: [],
   memory: { messages: [], pendingAction: null },
   pendingSensitive: null,
+  statusResetTimer: null,
   settings: {}
 };
 
 const elements = {
   actionsList: document.querySelector("#actionsList"),
+  activityStatus: document.querySelector("#activityStatus"),
   aiExampleCount: document.querySelector("#aiExampleCount"),
   aiIntentCount: document.querySelector("#aiIntentCount"),
   aiLastTrained: document.querySelector("#aiLastTrained"),
@@ -47,7 +49,8 @@ const elements = {
   sendButton: document.querySelector("#sendButton"),
   sensitiveBanner: document.querySelector("#sensitiveBanner"),
   sensitiveWarningText: document.querySelector("#sensitiveWarningText"),
-  settingsList: document.querySelector("#settingsList")
+  settingsList: document.querySelector("#settingsList"),
+  toastRegion: document.querySelector("#toastRegion")
 };
 
 const permissionLabels = {
@@ -91,13 +94,14 @@ elements.confirmSensitiveButton.addEventListener("click", () => {
 elements.cancelSensitiveButton.addEventListener("click", () => {
   state.pendingSensitive = null;
   renderSensitiveBanner();
-  addTransientAssistantMessage("Guardado cancelado. No cambie el dataset.");
+  showToast("Guardado cancelado. No cambie el dataset.", "info");
 });
 
 elements.clearChatButton.addEventListener("click", async () => {
   const response = await fetch("/api/chat/clear", { method: "POST" });
   const payload = await response.json();
   applyState(payload.state);
+  showToast("Chat limpio.", "success");
 });
 
 elements.debugModeButton.addEventListener("click", () => {
@@ -105,6 +109,7 @@ elements.debugModeButton.addEventListener("click", () => {
   localStorage.setItem("sawLocalDebug", String(state.debugMode));
   renderDebugButton();
   renderMessages();
+  showToast(state.debugMode ? "Debug activo." : "Debug desactivado.", "info");
 });
 
 elements.exportLogsButton.addEventListener("click", () => {
@@ -157,7 +162,7 @@ async function boot() {
 }
 
 async function sendMessage(message) {
-  setBusy(true);
+  setBusy(true, "Procesando mensaje...");
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
@@ -167,20 +172,25 @@ async function sendMessage(message) {
     const payload = await response.json();
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "Ocurrio un error local.");
+      const errorMessage = payload.error || "Ocurrio un error local.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
   } catch (error) {
-    addTransientAssistantMessage(`No pude contactar al servidor local: ${error.message}`);
+    const errorMessage = `No pude contactar al servidor local: ${error.message}`;
+    addTransientAssistantMessage(errorMessage);
+    showToast("No pude contactar al servidor local.", "error");
   } finally {
     setBusy(false);
   }
 }
 
 async function learnIntent(text, intent, options = {}) {
-  setBusy(true);
+  setBusy(true, "Entrenando modelo...");
+  let modelUpdated = false;
   try {
     const response = await fetch("/api/ai/learn", {
       method: "POST",
@@ -201,57 +211,71 @@ async function learnIntent(text, intent, options = {}) {
     }
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude guardar el ejemplo.");
+      const errorMessage = payload.error || "No pude guardar el ejemplo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
     await refreshExamples();
-    addTransientAssistantMessage(payload.added ? "Aprendi el ejemplo y reentrene la IA local." : "Ese ejemplo ya existia. Reentrene la IA local.");
+    modelUpdated = true;
+    showToast(payload.added ? "Modelo actualizado." : "El ejemplo ya existia. Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude entrenar la IA local: ${error.message}`);
+    showToast("No pude entrenar la IA local.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
 async function retrainAI() {
-  setBusy(true);
+  setBusy(true, "Entrenando modelo...");
+  let modelUpdated = false;
   try {
     const response = await fetch("/api/ai/train", { method: "POST" });
     const payload = await response.json();
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude reentrenar el modelo.");
+      const errorMessage = payload.error || "No pude reentrenar el modelo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
-    addTransientAssistantMessage("IA local reentrenada manualmente.");
+    modelUpdated = true;
+    showToast("Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude reentrenar la IA local: ${error.message}`);
+    showToast("No pude reentrenar la IA local.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
 async function retrainConversation() {
-  setBusy(true);
+  setBusy(true, "Entrenando modelo...");
+  let modelUpdated = false;
   try {
     const response = await fetch("/api/conversation/train", { method: "POST" });
     const payload = await response.json();
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude reentrenar la conversacion.");
+      const errorMessage = payload.error || "No pude reentrenar la conversacion.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
-    addTransientAssistantMessage("Modelo conversacional reentrenado.");
+    modelUpdated = true;
+    showToast("Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude reentrenar la conversacion: ${error.message}`);
+    showToast("No pude reentrenar la conversacion.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
@@ -275,7 +299,8 @@ async function refreshConversationIntents() {
 }
 
 async function learnConversationResponse(text, intent, responseText, options = {}) {
-  setBusy(true);
+  setBusy(true, "Entrenando modelo...");
+  let modelUpdated = false;
   try {
     const response = await fetch("/api/conversation/learn", {
       method: "POST",
@@ -302,16 +327,20 @@ async function learnConversationResponse(text, intent, responseText, options = {
     }
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude aprender la respuesta.");
+      const errorMessage = payload.error || "No pude aprender la respuesta.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
-    addTransientAssistantMessage(payload.addedResponse ? "Aprendi la respuesta y reentrene la conversacion." : "Esa respuesta ya existia. Reentrene la conversacion.");
+    modelUpdated = true;
+    showToast(payload.addedResponse ? "Respuesta aprendida. Modelo actualizado." : "La respuesta ya existia. Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude aprender la respuesta: ${error.message}`);
+    showToast("No pude aprender la respuesta.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
@@ -321,7 +350,9 @@ async function refreshExamples() {
     const payload = await response.json();
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude cargar los ejemplos.");
+      const errorMessage = payload.error || "No pude cargar los ejemplos.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
@@ -333,6 +364,7 @@ async function refreshExamples() {
     renderExamplesPanel();
   } catch (error) {
     addTransientAssistantMessage(`No pude cargar los ejemplos: ${error.message}`);
+    showToast("No pude cargar los ejemplos.", "error");
   }
 }
 
@@ -381,6 +413,8 @@ function renderConversationPanel() {
 function renderDebugButton() {
   elements.debugModeButton.setAttribute("aria-pressed", String(state.debugMode));
   elements.debugModeButton.classList.toggle("debug-active", state.debugMode);
+  const label = elements.debugModeButton.querySelector("span");
+  if (label) label.textContent = state.debugMode ? "Debug activo" : "Modo debug";
 }
 
 function renderSettings() {
@@ -423,12 +457,15 @@ async function updateSetting(key, value) {
   const payload = await response.json();
 
   if (!response.ok) {
-    addTransientAssistantMessage(payload.error || "No pude actualizar la configuracion.");
+    const errorMessage = payload.error || "No pude actualizar la configuracion.";
+    addTransientAssistantMessage(errorMessage);
+    showToast(errorMessage, "error");
     renderSettings();
     return;
   }
 
   applyState(payload.state);
+  showToast("Configuracion actualizada.", "success");
 }
 
 function renderActions() {
@@ -504,11 +541,37 @@ function createMessageNode(message) {
   meta.append(role, time);
   article.append(meta, content);
 
+  if (message.role === "assistant") {
+    article.append(createMessageActions(message));
+  }
+
   if (message.role === "assistant" && state.debugMode) {
     article.append(createDebugPanel(message));
   }
 
   return article;
+}
+
+function createMessageActions(message) {
+  const actions = document.createElement("div");
+  actions.className = "message-actions";
+
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.className = "copy-button";
+  copy.title = "Copiar respuesta";
+  copy.setAttribute("aria-label", "Copiar respuesta");
+  copy.innerHTML = `
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+    <span>Copiar</span>
+  `;
+  copy.addEventListener("click", () => copyText(message.content || ""));
+
+  actions.append(copy);
+  return actions;
 }
 
 function createDebugPanel(message) {
@@ -749,7 +812,8 @@ function createExampleNode(example) {
 }
 
 async function updateExample(id, text, intent, options = {}) {
-  setBusy(true);
+  setBusy(true, "Actualizando dataset...");
+  let modelUpdated = false;
   try {
     const response = await fetch(`/api/ai/examples/${encodeURIComponent(id)}`, {
       method: "PUT",
@@ -771,24 +835,29 @@ async function updateExample(id, text, intent, options = {}) {
     }
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude editar el ejemplo.");
+      const errorMessage = payload.error || "No pude editar el ejemplo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
     await refreshExamples();
-    addTransientAssistantMessage("Ejemplo editado y modelo reentrenado.");
+    modelUpdated = true;
+    showToast("Ejemplo editado. Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude editar el ejemplo: ${error.message}`);
+    showToast("No pude editar el ejemplo.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
 async function deleteExample(id) {
   if (!window.confirm("Borrar este ejemplo del dataset local?")) return;
 
-  setBusy(true);
+  setBusy(true, "Actualizando dataset...");
+  let modelUpdated = false;
   try {
     const response = await fetch(`/api/ai/examples/${encodeURIComponent(id)}`, {
       method: "DELETE"
@@ -796,28 +865,34 @@ async function deleteExample(id) {
     const payload = await response.json();
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude borrar el ejemplo.");
+      const errorMessage = payload.error || "No pude borrar el ejemplo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
     await refreshExamples();
-    addTransientAssistantMessage("Ejemplo borrado y modelo reentrenado.");
+    modelUpdated = true;
+    showToast("Ejemplo borrado. Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude borrar el ejemplo: ${error.message}`);
+    showToast("No pude borrar el ejemplo.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
 async function exportDataset() {
-  setBusy(true);
+  setBusy(true, "Exportando dataset...");
   try {
     const response = await fetch("/api/ai/dataset/export", { method: "POST" });
 
     if (!response.ok) {
       const payload = await response.json();
-      addTransientAssistantMessage(payload.error || "No pude exportar el dataset.");
+      const errorMessage = payload.error || "No pude exportar el dataset.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
@@ -830,9 +905,10 @@ async function exportDataset() {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    addTransientAssistantMessage("Dataset exportado.");
+    showToast("Dataset exportado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude exportar el dataset: ${error.message}`);
+    showToast("No pude exportar el dataset.", "error");
   } finally {
     setBusy(false);
   }
@@ -841,29 +917,35 @@ async function exportDataset() {
 async function restoreBaseDataset() {
   if (!window.confirm("Restaurar el dataset base? Se creara un backup antes de cambiarlo.")) return;
 
-  setBusy(true);
+  setBusy(true, "Restaurando dataset...");
+  let modelUpdated = false;
   try {
     const response = await fetch("/api/ai/dataset/restore-base", { method: "POST" });
     const payload = await response.json();
 
     if (!response.ok) {
-      addTransientAssistantMessage(payload.error || "No pude restaurar el dataset base.");
+      const errorMessage = payload.error || "No pude restaurar el dataset base.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
       return;
     }
 
     applyState(payload.state);
     await refreshExamples();
-    addTransientAssistantMessage("Dataset base restaurado y modelo reentrenado.");
+    modelUpdated = true;
+    showToast("Dataset base restaurado. Modelo actualizado.", "success");
   } catch (error) {
     addTransientAssistantMessage(`No pude restaurar el dataset: ${error.message}`);
+    showToast("No pude restaurar el dataset.", "error");
   } finally {
-    setBusy(false);
+    setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
   }
 }
 
 function showSensitiveWarning(details) {
   state.pendingSensitive = details;
   renderSensitiveBanner();
+  showToast("Texto sensible detectado. Revisa antes de guardar.", "warn");
 }
 
 async function confirmSensitiveSave() {
@@ -963,7 +1045,7 @@ function addTransientAssistantMessage(content) {
   elements.messages.scrollTop = elements.messages.scrollHeight;
 }
 
-function setBusy(value) {
+function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   state.busy = value;
   elements.sendButton.disabled = value;
   elements.messageInput.disabled = value;
@@ -974,6 +1056,68 @@ function setBusy(value) {
   elements.restoreDatasetButton.disabled = value;
   elements.confirmSensitiveButton.disabled = value;
   elements.chatForm.classList.toggle("is-busy", value);
+  elements.sendButton.classList.toggle("loading", value);
+
+  const sendLabel = elements.sendButton.querySelector("span");
+  if (sendLabel) sendLabel.textContent = value ? "Enviando..." : "Enviar";
+
+  if (value) {
+    window.clearTimeout(state.statusResetTimer);
+    updateActivityStatus(label, "working");
+  } else {
+    const updated = label === "Modelo actualizado";
+    updateActivityStatus(label, updated ? "updated" : "ready");
+    window.clearTimeout(state.statusResetTimer);
+    if (updated) {
+      state.statusResetTimer = window.setTimeout(() => {
+        updateActivityStatus("Atenea esta lista", "ready");
+      }, 2600);
+    }
+  }
+}
+
+function updateActivityStatus(text, mode = "ready") {
+  if (!elements.activityStatus) return;
+  const label = elements.activityStatus.querySelector("span:last-child");
+  if (label) label.textContent = text;
+  elements.activityStatus.classList.toggle("status-working", mode === "working");
+  elements.activityStatus.classList.toggle("status-updated", mode === "updated");
+  elements.activityStatus.classList.toggle("status-ready", mode === "ready");
+}
+
+async function copyText(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.append(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+    showToast("Respuesta copiada.", "success");
+  } catch {
+    showToast("No pude copiar la respuesta.", "error");
+  }
+}
+
+function showToast(message, type = "info") {
+  if (!elements.toastRegion) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  elements.toastRegion.append(toast);
+
+  window.setTimeout(() => {
+    toast.classList.add("toast-hide");
+    window.setTimeout(() => toast.remove(), 180);
+  }, 3200);
 }
 
 function formatTime(value) {

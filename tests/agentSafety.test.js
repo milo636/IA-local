@@ -55,6 +55,22 @@ test("la conversacion basica no ejecuta acciones", async () => {
   });
 });
 
+test("las dudas de seguridad conversacionales no ejecutan acciones", async () => {
+  await withLocalDataBackup(async () => {
+    resetRuntimeData();
+    const result = await handleMessage("podes borrar archivos");
+
+    assert.equal(result.detectedIntent, "security");
+    assert.equal(result.usedLocalAI, true);
+    assert.equal(result.canLearnResponse, true);
+    assert.match(result.reply, /No envio|No borro|permisos|confirmacion|telemetria|local/i);
+
+    const logs = JSON.parse(fs.readFileSync(LOGS_PATH, "utf8"));
+    assert.ok(logs.some((log) => log.action === "conversation.security"));
+    assert.equal(logs.some((log) => String(log.action).startsWith("action.")), false);
+  });
+});
+
 async function withLocalDataBackup(callback) {
   const originalMemory = fs.readFileSync(MEMORY_PATH, "utf8");
   const originalLogs = fs.readFileSync(LOGS_PATH, "utf8");

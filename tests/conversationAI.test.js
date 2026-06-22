@@ -36,6 +36,33 @@ test("responde preguntas basicas de identidad y capacidades", () => {
   assert.match(capabilities.reply, /automatizaciones|abrir apps/i);
 });
 
+test("detecta ejemplos conversacionales ampliados", () => {
+  const greeting = conversationAI.respondToConversation("que onda", { random: () => 0 });
+  const farewell = conversationAI.respondToConversation("hablamos despues", { random: () => 0 });
+  const thanks = conversationAI.respondToConversation("gracias Atenea", { random: () => 0 });
+
+  assert.equal(greeting.intent, "greeting");
+  assert.equal(farewell.intent, "farewell");
+  assert.equal(thanks.intent, "thanks");
+});
+
+test("responde dudas de seguridad sin ejecutar acciones", () => {
+  const privacy = conversationAI.respondToConversation("mis datos salen de mi pc", { random: () => 0 });
+  const deleteFiles = conversationAI.respondToConversation("podes borrar archivos", { random: () => 0.5 });
+
+  assert.equal(privacy.intent, "security");
+  assert.match(privacy.reply, /No envio|local|localhost/i);
+  assert.equal(deleteFiles.intent, "security");
+  assert.match(deleteFiles.reply, /permisos|confirmacion|No borro/i);
+});
+
+test("responde feedback de error", () => {
+  const result = conversationAI.respondToConversation("no entendiste", { random: () => 0 });
+
+  assert.equal(result.intent, "error_feedback");
+  assert.match(result.reply, /debug|corregir|contexto/i);
+});
+
 test("mantiene contexto corto de los ultimos mensajes", () => {
   const history = Array.from({ length: 10 }, (_, index) => ({
     role: index % 2 === 0 ? "user" : "assistant",
