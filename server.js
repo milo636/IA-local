@@ -8,6 +8,7 @@ const fileManager = require("./src/fileManager");
 const logger = require("./src/logger");
 const localAI = require("./src/localAI");
 const memory = require("./src/memory");
+const memoryEngine = require("./src/memoryEngine");
 const permissions = require("./src/permissions");
 const { detectSensitiveText } = require("./src/sensitiveText");
 
@@ -69,6 +70,149 @@ app.post("/api/settings", (req, res) => {
       details: { error: error.message }
     });
     res.status(400).json({ error: error.message });
+  }
+});
+
+app.get("/api/memory", (req, res) => {
+  try {
+    res.json(memoryEngine.getMemoryState());
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "memory.state.failed",
+      message: "No se pudo cargar la memoria local",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude cargar la memoria local." });
+  }
+});
+
+app.get("/api/memory/search", (req, res) => {
+  try {
+    const query = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    res.json({
+      query,
+      results: query ? memoryEngine.searchMemory(query) : []
+    });
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "memory.search.failed",
+      message: "No se pudo buscar en la memoria local",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude buscar en la memoria local." });
+  }
+});
+
+app.post("/api/memory", (req, res) => {
+  try {
+    const text = typeof req.body.text === "string" ? req.body.text.trim() : "";
+    const result = memoryEngine.saveMemory(text);
+
+    logger.writeLog({
+      level: "info",
+      action: "memory.create",
+      message: result.added ? "Recuerdo guardado" : "Recuerdo existente actualizado",
+      details: {
+        memoryId: result.memory.id,
+        added: result.added
+      }
+    });
+
+    res.json({
+      ok: true,
+      added: result.added,
+      memory: result.memory,
+      memoryState: memoryEngine.getMemoryState(),
+      state: buildState()
+    });
+  } catch (error) {
+    handleMemoryError(res, error, "memory.create.denied");
+  }
+});
+
+app.put("/api/memory/:id", (req, res) => {
+  try {
+    const id = String(req.params.id || "").trim();
+    const text = typeof req.body.text === "string" ? req.body.text.trim() : "";
+    const result = memoryEngine.updateMemory(id, text);
+
+    logger.writeLog({
+      level: "info",
+      action: "memory.update",
+      message: "Recuerdo editado",
+      details: {
+        memoryId: result.memory.id
+      }
+    });
+
+    res.json({
+      ok: true,
+      memory: result.memory,
+      memoryState: memoryEngine.getMemoryState(),
+      state: buildState()
+    });
+  } catch (error) {
+    handleMemoryError(res, error, "memory.update.denied");
+  }
+});
+
+app.delete("/api/memory/:id", (req, res) => {
+  try {
+    const id = String(req.params.id || "").trim();
+    const result = memoryEngine.deleteMemory(id);
+
+    logger.writeLog({
+      level: "info",
+      action: "memory.delete",
+      message: "Recuerdo borrado",
+      details: {
+        requestedId: id,
+        deletedCount: result.deleted.length
+      }
+    });
+
+    res.json({
+      ok: true,
+      deleted: result.deleted,
+      memoryState: memoryEngine.getMemoryState(),
+      state: buildState()
+    });
+  } catch (error) {
+    handleMemoryError(res, error, "memory.delete.denied");
+  }
+});
+
+app.get("/api/memory/export", (req, res) => {
+  try {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      app: "SAW Local",
+      memory: memoryEngine.getMemoryState()
+    };
+    const fileName = `atenea-local-memory-${new Date().toISOString().slice(0, 10)}.json`;
+
+    logger.writeLog({
+      level: "info",
+      action: "memory.export",
+      message: "Memoria exportada por el usuario",
+      details: {
+        memories: payload.memory.stats.memoryCount
+      }
+    });
+
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.send(JSON.stringify(payload, null, 2));
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "memory.export.failed",
+      message: "No se pudo exportar la memoria",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude exportar la memoria local." });
   }
 });
 
@@ -509,11 +653,29 @@ function buildState() {
     intents: localAI.listIntents(),
     conversation: conversationAI.getModelStatus(),
     conversationIntents: conversationAI.listConversationIntents(),
+    userMemory: memoryEngine.getMemoryState(),
     settings: permissions.getSettings(),
     memory: memory.getMemory(),
     logs: logger.getRecentLogs(30),
     actions: actions.listActions()
   };
+}
+
+function handleMemoryError(res, error, action) {
+  const isSensitive = error.code === "SENSITIVE_MEMORY";
+  logger.writeLog({
+    level: isSensitive ? "warn" : "error",
+    action,
+    message: error.message,
+    details: {
+      findingTypes: (error.findings || []).map((finding) => finding.type)
+    }
+  });
+
+  res.status(isSensitive ? 400 : 400).json({
+    error: isSensitive ? "No guardo recuerdos con datos sensibles." : error.message,
+    findings: error.findings || []
+  });
 }
 
 function buildSensitiveWarning(sensitivity) {

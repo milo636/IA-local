@@ -10,6 +10,7 @@ El objetivo es que cualquier persona pueda clonar el proyecto, ejecutarlo en su 
 - Servidor local con Node.js y Express.
 - Clasificador de intenciones hecho desde cero en Node.js.
 - Motor conversacional propio para saludos, despedidas, ayuda y preguntas basicas.
+- Memoria inteligente local con perfil de usuario.
 - Aprendizaje local desde la UI.
 - Dataset editable, exportable y restaurable.
 - Deteccion de texto sensible antes de guardar ejemplos.
@@ -41,6 +42,7 @@ La interfaz esta pensada para uso local y diario:
 - Chat principal con estados como `Atenea esta lista`, `Entrenando modelo...` y `Modelo actualizado`.
 - Panel izquierdo con modo seguro, permisos y acciones disponibles.
 - Panel derecho con IA local, conversacion, ejemplos aprendidos, comandos rapidos y logs.
+- Panel de memoria con perfil, recuerdos editables, busqueda y exportacion.
 - Modo debug para inspeccionar intencion, confidence y origen de respuesta.
 - Boton para copiar respuestas del asistente.
 - Toasts simples para exito, error y advertencias.
@@ -124,6 +126,55 @@ ok
 
 La conversacion no ejecuta acciones. Solo genera respuestas locales desde `data/conversations.json` y `data/conversationModel.json`.
 
+## Memoria inteligente
+
+Atenea puede guardar recuerdos locales para personalizar respuestas sin usar servicios externos. La memoria se divide en:
+
+- Memoria corta: ultimos mensajes y contexto de la conversacion actual.
+- Memoria larga: recuerdos guardados por el usuario y perfil local persistente.
+
+Comandos de memoria:
+
+```text
+recorda que uso Chrome
+recorda que mi carpeta principal es Descargas
+mostrar recuerdos
+que recordas de mi
+buscar recuerdos navegador
+olvida Chrome
+cual es mi navegador favorito?
+eso que te dije recien
+la carpeta anterior
+el archivo que buscamos
+```
+
+Los recuerdos se guardan en `data/userProfile.json`. No se suben a internet.
+
+## Perfil de usuario
+
+El perfil local puede guardar datos como:
+
+```json
+{
+  "preferredBrowser": "Chrome",
+  "preferredTheme": "Dark",
+  "favoriteFolders": ["Descargas"],
+  "customPreferences": {}
+}
+```
+
+El perfil se actualiza desde recuerdos explicitos. Por ejemplo, si escribis `recorda que uso Chrome`, Atenea guarda el recuerdo y marca Chrome como navegador preferido.
+
+La UI incluye un panel `Memoria` para:
+
+- ver recuerdos guardados
+- ver resumen del perfil
+- agregar recuerdos
+- editar recuerdos
+- eliminar recuerdos
+- buscar recuerdos
+- exportar memoria
+
 ## Entrenamiento conversacional
 
 El motor conversacional usa ejemplos locales para detectar intenciones como saludos, despedidas, agradecimientos, identidad, funciones, seguridad, ayuda y errores.
@@ -196,10 +247,13 @@ Atenea Local aplica estas reglas:
 - Las acciones disponibles usan allowlist.
 - Las acciones riesgosas requieren confirmacion.
 - La IA conversacional no ejecuta acciones.
+- La memoria no ejecuta acciones.
+- Guardar, editar, buscar o borrar recuerdos no toca archivos fuera de `data/userProfile.json`.
 - Las acciones reales siguen pasando por `safety.js` y `permissions.js`.
 - Los permisos viven en `data/settings.json`.
 - Los logs viven en `data/logs.json`.
 - La memoria local vive en `data/memory.json`.
+- El perfil y recuerdos largos viven en `data/userProfile.json`.
 
 Permisos por defecto:
 
@@ -223,8 +277,11 @@ Antes de guardar ejemplos nuevos, Atenea busca:
 - rutas personales
 - numeros largos
 - posibles claves privadas
+- datos bancarios
 
 Si detecta algo sensible, muestra una advertencia y permite cancelar.
+
+Antes de guardar recuerdos nuevos, Atenea bloquea automaticamente datos sensibles. No guarda contrasenas, tokens, claves privadas, rutas personales, numeros largos ni datos bancarios como recuerdos.
 
 ## Arquitectura del proyecto
 
@@ -249,6 +306,7 @@ IA-local/
     localAI.js
     logger.js
     memory.js
+    memoryEngine.js
     permissions.js
     safety.js
     sensitiveText.js
@@ -262,6 +320,7 @@ IA-local/
     memory.json
     settings.json
     trainingData.json
+    userProfile.json
   tests/
 ```
 
@@ -274,6 +333,13 @@ POST   /api/chat
 POST   /api/chat/clear
 POST   /api/settings
 GET    /api/logs/export
+
+GET    /api/memory
+GET    /api/memory/search?q=texto
+GET    /api/memory/export
+POST   /api/memory
+PUT    /api/memory/:id
+DELETE /api/memory/:id
 
 GET    /api/ai/intents
 GET    /api/ai/examples
@@ -321,15 +387,23 @@ Fase 3.1 completada:
 - Entrenamiento conversacional ampliado.
 - Estados de carga, toasts y copia de respuestas.
 
-Fase 4:
+Fase 4 completada:
 
-- Tareas programadas.
+- Memoria corta y referencias simples de contexto.
+- Memoria larga con recuerdos editables.
+- Perfil local de usuario.
+- Busqueda semantica simple por palabras.
+- Exportacion de memoria.
 
 Fase 5:
 
-- App de escritorio con Electron.
+- Tareas programadas.
 
 Fase 6:
+
+- App de escritorio con Electron.
+
+Fase 7:
 
 - Comunidad de automatizaciones seguras.
 

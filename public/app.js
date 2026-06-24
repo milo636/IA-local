@@ -10,9 +10,13 @@ const state = {
   intents: [],
   logs: [],
   memory: { messages: [], pendingAction: null },
+  memorySearch: "",
+  memorySearchResults: null,
+  memorySearchTimer: null,
   pendingSensitive: null,
   statusResetTimer: null,
-  settings: {}
+  settings: {},
+  userMemory: { memories: [], profile: {}, stats: {} }
 };
 
 const elements = {
@@ -36,7 +40,16 @@ const elements = {
   examplesList: document.querySelector("#examplesList"),
   exportDatasetButton: document.querySelector("#exportDatasetButton"),
   exportLogsButton: document.querySelector("#exportLogsButton"),
+  exportMemoryButton: document.querySelector("#exportMemoryButton"),
   logsList: document.querySelector("#logsList"),
+  addMemoryButton: document.querySelector("#addMemoryButton"),
+  memoryBadge: document.querySelector("#memoryBadge"),
+  memoryCount: document.querySelector("#memoryCount"),
+  memoryForm: document.querySelector("#memoryForm"),
+  memoryInput: document.querySelector("#memoryInput"),
+  memoryList: document.querySelector("#memoryList"),
+  memorySearchInput: document.querySelector("#memorySearchInput"),
+  memoryUpdatedAt: document.querySelector("#memoryUpdatedAt"),
   messageInput: document.querySelector("#messageInput"),
   messages: document.querySelector("#messages"),
   pendingBanner: document.querySelector("#pendingBanner"),
@@ -50,6 +63,8 @@ const elements = {
   sensitiveBanner: document.querySelector("#sensitiveBanner"),
   sensitiveWarningText: document.querySelector("#sensitiveWarningText"),
   settingsList: document.querySelector("#settingsList"),
+  profileStatus: document.querySelector("#profileStatus"),
+  profileSummary: document.querySelector("#profileSummary"),
   toastRegion: document.querySelector("#toastRegion")
 };
 
@@ -114,6 +129,23 @@ elements.debugModeButton.addEventListener("click", () => {
 
 elements.exportLogsButton.addEventListener("click", () => {
   window.location.href = "/api/logs/export";
+});
+
+elements.exportMemoryButton.addEventListener("click", () => {
+  window.location.href = "/api/memory/export";
+});
+
+elements.memoryForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await addMemory(elements.memoryInput.value);
+});
+
+elements.memorySearchInput.addEventListener("input", () => {
+  state.memorySearch = elements.memorySearchInput.value.trim();
+  window.clearTimeout(state.memorySearchTimer);
+  state.memorySearchTimer = window.setTimeout(() => {
+    refreshUserMemory(state.memorySearch);
+  }, 220);
 });
 
 elements.refreshExamplesButton.addEventListener("click", () => {
@@ -368,6 +400,127 @@ async function refreshExamples() {
   }
 }
 
+async function refreshUserMemory(query = "") {
+  try {
+    const endpoint = query ? `/api/memory/search?q=${encodeURIComponent(query)}` : "/api/memory";
+    const response = await fetch(endpoint);
+    const payload = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = payload.error || "No pude cargar la memoria.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
+      return;
+    }
+
+    if (query) {
+      state.memorySearchResults = payload.results || [];
+    } else {
+      state.userMemory = payload;
+      state.memorySearchResults = null;
+    }
+
+    renderMemoryPanel();
+  } catch (error) {
+    addTransientAssistantMessage(`No pude cargar la memoria local: ${error.message}`);
+    showToast("No pude cargar la memoria local.", "error");
+  }
+}
+
+async function addMemory(text) {
+  const value = String(text || "").trim();
+  if (!value) {
+    showToast("Escribi un recuerdo antes de guardarlo.", "warn");
+    return;
+  }
+
+  setBusy(true, "Guardando recuerdo...");
+  try {
+    const response = await fetch("/api/memory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: value })
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = payload.error || "No pude guardar el recuerdo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
+      return;
+    }
+
+    elements.memoryInput.value = "";
+    state.userMemory = payload.memoryState || state.userMemory;
+    state.memorySearchResults = null;
+    renderMemoryPanel();
+    showToast(payload.added ? "Recuerdo guardado." : "Ese recuerdo ya existia.", "success");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude guardar el recuerdo: ${error.message}`);
+    showToast("No pude guardar el recuerdo.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function updateMemory(id, text) {
+  setBusy(true, "Actualizando recuerdo...");
+  try {
+    const response = await fetch(`/api/memory/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = payload.error || "No pude editar el recuerdo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
+      return;
+    }
+
+    state.userMemory = payload.memoryState || state.userMemory;
+    state.memorySearchResults = null;
+    renderMemoryPanel();
+    showToast("Recuerdo editado.", "success");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude editar el recuerdo: ${error.message}`);
+    showToast("No pude editar el recuerdo.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function deleteMemory(id) {
+  if (!window.confirm("Eliminar este recuerdo local?")) return;
+
+  setBusy(true, "Eliminando recuerdo...");
+  try {
+    const response = await fetch(`/api/memory/${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = payload.error || "No pude eliminar el recuerdo.";
+      addTransientAssistantMessage(errorMessage);
+      showToast(errorMessage, "error");
+      return;
+    }
+
+    state.userMemory = payload.memoryState || state.userMemory;
+    state.memorySearchResults = null;
+    renderMemoryPanel();
+    showToast("Recuerdo eliminado.", "success");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude eliminar el recuerdo: ${error.message}`);
+    showToast("No pude eliminar el recuerdo.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
 function applyState(nextState) {
   state.ai = nextState.ai || state.ai || {};
   state.actions = nextState.actions || [];
@@ -377,9 +530,11 @@ function applyState(nextState) {
   state.logs = nextState.logs || [];
   state.memory = nextState.memory || { messages: [], pendingAction: null };
   state.settings = nextState.settings || {};
+  state.userMemory = nextState.userMemory || state.userMemory || { memories: [], profile: {}, stats: {} };
 
   renderAiPanel();
   renderConversationPanel();
+  renderMemoryPanel();
   renderSettings();
   renderActions();
   renderQuickCommands();
@@ -390,6 +545,112 @@ function applyState(nextState) {
   renderSensitiveBanner();
   renderExamplesFilter();
   renderExamplesPanel();
+}
+
+function renderMemoryPanel() {
+  const memoryState = state.userMemory || { memories: [], profile: {}, stats: {} };
+  const memories = Array.isArray(memoryState.memories) ? memoryState.memories : [];
+  const stats = memoryState.stats || {};
+  const profile = memoryState.profile || {};
+  const visibleMemories = Array.isArray(state.memorySearchResults) ? state.memorySearchResults : memories;
+  const hasMemories = memories.length > 0;
+
+  elements.memoryBadge.textContent = hasMemories ? "Activa" : "Sin recuerdos";
+  elements.memoryBadge.className = `status-pill ${hasMemories ? "status-ok" : "status-warn"}`;
+  elements.memoryCount.textContent = String(stats.memoryCount ?? memories.length);
+  elements.memoryUpdatedAt.textContent = stats.updatedAt ? formatDateTime(stats.updatedAt) : "Nunca";
+  elements.profileStatus.textContent = profile.preferredBrowser || profile.favoriteFolders?.length ? "Personalizado" : "Basico";
+
+  renderProfileSummary(profile);
+  renderMemoryList(visibleMemories, Boolean(state.memorySearch));
+}
+
+function renderProfileSummary(profile) {
+  elements.profileSummary.replaceChildren();
+
+  const rows = [
+    ["Navegador", profile.preferredBrowser || "Sin definir"],
+    ["Tema", profile.preferredTheme || "Sin definir"],
+    ["Carpetas", profile.favoriteFolders?.length ? profile.favoriteFolders.join(", ") : "Sin definir"]
+  ];
+
+  rows.forEach(([label, value]) => {
+    const row = document.createElement("div");
+    row.className = "profile-row";
+    const key = document.createElement("span");
+    key.textContent = label;
+    const text = document.createElement("strong");
+    text.textContent = value;
+    row.append(key, text);
+    elements.profileSummary.append(row);
+  });
+}
+
+function renderMemoryList(memories, isSearch) {
+  elements.memoryList.replaceChildren();
+
+  if (!memories.length) {
+    const empty = document.createElement("p");
+    empty.className = "log-message";
+    empty.textContent = isSearch ? "Sin recuerdos para esa busqueda." : "Sin recuerdos guardados.";
+    elements.memoryList.append(empty);
+    return;
+  }
+
+  memories.forEach((item) => {
+    const memory = item.memory || item;
+    elements.memoryList.append(createMemoryNode(memory, item.score, item.type || "memory"));
+  });
+}
+
+function createMemoryNode(memory, score, type = "memory") {
+  const item = document.createElement("article");
+  item.className = "memory-item";
+  const editable = type !== "profile" && Boolean(memory.id);
+
+  const top = document.createElement("div");
+  top.className = "example-top";
+
+  const title = document.createElement("strong");
+  title.textContent = editable
+    ? (score ? `Coincidencia ${formatPercent(score)}` : "Recuerdo")
+    : "Dato del perfil";
+
+  const time = document.createElement("span");
+  time.className = "log-time";
+  time.textContent = formatDateTime(memory.updatedAt || memory.createdAt);
+
+  top.append(title, time);
+
+  const textarea = document.createElement("textarea");
+  textarea.value = memory.text;
+  textarea.maxLength = 500;
+  textarea.rows = 3;
+  textarea.readOnly = !editable;
+  textarea.setAttribute("aria-label", "Editar recuerdo");
+
+  const actions = document.createElement("div");
+  actions.className = "example-actions";
+
+  if (editable) {
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "learn-button";
+    save.textContent = "Editar recuerdo";
+    save.addEventListener("click", () => updateMemory(memory.id, textarea.value));
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "danger-button icon-button";
+    remove.textContent = "Eliminar";
+    remove.addEventListener("click", () => deleteMemory(memory.id));
+
+    actions.append(save, remove);
+  }
+
+  item.append(top, textarea);
+  if (editable) item.append(actions);
+  return item;
 }
 
 function renderAiPanel() {
@@ -1054,6 +1315,10 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.refreshExamplesButton.disabled = value;
   elements.exportDatasetButton.disabled = value;
   elements.restoreDatasetButton.disabled = value;
+  elements.addMemoryButton.disabled = value;
+  elements.exportMemoryButton.disabled = value;
+  elements.memoryInput.disabled = value;
+  elements.memorySearchInput.disabled = value;
   elements.confirmSensitiveButton.disabled = value;
   elements.chatForm.classList.toggle("is-busy", value);
   elements.sendButton.classList.toggle("loading", value);

@@ -36,6 +36,18 @@ const SENSITIVE_PATTERNS = [
     pattern: /\b[A-Za-z0-9_-]{36,}\b/
   },
   {
+    type: "banking_data",
+    label: "dato bancario",
+    description: "El texto parece contener datos bancarios.",
+    pattern: /\b(cbu|cvu|iban|swift|alias\s+bancario|cuenta\s+bancaria|tarjeta\s+(?:de\s+)?(?:credito|cr[eé]dito|debito|d[eé]bito))\b/i
+  },
+  {
+    type: "banking_data",
+    label: "dato bancario",
+    description: "El texto parece contener un numero de tarjeta.",
+    pattern: /\b(?:\d[ -]?){13,19}\b/
+  },
+  {
     type: "personal_path",
     label: "ruta personal",
     description: "El texto contiene una ruta local de usuario.",

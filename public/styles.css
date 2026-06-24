@@ -800,8 +800,11 @@ textarea:focus-visible {
 }
 
 .intent-filter,
+.memory-search,
 .example-item select,
-.example-item textarea {
+.example-item textarea,
+.memory-form textarea,
+.memory-item textarea {
   width: 100%;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
@@ -810,8 +813,11 @@ textarea:focus-visible {
 }
 
 .intent-filter:focus,
+.memory-search:focus,
 .example-item select:focus,
 .example-item textarea:focus,
+.memory-form textarea:focus,
+.memory-item textarea:focus,
 .correction-form select:focus,
 .conversation-learn-form select:focus,
 .conversation-learn-form textarea:focus {
@@ -819,6 +825,7 @@ textarea:focus-visible {
 }
 
 .intent-filter,
+.memory-search,
 .example-item select {
   min-height: 36px;
   padding: 0 10px;
@@ -847,6 +854,73 @@ textarea:focus-visible {
   gap: 8px;
   overflow-y: auto;
   max-height: 360px;
+}
+
+.memory-form {
+  display: grid;
+  gap: 8px;
+}
+
+.memory-form textarea,
+.memory-item textarea {
+  min-height: 74px;
+  resize: vertical;
+  padding: 9px 10px;
+  color: var(--soft);
+  line-height: 1.4;
+}
+
+.profile-summary {
+  display: grid;
+  gap: 7px;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: minmax(80px, auto) minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  min-height: 32px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(17, 23, 32, 0.58);
+}
+
+.profile-row span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.profile-row strong {
+  color: var(--soft);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: right;
+  word-break: break-word;
+}
+
+.memory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 300px;
+}
+
+.memory-item {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(17, 23, 32, 0.74);
+}
+
+.memory-item strong {
+  color: var(--text);
+  font-size: 0.8rem;
 }
 
 .example-item {

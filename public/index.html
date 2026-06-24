@@ -176,6 +176,54 @@
           </button>
         </section>
 
+        <section class="status-block memory-block" aria-labelledby="memory-title">
+          <div class="section-heading">
+            <h2 id="memory-title">Memoria</h2>
+            <span id="memoryBadge" class="status-pill status-warn">Sin recuerdos</span>
+          </div>
+          <div class="ai-metrics">
+            <div class="metric-row">
+              <span>Recuerdos</span>
+              <strong id="memoryCount">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Perfil</span>
+              <strong id="profileStatus">Basico</strong>
+            </div>
+            <div class="metric-row">
+              <span>Actualizado</span>
+              <strong id="memoryUpdatedAt">Nunca</strong>
+            </div>
+          </div>
+          <div id="profileSummary" class="profile-summary"></div>
+          <form id="memoryForm" class="memory-form">
+            <textarea
+              id="memoryInput"
+              maxlength="500"
+              rows="3"
+              placeholder="Agregar recuerdo local..."
+              aria-label="Agregar recuerdo local"
+            ></textarea>
+            <button id="addMemoryButton" class="icon-button retrain-button" type="submit">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 5v14" />
+                <path d="M5 12h14" />
+              </svg>
+              <span>Agregar recuerdo</span>
+            </button>
+          </form>
+          <input id="memorySearchInput" class="memory-search" type="search" placeholder="Buscar recuerdos..." aria-label="Buscar recuerdos" />
+          <button id="exportMemoryButton" class="icon-button export-button" type="button" title="Exportar memoria">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 3v12" />
+              <path d="m7 10 5 5 5-5" />
+              <path d="M5 21h14" />
+            </svg>
+            <span>Exportar memoria</span>
+          </button>
+          <div id="memoryList" class="memory-list"></div>
+        </section>
+
         <section class="status-block examples-block" aria-labelledby="examples-title">
           <div class="section-heading">
             <h2 id="examples-title">Ejemplos aprendidos</h2>

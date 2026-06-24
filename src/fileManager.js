@@ -21,12 +21,24 @@ const DEFAULT_MEMORY = {
   pendingAction: null
 };
 
+const DEFAULT_USER_PROFILE = {
+  version: 1,
+  preferredBrowser: null,
+  preferredTheme: "Dark",
+  favoriteFolders: [],
+  customPreferences: {},
+  memories: [],
+  createdAt: null,
+  updatedAt: null
+};
+
 const DEFAULT_LOGS = [];
 
 const DATA_FILES = {
   settings: "settings.json",
   memory: "memory.json",
-  logs: "logs.json"
+  logs: "logs.json",
+  userProfile: "userProfile.json"
 };
 
 function ensureDataFiles() {
@@ -34,6 +46,7 @@ function ensureDataFiles() {
   ensureJsonFile(dataPath(DATA_FILES.settings), DEFAULT_SETTINGS);
   ensureJsonFile(dataPath(DATA_FILES.memory), DEFAULT_MEMORY);
   ensureJsonFile(dataPath(DATA_FILES.logs), DEFAULT_LOGS);
+  ensureJsonFile(dataPath(DATA_FILES.userProfile), DEFAULT_USER_PROFILE);
 }
 
 function ensureJsonFile(filePath, defaultValue) {
@@ -364,6 +377,7 @@ module.exports = {
   DEFAULT_LOGS,
   DEFAULT_MEMORY,
   DEFAULT_SETTINGS,
+  DEFAULT_USER_PROFILE,
   categoryForFile,
   createFolderOnDesktop,
   createNote,

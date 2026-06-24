@@ -3,6 +3,7 @@ const conversationAI = require("./conversationAI");
 const logger = require("./logger");
 const localAI = require("./localAI");
 const memory = require("./memory");
+const memoryEngine = require("./memoryEngine");
 const permissions = require("./permissions");
 const safety = require("./safety");
 const { parseActionFromIntent, parseCommand } = require("./commandParser");
@@ -20,6 +21,11 @@ async function handleMessage(message) {
   const incomingSafety = safety.validateIncomingText(text);
   if (!incomingSafety.ok) {
     return respondBlocked(incomingSafety.reason, "input.blocked", buildAiMeta(null, text, false));
+  }
+
+  const memoryRequest = memoryEngine.parseMemoryRequest(text);
+  if (memoryRequest) {
+    return respondMemory(memoryRequest, text);
   }
 
   const aiResult = localAI.classifyIntent(text);
@@ -228,6 +234,60 @@ function respondConversation(conversationResult, originalText, commandAiResult) 
   );
 }
 
+function respondMemory(memoryRequest, originalText) {
+  const memoryMeta = buildMemoryMeta(memoryRequest, originalText);
+
+  try {
+    const result = memoryEngine.answerMemoryRequest(memoryRequest, {
+      history: memory.getMemory().messages
+    });
+
+    logger.writeLog({
+      level: "info",
+      action: result.action,
+      message: "Memoria local procesada",
+      details: sanitizeLogDetails({
+        requestType: memoryRequest.type,
+        memoryCount: result.result?.profile?.memories?.length || result.result?.memories?.length || null,
+        deletedCount: result.result?.deleted?.length || null
+      })
+    });
+
+    return respond(
+      result.reply,
+      {
+        level: "info",
+        action: result.action,
+        summary: "Memoria local procesada."
+      },
+      { skipLog: true, aiMeta: memoryMeta }
+    );
+  } catch (error) {
+    const isSensitive = error.code === "SENSITIVE_MEMORY";
+    logger.writeLog({
+      level: isSensitive ? "warn" : "error",
+      action: isSensitive ? "memory.sensitive_blocked" : "memory.failed",
+      message: error.message,
+      details: {
+        requestType: memoryRequest.type,
+        findingTypes: (error.findings || []).map((finding) => finding.type)
+      }
+    });
+
+    return respond(
+      isSensitive
+        ? "No guardo ese recuerdo porque parece contener datos sensibles."
+        : `No pude procesar la memoria local: ${error.message}`,
+      {
+        level: isSensitive ? "warn" : "error",
+        action: isSensitive ? "memory.sensitive_blocked" : "memory.failed",
+        summary: isSensitive ? "Recuerdo bloqueado por seguridad." : "Memoria local fallida."
+      },
+      { skipLog: true, aiMeta: memoryMeta }
+    );
+  }
+}
+
 function guardAction(action) {
   const definition = actions.getActionDefinition(action.type);
   if (!definition) {
@@ -338,6 +398,21 @@ function buildConversationMeta(conversationResult, originalText, commandAiResult
     responseOrigin: conversationResult.responseOrigin || "base",
     commandIntent: commandAiResult?.intent || null,
     commandConfidence: Number(commandAiResult?.confidence || 0)
+  };
+}
+
+function buildMemoryMeta(memoryRequest, originalText) {
+  return {
+    aiDomain: "memory",
+    detectedIntent: `memory.${memoryRequest.type}`,
+    confidence: 1,
+    usedLocalAI: true,
+    canLearn: false,
+    canLearnResponse: false,
+    originalText: originalText || null,
+    responseOrigin: "profile",
+    commandIntent: null,
+    commandConfidence: 0
   };
 }
 
