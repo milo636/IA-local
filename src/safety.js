@@ -63,6 +63,22 @@ function validateAction(action) {
     return deny("No busco archivos relacionados con contrasenas, tokens o secretos.");
   }
 
+  if (action.type === "find_files") {
+    const extension = String(action.payload?.extension || "").replace(/^\./, "");
+    if (extension && !/^[a-z0-9]{1,10}$/i.test(extension)) {
+      return deny("La extension solicitada no es valida.");
+    }
+
+    if (action.payload?.category && !["images", "documents"].includes(action.payload.category)) {
+      return deny("La categoria de busqueda no esta permitida.");
+    }
+
+    const limit = Number(action.payload?.limit || 50);
+    if (!Number.isFinite(limit) || limit < 1 || limit > 100) {
+      return deny("El limite de resultados debe estar entre 1 y 100.");
+    }
+  }
+
   return allow();
 }
 

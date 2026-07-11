@@ -861,6 +861,90 @@ textarea:focus-visible {
   gap: 8px;
 }
 
+.productivity-summary,
+.productivity-form,
+.productivity-list {
+  display: grid;
+  gap: 8px;
+}
+
+.productivity-form {
+  padding-top: 10px;
+  border-top: 1px solid rgba(52, 66, 85, 0.55);
+}
+
+.productivity-form label {
+  color: var(--soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.productivity-form input,
+.productivity-form textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: #0f1620;
+  color: var(--text);
+  padding: 8px 10px;
+}
+
+.productivity-form textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.42;
+}
+
+.productivity-form input:focus,
+.productivity-form textarea:focus {
+  border-color: var(--blue);
+}
+
+.productivity-form-actions,
+.productivity-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.productivity-form-actions > * {
+  flex: 1 1 0;
+  width: auto;
+}
+
+.productivity-item {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(17, 23, 32, 0.74);
+}
+
+.productivity-item-heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.productivity-item-heading strong {
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.productivity-item-heading span {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.productivity-item-actions button {
+  flex: 1 1 0;
+}
+
 .memory-form textarea,
 .memory-item textarea {
   min-height: 74px;

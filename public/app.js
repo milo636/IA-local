@@ -7,6 +7,7 @@ const state = {
   debugMode: localStorage.getItem("sawLocalDebug") === "true",
   examples: [],
   examplesFilter: "all",
+  favorites: [],
   intents: [],
   logs: [],
   memory: { messages: [], pendingAction: null },
@@ -14,6 +15,7 @@ const state = {
   memorySearchResults: null,
   memorySearchTimer: null,
   pendingSensitive: null,
+  routines: [],
   statusResetTimer: null,
   settings: {},
   userMemory: { memories: [], profile: {}, stats: {} }
@@ -35,12 +37,22 @@ const elements = {
   conversationLearnedCount: document.querySelector("#conversationLearnedCount"),
   conversationModelBadge: document.querySelector("#conversationModelBadge"),
   conversationResponseCount: document.querySelector("#conversationResponseCount"),
+  createFavoriteButton: document.querySelector("#createFavoriteButton"),
+  createRoutineButton: document.querySelector("#createRoutineButton"),
   debugModeButton: document.querySelector("#debugModeButton"),
   examplesIntentFilter: document.querySelector("#examplesIntentFilter"),
   examplesList: document.querySelector("#examplesList"),
   exportDatasetButton: document.querySelector("#exportDatasetButton"),
+  exportAllButton: document.querySelector("#exportAllButton"),
+  exportFavoritesButton: document.querySelector("#exportFavoritesButton"),
   exportLogsButton: document.querySelector("#exportLogsButton"),
   exportMemoryButton: document.querySelector("#exportMemoryButton"),
+  exportRoutinesButton: document.querySelector("#exportRoutinesButton"),
+  favoriteCommand: document.querySelector("#favoriteCommand"),
+  favoriteCount: document.querySelector("#favoriteCount"),
+  favoriteForm: document.querySelector("#favoriteForm"),
+  favoriteName: document.querySelector("#favoriteName"),
+  favoritesList: document.querySelector("#favoritesList"),
   logsList: document.querySelector("#logsList"),
   addMemoryButton: document.querySelector("#addMemoryButton"),
   memoryBadge: document.querySelector("#memoryBadge"),
@@ -65,6 +77,13 @@ const elements = {
   settingsList: document.querySelector("#settingsList"),
   profileStatus: document.querySelector("#profileStatus"),
   profileSummary: document.querySelector("#profileSummary"),
+  productivityBadge: document.querySelector("#productivityBadge"),
+  routineCommands: document.querySelector("#routineCommands"),
+  routineCount: document.querySelector("#routineCount"),
+  routineForm: document.querySelector("#routineForm"),
+  routineName: document.querySelector("#routineName"),
+  routinesList: document.querySelector("#routinesList"),
+  saveLastCommandButton: document.querySelector("#saveLastCommandButton"),
   toastRegion: document.querySelector("#toastRegion")
 };
 
@@ -86,7 +105,9 @@ const quickCommands = [
   "abrir explorador",
   "listar archivos de descargas",
   "mostrar estado del sistema",
-  "organizar descargas por tipo"
+  "organizar descargas por tipo",
+  "mostrar favoritos",
+  "mostrar rutinas"
 ];
 
 elements.chatForm.addEventListener("submit", async (event) => {
@@ -133,6 +154,43 @@ elements.exportLogsButton.addEventListener("click", () => {
 
 elements.exportMemoryButton.addEventListener("click", () => {
   window.location.href = "/api/memory/export";
+});
+
+elements.exportFavoritesButton.addEventListener("click", () => {
+  window.location.href = "/api/favorites/export";
+});
+
+elements.exportRoutinesButton.addEventListener("click", () => {
+  window.location.href = "/api/routines/export";
+});
+
+elements.exportAllButton.addEventListener("click", () => {
+  window.location.href = "/api/export/all";
+});
+
+elements.saveLastCommandButton.addEventListener("click", () => {
+  const lastCommand = [...(state.memory.messages || [])]
+    .reverse()
+    .find((message) => message.role === "user" && String(message.content || "").toUpperCase() !== "CONFIRMAR");
+
+  if (!lastCommand) {
+    showToast("Todavia no hay un comando para guardar.", "warn");
+    return;
+  }
+
+  elements.favoriteCommand.value = lastCommand.content;
+  showToast("Ultimo comando cargado.", "info");
+});
+
+elements.favoriteForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await createFavorite(elements.favoriteName.value, elements.favoriteCommand.value);
+});
+
+elements.routineForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const commands = elements.routineCommands.value.split(/\r?\n/).map((command) => command.trim()).filter(Boolean);
+  await createRoutine(elements.routineName.value, commands);
 });
 
 elements.memoryForm.addEventListener("submit", async (event) => {
@@ -521,20 +579,99 @@ async function deleteMemory(id) {
   }
 }
 
+async function createFavorite(name, command) {
+  const value = String(command || "").trim();
+  if (!value) {
+    showToast("Escribi un comando permitido.", "warn");
+    return;
+  }
+
+  const payload = await productivityRequest("/api/favorites", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: String(name || "").trim(), command: value })
+  }, "Favorito guardado.");
+
+  if (payload) {
+    elements.favoriteName.value = "";
+    elements.favoriteCommand.value = "";
+  }
+}
+
+async function deleteFavorite(id) {
+  if (!window.confirm("Eliminar este favorito local?")) return;
+  await productivityRequest(`/api/favorites/${encodeURIComponent(id)}`, { method: "DELETE" }, "Favorito eliminado.");
+}
+
+async function runFavorite(id) {
+  await productivityRequest(`/api/favorites/${encodeURIComponent(id)}/run`, { method: "POST" }, "Favorito procesado.");
+}
+
+async function createRoutine(name, commands) {
+  if (!commands.length) {
+    showToast("Agrega al menos un comando a la rutina.", "warn");
+    return;
+  }
+
+  const payload = await productivityRequest("/api/routines", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: String(name || "").trim(), commands })
+  }, "Rutina guardada.");
+
+  if (payload) {
+    elements.routineName.value = "";
+    elements.routineCommands.value = "";
+  }
+}
+
+async function deleteRoutine(id) {
+  if (!window.confirm("Eliminar esta rutina local?")) return;
+  await productivityRequest(`/api/routines/${encodeURIComponent(id)}`, { method: "DELETE" }, "Rutina eliminada.");
+}
+
+async function runRoutine(id) {
+  await productivityRequest(`/api/routines/${encodeURIComponent(id)}/run`, { method: "POST" }, "Rutina procesada.");
+}
+
+async function productivityRequest(endpoint, options, successMessage) {
+  setBusy(true, "Procesando automatizacion...");
+  try {
+    const response = await fetch(endpoint, options);
+    const payload = await response.json();
+    if (!response.ok) {
+      showToast(payload.error || "No pude procesar la automatizacion.", "error");
+      return null;
+    }
+
+    applyState(payload.state || state);
+    showToast(successMessage, "success");
+    return payload;
+  } catch (error) {
+    showToast(`Error local: ${error.message}`, "error");
+    return null;
+  } finally {
+    setBusy(false);
+  }
+}
+
 function applyState(nextState) {
   state.ai = nextState.ai || state.ai || {};
   state.actions = nextState.actions || [];
   state.conversation = nextState.conversation || state.conversation || {};
   state.conversationIntents = nextState.conversationIntents || state.conversationIntents || [];
+  state.favorites = nextState.favorites || state.favorites || [];
   state.intents = nextState.intents || state.intents || [];
   state.logs = nextState.logs || [];
   state.memory = nextState.memory || { messages: [], pendingAction: null };
+  state.routines = nextState.routines || state.routines || [];
   state.settings = nextState.settings || {};
   state.userMemory = nextState.userMemory || state.userMemory || { memories: [], profile: {}, stats: {} };
 
   renderAiPanel();
   renderConversationPanel();
   renderMemoryPanel();
+  renderProductivityPanel();
   renderSettings();
   renderActions();
   renderQuickCommands();
@@ -545,6 +682,60 @@ function applyState(nextState) {
   renderSensitiveBanner();
   renderExamplesFilter();
   renderExamplesPanel();
+}
+
+function renderProductivityPanel() {
+  const favorites = Array.isArray(state.favorites) ? state.favorites : [];
+  const routines = Array.isArray(state.routines) ? state.routines : [];
+  const hasItems = favorites.length + routines.length > 0;
+
+  elements.favoriteCount.textContent = String(favorites.length);
+  elements.routineCount.textContent = String(routines.length);
+  elements.productivityBadge.textContent = hasItems ? "Lista" : "Vacio";
+  elements.productivityBadge.className = `status-pill ${hasItems ? "status-ok" : "status-warn"}`;
+  renderProductivityList(elements.favoritesList, favorites, "favorite");
+  renderProductivityList(elements.routinesList, routines, "routine");
+}
+
+function renderProductivityList(container, items, type) {
+  container.replaceChildren();
+  if (!items.length) {
+    const empty = document.createElement("p");
+    empty.className = "log-message";
+    empty.textContent = type === "favorite" ? "Sin favoritos guardados." : "Sin rutinas guardadas.";
+    container.append(empty);
+    return;
+  }
+
+  items.forEach((entry) => {
+    const item = document.createElement("article");
+    item.className = "productivity-item";
+    const heading = document.createElement("div");
+    heading.className = "productivity-item-heading";
+    const title = document.createElement("strong");
+    title.textContent = entry.name;
+    const detail = document.createElement("span");
+    detail.textContent = type === "favorite"
+      ? entry.command
+      : `${entry.steps.length} acciones: ${entry.steps.map((step) => step.command).join(" | ")}`;
+    heading.append(title, detail);
+
+    const actions = document.createElement("div");
+    actions.className = "productivity-item-actions";
+    const run = document.createElement("button");
+    run.type = "button";
+    run.className = "learn-button";
+    run.textContent = "Ejecutar";
+    run.addEventListener("click", () => type === "favorite" ? runFavorite(entry.id) : runRoutine(entry.id));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "danger-button icon-button";
+    remove.textContent = "Eliminar";
+    remove.addEventListener("click", () => type === "favorite" ? deleteFavorite(entry.id) : deleteRoutine(entry.id));
+    actions.append(run, remove);
+    item.append(heading, actions);
+    container.append(item);
+  });
 }
 
 function renderMemoryPanel() {
@@ -1317,6 +1508,16 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.restoreDatasetButton.disabled = value;
   elements.addMemoryButton.disabled = value;
   elements.exportMemoryButton.disabled = value;
+  elements.exportFavoritesButton.disabled = value;
+  elements.exportRoutinesButton.disabled = value;
+  elements.exportAllButton.disabled = value;
+  elements.createFavoriteButton.disabled = value;
+  elements.createRoutineButton.disabled = value;
+  elements.saveLastCommandButton.disabled = value;
+  elements.favoriteName.disabled = value;
+  elements.favoriteCommand.disabled = value;
+  elements.routineName.disabled = value;
+  elements.routineCommands.disabled = value;
   elements.memoryInput.disabled = value;
   elements.memorySearchInput.disabled = value;
   elements.confirmSensitiveButton.disabled = value;

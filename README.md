@@ -11,6 +11,8 @@ El objetivo es que cualquier persona pueda clonar el proyecto, ejecutarlo en su 
 - Clasificador de intenciones hecho desde cero en Node.js.
 - Motor conversacional propio para saludos, despedidas, ayuda y preguntas basicas.
 - Memoria inteligente local con perfil de usuario.
+- Favoritos y rutinas locales con ejecucion controlada.
+- Busqueda de archivos por nombre, extension o categoria.
 - Aprendizaje local desde la UI.
 - Dataset editable, exportable y restaurable.
 - Deteccion de texto sensible antes de guardar ejemplos.
@@ -41,7 +43,7 @@ La interfaz esta pensada para uso local y diario:
 
 - Chat principal con estados como `Atenea esta lista`, `Entrenando modelo...` y `Modelo actualizado`.
 - Panel izquierdo con modo seguro, permisos y acciones disponibles.
-- Panel derecho con IA local, conversacion, ejemplos aprendidos, comandos rapidos y logs.
+- Panel derecho con IA local, conversacion, memoria, productividad, ejemplos aprendidos, comandos rapidos y logs.
 - Panel de memoria con perfil, recuerdos editables, busqueda y exportacion.
 - Modo debug para inspeccionar intencion, confidence y origen de respuesta.
 - Boton para copiar respuestas del asistente.
@@ -98,9 +100,19 @@ abrir explorador
 crear carpeta llamada X en escritorio
 listar archivos de descargas
 buscar archivos que contengan X
+buscar archivos pdf que contengan factura
+buscar imagenes que contengan logo
 crear nota llamada X con este texto: ...
 mostrar estado del sistema
 organizar descargas por tipo
+guardar como favorito abrir chrome
+mostrar favoritos
+ejecutar favorito chrome
+borrar favorito chrome
+crear rutina llamada inicio con abrir chrome y abrir explorador
+mostrar rutinas
+ejecutar rutina inicio
+borrar rutina inicio
 ```
 
 `organizar descargas por tipo` mueve archivos dentro de Descargas y pide confirmacion:
@@ -108,6 +120,29 @@ organizar descargas por tipo
 ```text
 Esta accion necesita confirmacion. Escribi CONFIRMAR para continuar.
 ```
+
+Las busquedas comparan nombres visibles en Escritorio, Descargas y Documentos. Pueden filtrar por extension o por las categorias `imagenes` y `documentos`, muestran la carpeta encontrada, limitan la salida a 100 resultados y nunca leen el contenido de los archivos.
+
+## Productividad local
+
+El panel `Productividad` permite guardar comandos frecuentes como favoritos y combinar hasta diez comandos permitidos en una rutina. Los datos viven en:
+
+```text
+data/favorites.json
+data/routines.json
+```
+
+Guardar un favorito o una rutina no ejecuta acciones. Al ejecutar, cada comando se vuelve a validar mediante el agente, `safety.js` y `permissions.js`. Si una accion requiere confirmacion, la rutina se pausa, guarda localmente los pasos restantes y continua solamente despues de escribir `CONFIRMAR`.
+
+Desde la interfaz se puede:
+
+- crear un favorito manualmente o desde el ultimo comando del chat
+- ejecutar y borrar favoritos
+- crear rutinas con un comando por linea
+- ejecutar y borrar rutinas
+- exportar favoritos, rutinas o todos los datos locales en JSON
+
+Las rutinas no aceptan shell, comandos arbitrarios ni acciones fuera de la allowlist.
 
 ## Conversacion basica
 
@@ -250,6 +285,9 @@ Atenea Local aplica estas reglas:
 - La memoria no ejecuta acciones.
 - Guardar, editar, buscar o borrar recuerdos no toca archivos fuera de `data/userProfile.json`.
 - Las acciones reales siguen pasando por `safety.js` y `permissions.js`.
+- Los favoritos y rutinas no ejecutan nada al guardarse.
+- Cada paso guardado se valida otra vez antes de ejecutarse.
+- Una rutina se detiene si cambian los permisos o un paso deja de ser valido.
 - Los permisos viven en `data/settings.json`.
 - Los logs viven en `data/logs.json`.
 - La memoria local vive en `data/memory.json`.
@@ -302,12 +340,14 @@ IA-local/
     actions.js
     commandParser.js
     conversationAI.js
+    favorites.js
     fileManager.js
     localAI.js
     logger.js
     memory.js
     memoryEngine.js
     permissions.js
+    routines.js
     safety.js
     sensitiveText.js
     trainLocalAI.js
@@ -315,9 +355,11 @@ IA-local/
     baseTrainingData.json
     conversations.json
     conversationModel.json
+    favorites.json
     localAIModel.json
     logs.json
     memory.json
+    routines.json
     settings.json
     trainingData.json
     userProfile.json
@@ -353,6 +395,20 @@ POST   /api/ai/dataset/restore-base
 GET    /api/conversation/intents
 POST   /api/conversation/learn
 POST   /api/conversation/train
+
+GET    /api/favorites
+POST   /api/favorites
+DELETE /api/favorites/:id
+POST   /api/favorites/:id/run
+GET    /api/favorites/export
+
+GET    /api/routines
+POST   /api/routines
+DELETE /api/routines/:id
+POST   /api/routines/:id/run
+GET    /api/routines/export
+
+GET    /api/export/all
 ```
 
 ## Capturas de pantalla
@@ -395,17 +451,26 @@ Fase 4 completada:
 - Busqueda semantica simple por palabras.
 - Exportacion de memoria.
 
-Fase 5:
+Fase 5 completada:
 
-- Tareas programadas.
+- Favoritos locales para comandos frecuentes.
+- Rutinas de acciones allowlisted con pausa por confirmacion.
+- Panel de productividad responsive.
+- Busqueda por nombre, extension y categoria.
+- Exportacion local de favoritos, rutinas y paquete completo.
+- Tests de almacenamiento, endpoints, safety y busqueda.
 
 Fase 6:
 
-- App de escritorio con Electron.
+- Tareas programadas con permisos y confirmaciones.
 
 Fase 7:
 
-- Comunidad de automatizaciones seguras.
+- App de escritorio con Electron.
+
+Fase 8:
+
+- Comunidad de automatizaciones seguras con revision y firmas.
 
 Futuro opcional:
 

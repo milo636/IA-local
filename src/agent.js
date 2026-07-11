@@ -1,10 +1,12 @@
 const actions = require("./actions");
 const conversationAI = require("./conversationAI");
+const favorites = require("./favorites");
 const logger = require("./logger");
 const localAI = require("./localAI");
 const memory = require("./memory");
 const memoryEngine = require("./memoryEngine");
 const permissions = require("./permissions");
+const routines = require("./routines");
 const safety = require("./safety");
 const { parseActionFromIntent, parseCommand } = require("./commandParser");
 
@@ -26,6 +28,11 @@ async function handleMessage(message) {
   const memoryRequest = memoryEngine.parseMemoryRequest(text);
   if (memoryRequest) {
     return respondMemory(memoryRequest, text);
+  }
+
+  const productivityRequest = parseProductivityRequest(text);
+  if (productivityRequest) {
+    return handleProductivityRequest(productivityRequest);
   }
 
   const aiResult = localAI.classifyIntent(text);
@@ -161,25 +168,40 @@ async function executePendingAction() {
   }
 
   memory.clearPendingAction();
-  return executeAllowedAction(pending.action, { confirmed: true, pendingId: pending.id });
+
+  if (!pending.continuation) {
+    return executeAllowedAction(pending.action, { confirmed: true, pendingId: pending.id });
+  }
+
+  try {
+    const result = await performAllowedAction(pending.action, {
+      confirmed: true,
+      pendingId: pending.id,
+      source: pending.continuation.source,
+      sourceId: pending.continuation.sourceId
+    });
+    return runStoredActionSequence(pending.continuation.actions || [], {
+      ...pending.continuation,
+      completedMessages: [...(pending.continuation.completedMessages || []), result.message]
+    });
+  } catch (error) {
+    return respond(
+      `No pude continuar la automatizacion: ${error.message}`,
+      {
+        level: "error",
+        action: "productivity.run.failed",
+        summary: "Automatizacion interrumpida."
+      },
+      { skipLog: true }
+    );
+  }
 }
 
 async function executeAllowedAction(action, meta = {}) {
   const responseAiMeta = buildAiMeta(action.ai, action.original, Boolean(action.ai));
 
   try {
-    const result = await actions.executeAction(action);
-    logger.writeLog({
-      level: "info",
-      action: `action.${action.type}`,
-      message: result.summary || "Accion ejecutada",
-      details: sanitizeLogDetails({
-        ...result.details,
-        ai: action.ai || null,
-        confirmed: Boolean(meta.confirmed),
-        pendingId: meta.pendingId || null
-      })
-    });
+    const result = await performAllowedAction(action, meta);
     return respond(
       result.message,
       {
@@ -190,12 +212,6 @@ async function executeAllowedAction(action, meta = {}) {
       { skipLog: true, aiMeta: responseAiMeta }
     );
   } catch (error) {
-    logger.writeLog({
-      level: "error",
-      action: `action.${action.type}.failed`,
-      message: "La accion fallo",
-      details: { error: error.message, ai: action.ai || null }
-    });
     return respond(
       `No pude completar la accion: ${error.message}`,
       {
@@ -206,6 +222,242 @@ async function executeAllowedAction(action, meta = {}) {
       { skipLog: true, aiMeta: responseAiMeta }
     );
   }
+}
+
+async function performAllowedAction(action, meta = {}) {
+  try {
+    const result = await actions.executeAction(action);
+    logger.writeLog({
+      level: "info",
+      action: `action.${action.type}`,
+      message: result.summary || "Accion ejecutada",
+      details: sanitizeLogDetails({
+        ...result.details,
+        ai: action.ai || null,
+        confirmed: Boolean(meta.confirmed),
+        pendingId: meta.pendingId || null,
+        source: meta.source || null,
+        sourceId: meta.sourceId || null
+      })
+    });
+    return result;
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: `action.${action.type}.failed`,
+      message: "La accion fallo",
+      details: {
+        error: error.message,
+        ai: action.ai || null,
+        source: meta.source || null,
+        sourceId: meta.sourceId || null
+      }
+    });
+    throw error;
+  }
+}
+
+async function runStoredCommands(commands, meta = {}) {
+  if (!Array.isArray(commands) || !commands.length || commands.length > 10) {
+    throw new Error("La automatizacion debe contener entre 1 y 10 comandos permitidos.");
+  }
+
+  const parsedActions = commands.map((command) => {
+    const validated = favorites.validateStoredCommand(command);
+    return {
+      ...validated.action,
+      original: validated.command,
+      ai: null
+    };
+  });
+
+  return runStoredActionSequence(parsedActions, {
+    completedMessages: [],
+    source: meta.source || "stored",
+    sourceId: meta.sourceId || null,
+    sourceName: meta.sourceName || null
+  });
+}
+
+async function runStoredActionSequence(storedActions, context) {
+  const completedMessages = [...(context.completedMessages || [])];
+
+  for (let index = 0; index < storedActions.length; index += 1) {
+    const action = storedActions[index];
+    const guard = guardAction(action);
+    if (!guard.ok) {
+      logger.writeLog({
+        level: "warn",
+        action: "productivity.run.denied",
+        message: guard.reason,
+        details: { source: context.source, sourceId: context.sourceId, type: action.type }
+      });
+      const prefix = completedMessages.length ? `${completedMessages.join("\n\n")}\n\n` : "";
+      return respond(
+        `${prefix}Automatizacion detenida por seguridad: ${guard.reason}`,
+        { level: "warn", action: "productivity.run.denied", summary: "Automatizacion bloqueada." },
+        { skipLog: true }
+      );
+    }
+
+    if (safety.requiresConfirmation(action, permissions.getSettings())) {
+      const pendingAction = {
+        id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+        action,
+        reason: "Una accion guardada puede mover o modificar archivos locales.",
+        createdAt: new Date().toISOString(),
+        continuation: {
+          actions: storedActions.slice(index + 1),
+          completedMessages,
+          source: context.source,
+          sourceId: context.sourceId,
+          sourceName: context.sourceName
+        }
+      };
+      memory.setPendingAction(pendingAction);
+      logger.writeLog({
+        level: "warn",
+        action: "productivity.pending_confirmation",
+        message: "Automatizacion pausada para confirmar una accion",
+        details: {
+          pendingId: pendingAction.id,
+          source: context.source,
+          sourceId: context.sourceId,
+          type: action.type,
+          remainingSteps: pendingAction.continuation.actions.length
+        }
+      });
+
+      const prefix = completedMessages.length ? `${completedMessages.join("\n\n")}\n\n` : "";
+      return respond(
+        `${prefix}Esta accion necesita confirmacion. Escribi CONFIRMAR para continuar.`,
+        { level: "warn", action: "productivity.pending_confirmation", summary: "Automatizacion pendiente de confirmacion." },
+        { skipLog: true }
+      );
+    }
+
+    try {
+      const result = await performAllowedAction(action, {
+        source: context.source,
+        sourceId: context.sourceId
+      });
+      completedMessages.push(result.message);
+    } catch (error) {
+      return respond(
+        `${completedMessages.length ? `${completedMessages.join("\n\n")}\n\n` : ""}Automatizacion detenida: ${error.message}`,
+        { level: "error", action: "productivity.run.failed", summary: "Automatizacion interrumpida." },
+        { skipLog: true }
+      );
+    }
+  }
+
+  logger.writeLog({
+    level: "info",
+    action: `productivity.${context.source}.completed`,
+    message: "Automatizacion local completada",
+    details: {
+      sourceId: context.sourceId,
+      sourceName: context.sourceName,
+      completedSteps: completedMessages.length
+    }
+  });
+
+  return respond(
+    completedMessages.join("\n\n") || "La automatizacion no tenia acciones pendientes.",
+    { level: "info", action: `productivity.${context.source}.completed`, summary: "Automatizacion completada." },
+    { skipLog: true }
+  );
+}
+
+async function handleProductivityRequest(request) {
+  try {
+    if (request.type === "favorite.create") {
+      const favorite = favorites.createFavorite(request);
+      logger.writeLog({ level: "info", action: "favorite.create", message: "Favorito local creado", details: { favoriteId: favorite.id, actionType: favorite.actionType } });
+      return respond(`Favorito guardado: ${favorite.name}\nComando: ${favorite.command}`, { level: "info", action: "favorite.create", summary: "Favorito creado." }, { skipLog: true });
+    }
+
+    if (request.type === "favorite.list") {
+      const items = favorites.listFavorites();
+      const reply = items.length ? `Favoritos guardados:\n${items.map((item) => `- ${item.name}: ${item.command}`).join("\n")}` : "No hay favoritos guardados.";
+      return respond(reply, { level: "info", action: "favorite.list", summary: "Favoritos listados." });
+    }
+
+    if (request.type === "favorite.delete") {
+      const favorite = favorites.deleteFavorite(request.reference);
+      logger.writeLog({ level: "info", action: "favorite.delete", message: "Favorito local borrado", details: { favoriteId: favorite.id } });
+      return respond(`Favorito borrado: ${favorite.name}`, { level: "info", action: "favorite.delete", summary: "Favorito borrado." }, { skipLog: true });
+    }
+
+    if (request.type === "favorite.run") {
+      const favorite = favorites.findFavorite(request.reference);
+      if (!favorite) throw new Error("No encontre ese favorito.");
+      return runStoredCommands([favorite.command], { source: "favorite", sourceId: favorite.id, sourceName: favorite.name });
+    }
+
+    if (request.type === "routine.create") {
+      const routine = routines.createRoutine(request);
+      logger.writeLog({ level: "info", action: "routine.create", message: "Rutina local creada", details: { routineId: routine.id, steps: routine.steps.length } });
+      return respond(`Rutina guardada: ${routine.name}\n${routine.steps.map((step) => `${step.order}. ${step.command}`).join("\n")}`, { level: "info", action: "routine.create", summary: "Rutina creada." }, { skipLog: true });
+    }
+
+    if (request.type === "routine.list") {
+      const items = routines.listRoutines();
+      const reply = items.length ? `Rutinas guardadas:\n${items.map((item) => `- ${item.name}: ${item.steps.length} acciones`).join("\n")}` : "No hay rutinas guardadas.";
+      return respond(reply, { level: "info", action: "routine.list", summary: "Rutinas listadas." });
+    }
+
+    if (request.type === "routine.delete") {
+      const routine = routines.deleteRoutine(request.reference);
+      logger.writeLog({ level: "info", action: "routine.delete", message: "Rutina local borrada", details: { routineId: routine.id } });
+      return respond(`Rutina borrada: ${routine.name}`, { level: "info", action: "routine.delete", summary: "Rutina borrada." }, { skipLog: true });
+    }
+
+    if (request.type === "routine.run") {
+      const routine = routines.findRoutine(request.reference);
+      if (!routine) throw new Error("No encontre esa rutina.");
+      return runStoredCommands(routine.steps.map((step) => step.command), { source: "routine", sourceId: routine.id, sourceName: routine.name });
+    }
+  } catch (error) {
+    logger.writeLog({ level: "warn", action: `${request.type}.denied`, message: error.message });
+    return respond(`No pude procesar la solicitud: ${error.message}`, { level: "warn", action: `${request.type}.denied`, summary: "Solicitud de productividad rechazada." }, { skipLog: true });
+  }
+
+  return null;
+}
+
+function parseProductivityRequest(text) {
+  const raw = String(text || "").trim();
+  if (/^mostrar\s+favoritos$/i.test(raw)) return { type: "favorite.list" };
+  if (/^mostrar\s+rutinas$/i.test(raw)) return { type: "routine.list" };
+
+  let match = raw.match(/^guardar\s+como\s+favorito\s+llamado\s+(.+?):\s*(.+)$/i);
+  if (match) return { type: "favorite.create", name: match[1].trim(), command: match[2].trim() };
+
+  match = raw.match(/^guardar\s+como\s+favorito\s+(.+)$/i);
+  if (match) return { type: "favorite.create", command: match[1].trim() };
+
+  match = raw.match(/^ejecutar\s+favorito\s+(.+)$/i);
+  if (match) return { type: "favorite.run", reference: match[1].trim() };
+
+  match = raw.match(/^borrar\s+favorito\s+(.+)$/i);
+  if (match) return { type: "favorite.delete", reference: match[1].trim() };
+
+  match = raw.match(/^crear\s+rutina\s+llamada\s+(.+?)\s+con\s+(.+)$/i);
+  if (match) {
+    return {
+      type: "routine.create",
+      name: match[1].trim(),
+      commands: match[2].split(/\s+y\s+/i).map((command) => command.trim()).filter(Boolean)
+    };
+  }
+
+  match = raw.match(/^ejecutar\s+rutina\s+(.+)$/i);
+  if (match) return { type: "routine.run", reference: match[1].trim() };
+
+  match = raw.match(/^borrar\s+rutina\s+(.+)$/i);
+  if (match) return { type: "routine.delete", reference: match[1].trim() };
+  return null;
 }
 
 function respondConversation(conversationResult, originalText, commandAiResult) {
@@ -425,5 +677,7 @@ function sanitizeLogDetails(details) {
 }
 
 module.exports = {
-  handleMessage
+  handleMessage,
+  parseProductivityRequest,
+  runStoredCommands
 };

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const crypto = require("crypto");
 
-const { DATA_FILES, DEFAULT_USER_PROFILE, dataPath, readJson, writeJson } = require("./fileManager");
+const { DATA_FILES, DEFAULT_USER_PROFILE, dataPath, readJson, writeJson, writeJsonFile } = require("./fileManager");
 const { cleanText, tokenize } = require("./localAI");
 const { detectSensitiveText } = require("./sensitiveText");
 
@@ -635,9 +635,7 @@ function readProfile(options = {}) {
 
 function writeProfile(profile, options = {}) {
   if (options.profilePath) {
-    const tmp = `${options.profilePath}.tmp`;
-    fs.writeFileSync(tmp, `${JSON.stringify(profile, null, 2)}\n`, "utf8");
-    fs.renameSync(tmp, options.profilePath);
+    writeJsonFile(options.profilePath, profile);
     return;
   }
 

@@ -35,8 +35,8 @@ const ACTIONS = [
   },
   {
     type: "find_files",
-    label: "buscar archivos que contengan X",
-    description: "Busca nombres de archivos en Escritorio, Descargas y Documentos.",
+    label: "buscar archivos [extension] que contengan X",
+    description: "Busca nombres por texto, extension o categoria sin leer su contenido.",
     permission: "allowFileRead",
     requiresConfirmation: false
   },
@@ -84,7 +84,7 @@ async function executeAction(action) {
     case "list_downloads":
       return listDownloads();
     case "find_files":
-      return findFiles(action.payload.term);
+      return findFiles(action.payload);
     case "create_note":
       return createNote(action.payload.name, action.payload.text);
     case "system_status":
@@ -150,22 +150,24 @@ async function listDownloads() {
   };
 }
 
-async function findFiles(term) {
-  const results = await fileManager.findFilesByName(term);
+async function findFiles(payload) {
+  const { term, extension = null, category = null, limit = 50 } = payload || {};
+  const results = await fileManager.findFilesByName(term, { extension, category, limit });
+  const filterLabel = extension ? ` .${String(extension).replace(/^\./, "")}` : category === "images" ? " de imagen" : category === "documents" ? " de documento" : "";
 
   if (!results.length) {
     return {
-      message: `No encontre archivos visibles que contengan "${term}".`,
+      message: `No encontre archivos${filterLabel} visibles que contengan "${term}".`,
       summary: "Busqueda sin resultados.",
-      details: { term, count: 0 }
+      details: { term, extension, category, limit, count: 0 }
     };
   }
 
-  const lines = results.map((item) => `- ${item.name} (${item.type})\n  ${item.path}`);
+  const lines = results.map((item) => `- ${item.name} (${item.type})\n  Carpeta: ${item.directory}`);
   return {
-    message: `Resultados para "${term}":\n${lines.join("\n")}`,
+    message: `Resultados${filterLabel} para "${term}":\n${lines.join("\n")}`,
     summary: `Busqueda completada: ${results.length} resultados.`,
-    details: { term, count: results.length }
+    details: { term, extension, category, limit, count: results.length }
   };
 }
 

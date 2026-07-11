@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { writeJsonFile } = require("./fileManager");
 
 const DATA_DIR = path.join(__dirname, "..", "data");
 const DEFAULT_TRAINING_PATH = path.join(DATA_DIR, "trainingData.json");
@@ -94,10 +95,7 @@ function loadBaseTrainingData(baseTrainingPath = DEFAULT_BASE_TRAINING_PATH) {
 
 function saveTrainingData(trainingData, trainingPath = DEFAULT_TRAINING_PATH) {
   validateTrainingData(trainingData);
-  fs.mkdirSync(path.dirname(trainingPath), { recursive: true });
-  const tmp = `${trainingPath}.tmp`;
-  fs.writeFileSync(tmp, `${JSON.stringify(trainingData, null, 2)}\n`, "utf8");
-  fs.renameSync(tmp, trainingPath);
+  writeJsonFile(trainingPath, trainingData);
   cachedModel = null;
 }
 

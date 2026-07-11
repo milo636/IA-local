@@ -1,15 +1,17 @@
 const express = require("express");
 const path = require("path");
 
-const { handleMessage } = require("./src/agent");
+const { handleMessage, runStoredCommands } = require("./src/agent");
 const actions = require("./src/actions");
 const conversationAI = require("./src/conversationAI");
+const favorites = require("./src/favorites");
 const fileManager = require("./src/fileManager");
 const logger = require("./src/logger");
 const localAI = require("./src/localAI");
 const memory = require("./src/memory");
 const memoryEngine = require("./src/memoryEngine");
 const permissions = require("./src/permissions");
+const routines = require("./src/routines");
 const { detectSensitiveText } = require("./src/sensitiveText");
 
 const app = express();
@@ -628,6 +630,164 @@ app.post("/api/chat/clear", (req, res) => {
   res.json({ state: buildState() });
 });
 
+app.get("/api/favorites", (req, res) => {
+  logger.writeLog({ level: "info", action: "favorite.list", message: "Favoritos locales listados" });
+  res.json({ favorites: favorites.listFavorites(), state: buildState() });
+});
+
+app.post("/api/favorites", (req, res) => {
+  try {
+    const favorite = favorites.createFavorite({
+      name: typeof req.body.name === "string" ? req.body.name.trim() : "",
+      command: typeof req.body.command === "string" ? req.body.command.trim() : ""
+    });
+    logger.writeLog({
+      level: "info",
+      action: "favorite.create",
+      message: "Favorito local creado desde la interfaz",
+      details: { favoriteId: favorite.id, actionType: favorite.actionType }
+    });
+    res.status(201).json({ ok: true, favorite, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "favorite.create.denied");
+  }
+});
+
+app.delete("/api/favorites/:id", (req, res) => {
+  try {
+    const favorite = favorites.deleteFavorite(String(req.params.id || "").trim());
+    logger.writeLog({
+      level: "info",
+      action: "favorite.delete",
+      message: "Favorito local borrado",
+      details: { favoriteId: favorite.id }
+    });
+    res.json({ ok: true, favorite, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "favorite.delete.denied");
+  }
+});
+
+app.post("/api/favorites/:id/run", async (req, res) => {
+  try {
+    const favorite = favorites.findFavorite(String(req.params.id || "").trim());
+    if (!favorite) throw new Error("No encontre ese favorito.");
+    logger.writeLog({
+      level: "info",
+      action: "favorite.run.requested",
+      message: "Ejecucion de favorito solicitada",
+      details: { favoriteId: favorite.id, actionType: favorite.actionType }
+    });
+    const result = await runStoredCommands([favorite.command], {
+      source: "favorite",
+      sourceId: favorite.id,
+      sourceName: favorite.name
+    });
+    res.json({ ok: true, result, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "favorite.run.denied");
+  }
+});
+
+app.get("/api/favorites/export", (req, res) => {
+  logger.writeLog({ level: "info", action: "favorite.export", message: "Favoritos locales exportados" });
+  sendJsonDownload(res, "atenea-local-favorites", {
+    exportedAt: new Date().toISOString(),
+    app: "SAW Local",
+    favorites: favorites.getState()
+  });
+});
+
+app.get("/api/routines", (req, res) => {
+  logger.writeLog({ level: "info", action: "routine.list", message: "Rutinas locales listadas" });
+  res.json({ routines: routines.listRoutines(), state: buildState() });
+});
+
+app.post("/api/routines", (req, res) => {
+  try {
+    const commands = Array.isArray(req.body.commands)
+      ? req.body.commands.map((command) => String(command || "").trim())
+      : [];
+    const routine = routines.createRoutine({
+      name: typeof req.body.name === "string" ? req.body.name.trim() : "",
+      commands
+    });
+    logger.writeLog({
+      level: "info",
+      action: "routine.create",
+      message: "Rutina local creada desde la interfaz",
+      details: { routineId: routine.id, steps: routine.steps.length }
+    });
+    res.status(201).json({ ok: true, routine, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "routine.create.denied");
+  }
+});
+
+app.delete("/api/routines/:id", (req, res) => {
+  try {
+    const routine = routines.deleteRoutine(String(req.params.id || "").trim());
+    logger.writeLog({
+      level: "info",
+      action: "routine.delete",
+      message: "Rutina local borrada",
+      details: { routineId: routine.id }
+    });
+    res.json({ ok: true, routine, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "routine.delete.denied");
+  }
+});
+
+app.post("/api/routines/:id/run", async (req, res) => {
+  try {
+    const routine = routines.findRoutine(String(req.params.id || "").trim());
+    if (!routine) throw new Error("No encontre esa rutina.");
+    logger.writeLog({
+      level: "info",
+      action: "routine.run.requested",
+      message: "Ejecucion de rutina solicitada",
+      details: { routineId: routine.id, steps: routine.steps.length }
+    });
+    const result = await runStoredCommands(routine.steps.map((step) => step.command), {
+      source: "routine",
+      sourceId: routine.id,
+      sourceName: routine.name
+    });
+    res.json({ ok: true, result, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "routine.run.denied");
+  }
+});
+
+app.get("/api/routines/export", (req, res) => {
+  logger.writeLog({ level: "info", action: "routine.export", message: "Rutinas locales exportadas" });
+  sendJsonDownload(res, "atenea-local-routines", {
+    exportedAt: new Date().toISOString(),
+    app: "SAW Local",
+    routines: routines.getState()
+  });
+});
+
+app.get("/api/export/all", (req, res) => {
+  logger.writeLog({
+    level: "info",
+    action: "local.export.all",
+    message: "Exportacion local completa solicitada"
+  });
+  sendJsonDownload(res, "atenea-local-export", {
+    exportedAt: new Date().toISOString(),
+    app: "SAW Local",
+    localOnly: true,
+    dataset: localAI.loadTrainingData(),
+    favorites: favorites.getState(),
+    logs: logger.getLogs(),
+    memory: memoryEngine.getMemoryState(),
+    routines: routines.getState(),
+    settings: permissions.getSettings()
+  });
+});
+
 app.get("/api/logs/export", (req, res) => {
   const logs = logger.getLogs();
   const fileName = `saw-local-logs-${new Date().toISOString().slice(0, 10)}.json`;
@@ -653,12 +813,30 @@ function buildState() {
     intents: localAI.listIntents(),
     conversation: conversationAI.getModelStatus(),
     conversationIntents: conversationAI.listConversationIntents(),
+    favorites: favorites.listFavorites(),
     userMemory: memoryEngine.getMemoryState(),
     settings: permissions.getSettings(),
     memory: memory.getMemory(),
     logs: logger.getRecentLogs(30),
+    routines: routines.listRoutines(),
     actions: actions.listActions()
   };
+}
+
+function handleProductivityError(res, error, action) {
+  logger.writeLog({
+    level: "warn",
+    action,
+    message: error.message
+  });
+  res.status(400).json({ error: error.message, state: buildState() });
+}
+
+function sendJsonDownload(res, prefix, payload) {
+  const fileName = `${prefix}-${new Date().toISOString().slice(0, 10)}.json`;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+  res.send(JSON.stringify(payload, null, 2));
 }
 
 function handleMemoryError(res, error, action) {

@@ -27,9 +27,9 @@ function parseCommand(message) {
     return action("list_downloads");
   }
 
-  const searchMatch = raw.match(/^buscar\s+archivos\s+que\s+contengan\s+(.+)$/i);
-  if (searchMatch) {
-    return action("find_files", { term: searchMatch[1].trim() });
+  const search = parseSearchCommand(raw);
+  if (search) {
+    return action("find_files", search);
   }
 
   const noteMatch = raw.match(/^crear\s+nota\s+llamada\s+(.+?)\s+con\s+este\s+texto:\s*([\s\S]+)$/i);
@@ -80,8 +80,8 @@ function parseActionFromIntent(intent, message) {
   }
 
   if (intent === "search_files") {
-    const term = extractSearchTerm(raw);
-    return term ? action("find_files", { term }) : unknown(raw);
+    const query = parseSearchCommand(raw) || extractSearchQuery(raw);
+    return query ? action("find_files", query) : unknown(raw);
   }
 
   if (intent === "create_note") {
@@ -133,9 +133,39 @@ function extractFolderName(raw) {
   return normalize(name) === "carpeta" ? null : name;
 }
 
-function extractSearchTerm(raw) {
+function parseSearchCommand(raw) {
+  const fileMatch = raw.match(/^buscar\s+archivos(?:\s+\.?([a-z0-9]{1,10}))?\s+que\s+contengan\s+(.+?)(?:\s+limite\s+(\d{1,3}))?$/i);
+  if (fileMatch) {
+    return compactSearchPayload({
+      term: fileMatch[2],
+      extension: fileMatch[1] || null,
+      limit: fileMatch[3] || null
+    });
+  }
+
+  const categoryMatch = raw.match(/^buscar\s+(imagenes|imágenes|documentos)\s+que\s+contengan\s+(.+?)(?:\s+limite\s+(\d{1,3}))?$/i);
+  if (categoryMatch) {
+    return compactSearchPayload({
+      term: categoryMatch[2],
+      category: normalize(categoryMatch[1]) === "documentos" ? "documents" : "images",
+      limit: categoryMatch[3] || null
+    });
+  }
+
+  return null;
+}
+
+function extractSearchQuery(raw) {
   const match = raw.match(/(?:buscar|busca|encontrar|encuentra|localizar|localiza)\s+(?:archivos?\s+)?(?:que\s+contengan\s+|con\s+|llamados?\s+|sobre\s+)?(.+)$/i);
-  return match?.[1]?.trim() || null;
+  return match?.[1]?.trim() ? { term: match[1].trim() } : null;
+}
+
+function compactSearchPayload(payload) {
+  const result = { term: String(payload.term || "").trim() };
+  if (payload.extension) result.extension = String(payload.extension).toLowerCase().replace(/^\./, "");
+  if (payload.category) result.category = payload.category;
+  if (payload.limit) result.limit = Math.min(100, Math.max(1, Number(payload.limit)));
+  return result.term ? result : null;
 }
 
 function extractNote(raw) {

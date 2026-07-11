@@ -3,6 +3,7 @@ const path = require("path");
 const crypto = require("crypto");
 
 const { cleanText, tokenize } = require("./localAI");
+const { writeJsonFile } = require("./fileManager");
 
 const DATA_DIR = path.join(__dirname, "..", "data");
 const DEFAULT_CONVERSATIONS_PATH = path.join(DATA_DIR, "conversations.json");
@@ -21,10 +22,7 @@ function loadConversationData(conversationsPath = DEFAULT_CONVERSATIONS_PATH) {
 
 function saveConversationData(conversationData, conversationsPath = DEFAULT_CONVERSATIONS_PATH) {
   validateConversationData(conversationData);
-  fs.mkdirSync(path.dirname(conversationsPath), { recursive: true });
-  const tmp = `${conversationsPath}.tmp`;
-  fs.writeFileSync(tmp, `${JSON.stringify(conversationData, null, 2)}\n`, "utf8");
-  fs.renameSync(tmp, conversationsPath);
+  writeJsonFile(conversationsPath, conversationData);
   cachedModel = null;
 }
 

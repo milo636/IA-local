@@ -34,10 +34,24 @@ const DEFAULT_USER_PROFILE = {
 
 const DEFAULT_LOGS = [];
 
+const DEFAULT_FAVORITES = {
+  version: 1,
+  items: [],
+  updatedAt: null
+};
+
+const DEFAULT_ROUTINES = {
+  version: 1,
+  items: [],
+  updatedAt: null
+};
+
 const DATA_FILES = {
+  favorites: "favorites.json",
   settings: "settings.json",
   memory: "memory.json",
   logs: "logs.json",
+  routines: "routines.json",
   userProfile: "userProfile.json"
 };
 
@@ -46,6 +60,8 @@ function ensureDataFiles() {
   ensureJsonFile(dataPath(DATA_FILES.settings), DEFAULT_SETTINGS);
   ensureJsonFile(dataPath(DATA_FILES.memory), DEFAULT_MEMORY);
   ensureJsonFile(dataPath(DATA_FILES.logs), DEFAULT_LOGS);
+  ensureJsonFile(dataPath(DATA_FILES.favorites), DEFAULT_FAVORITES);
+  ensureJsonFile(dataPath(DATA_FILES.routines), DEFAULT_ROUTINES);
   ensureJsonFile(dataPath(DATA_FILES.userProfile), DEFAULT_USER_PROFILE);
 }
 
@@ -79,10 +95,22 @@ function readJson(fileName, fallbackValue) {
 
 function writeJson(fileName, value) {
   ensureDataFiles();
-  const target = dataPath(fileName);
+  writeJsonFile(dataPath(fileName), value);
+}
+
+function writeJsonFile(target, value) {
+  fs.mkdirSync(path.dirname(target), { recursive: true });
   const tmp = `${target}.tmp`;
-  fs.writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-  fs.renameSync(tmp, target);
+  const contents = `${JSON.stringify(value, null, 2)}\n`;
+  fs.writeFileSync(tmp, contents, "utf8");
+
+  try {
+    fs.renameSync(tmp, target);
+  } catch (error) {
+    if (!["EPERM", "EACCES", "EBUSY"].includes(error.code)) throw error;
+    fs.writeFileSync(target, contents, "utf8");
+    fs.rmSync(tmp, { force: true });
+  }
 }
 
 function getDesktopDir() {
@@ -198,9 +226,14 @@ async function listDownloads() {
   );
 }
 
-async function findFilesByName(term) {
+async function findFilesByName(term, options = {}) {
   const normalizedTerm = normalizeText(term);
-  const roots = [getDesktopDir(), getDownloadsDir(), getDocumentsDir()];
+  const extension = normalizeExtension(options.extension);
+  const category = normalizeSearchCategory(options.category);
+  const limit = clampSearchLimit(options.limit);
+  const roots = Array.isArray(options.roots) && options.roots.length
+    ? options.roots.map((root) => path.resolve(String(root)))
+    : [getDesktopDir(), getDownloadsDir(), getDocumentsDir()];
   const results = [];
   const seenRoots = new Set();
 
@@ -210,17 +243,17 @@ async function findFilesByName(term) {
     seenRoots.add(resolvedRoot);
 
     if (fs.existsSync(root)) {
-      await walkFiles(root, normalizedTerm, results, 0);
+      await walkFiles(root, normalizedTerm, results, 0, { category, extension, limit });
     }
 
-    if (results.length >= 50) break;
+    if (results.length >= limit) break;
   }
 
-  return results.slice(0, 50);
+  return results.slice(0, limit);
 }
 
-async function walkFiles(currentDir, normalizedTerm, results, depth) {
-  if (depth > 4 || results.length >= 50 || isSensitivePath(currentDir)) return;
+async function walkFiles(currentDir, normalizedTerm, results, depth, options) {
+  if (depth > 4 || results.length >= options.limit || isSensitivePath(currentDir)) return;
 
   let entries = [];
   try {
@@ -230,25 +263,69 @@ async function walkFiles(currentDir, normalizedTerm, results, depth) {
   }
 
   for (const entry of entries) {
-    if (results.length >= 50) return;
+    if (results.length >= options.limit) return;
     if (entry.name.startsWith(".") || entry.isSymbolicLink()) continue;
 
     const fullPath = path.join(currentDir, entry.name);
     if (isSensitivePath(fullPath)) continue;
 
     const normalizedName = normalizeText(entry.name);
-    if (normalizedName.includes(normalizedTerm)) {
+    const matchesName = !normalizedTerm || normalizedName.includes(normalizedTerm);
+    const matchesType = entry.isDirectory()
+      ? !options.extension && !options.category
+      : matchesFileFilter(entry.name, options);
+
+    if (matchesName && matchesType) {
       results.push({
         name: entry.name,
         path: fullPath,
+        directory: currentDir,
+        extension: entry.isDirectory() ? null : path.extname(entry.name).toLowerCase(),
         type: entry.isDirectory() ? "carpeta" : "archivo"
       });
     }
 
     if (entry.isDirectory()) {
-      await walkFiles(fullPath, normalizedTerm, results, depth + 1);
+      await walkFiles(fullPath, normalizedTerm, results, depth + 1, options);
     }
   }
+}
+
+function matchesFileFilter(fileName, options) {
+  const extension = path.extname(fileName).toLowerCase();
+  if (options.extension && extension !== options.extension) return false;
+  if (!options.category) return true;
+
+  const categoryExtensions = {
+    images: [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg", ".heic"],
+    documents: [".pdf", ".doc", ".docx", ".txt", ".md", ".rtf", ".xls", ".xlsx", ".ppt", ".pptx", ".csv"]
+  };
+
+  return categoryExtensions[options.category]?.includes(extension) || false;
+}
+
+function normalizeExtension(value) {
+  const extension = String(value || "").trim().toLowerCase().replace(/^\./, "");
+  if (!extension) return null;
+  if (!/^[a-z0-9]{1,10}$/.test(extension)) {
+    throw new Error("La extension de busqueda no es valida.");
+  }
+  return `.${extension}`;
+}
+
+function normalizeSearchCategory(value) {
+  const category = String(value || "").trim().toLowerCase();
+  if (!category) return null;
+  if (!["images", "documents"].includes(category)) {
+    throw new Error("La categoria de busqueda no esta permitida.");
+  }
+  return category;
+}
+
+function clampSearchLimit(value) {
+  const number = Number(value || 50);
+  if (!Number.isFinite(number)) return 50;
+  return Math.min(100, Math.max(1, Math.floor(number)));
 }
 
 async function createNote(noteName, text) {
@@ -374,8 +451,10 @@ function clone(value) {
 
 module.exports = {
   DATA_FILES,
+  DEFAULT_FAVORITES,
   DEFAULT_LOGS,
   DEFAULT_MEMORY,
+  DEFAULT_ROUTINES,
   DEFAULT_SETTINGS,
   DEFAULT_USER_PROFILE,
   categoryForFile,
@@ -390,8 +469,10 @@ module.exports = {
   isSensitivePath,
   isWithin,
   listDownloads,
+  matchesFileFilter,
   organizeDownloadsByType,
   readJson,
   sanitizeFileName,
+  writeJsonFile,
   writeJson
 };

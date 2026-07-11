@@ -224,6 +224,55 @@
           <div id="memoryList" class="memory-list"></div>
         </section>
 
+        <section class="status-block productivity-block" aria-labelledby="productivity-title">
+          <div class="section-heading">
+            <h2 id="productivity-title">Productividad</h2>
+            <span id="productivityBadge" class="status-pill status-warn">Vacio</span>
+          </div>
+
+          <div class="productivity-summary">
+            <div class="metric-row">
+              <span>Favoritos</span>
+              <strong id="favoriteCount">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Rutinas</span>
+              <strong id="routineCount">0</strong>
+            </div>
+          </div>
+
+          <form id="favoriteForm" class="productivity-form">
+            <label for="favoriteName">Nuevo favorito</label>
+            <input id="favoriteName" maxlength="60" placeholder="Nombre opcional" aria-label="Nombre del favorito" />
+            <input id="favoriteCommand" maxlength="500" placeholder="Comando permitido" aria-label="Comando del favorito" required />
+            <div class="productivity-form-actions">
+              <button id="saveLastCommandButton" class="icon-button export-button" type="button" title="Usar ultimo comando del chat">
+                <span>Usar ultimo</span>
+              </button>
+              <button id="createFavoriteButton" class="icon-button retrain-button" type="submit">
+                <span>Guardar favorito</span>
+              </button>
+            </div>
+          </form>
+          <div id="favoritesList" class="productivity-list"></div>
+
+          <form id="routineForm" class="productivity-form">
+            <label for="routineName">Nueva rutina</label>
+            <input id="routineName" maxlength="60" placeholder="Nombre de la rutina" aria-label="Nombre de la rutina" required />
+            <textarea id="routineCommands" maxlength="3000" rows="4" placeholder="Un comando permitido por linea" aria-label="Comandos de la rutina" required></textarea>
+            <button id="createRoutineButton" class="icon-button retrain-button" type="submit">
+              <span>Guardar rutina</span>
+            </button>
+          </form>
+          <div id="routinesList" class="productivity-list"></div>
+
+          <div class="dataset-actions">
+            <button id="exportFavoritesButton" class="icon-button export-button" type="button">Exportar favoritos</button>
+            <button id="exportRoutinesButton" class="icon-button export-button" type="button">Exportar rutinas</button>
+            <button id="exportAllButton" class="icon-button export-button" type="button">Exportar todo</button>
+          </div>
+        </section>
+
         <section class="status-block examples-block" aria-labelledby="examples-title">
           <div class="section-heading">
             <h2 id="examples-title">Ejemplos aprendidos</h2>
