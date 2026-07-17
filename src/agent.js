@@ -9,9 +9,19 @@ const permissions = require("./permissions");
 const routines = require("./routines");
 const safety = require("./safety");
 const { parseActionFromIntent, parseCommand } = require("./commandParser");
+const {
+  clarificationPrompt,
+  detectContextFollowUp,
+  extractEntities,
+  resolveClarification,
+  sanitizeEntitiesForDebug
+} = require("./entityExtractor");
 
 async function handleMessage(message) {
   const text = String(message || "").trim();
+  if (text.length > 2000) {
+    return respondBlocked("El mensaje supera el limite local de 2000 caracteres.", "input.too_long", buildAiMeta(null, null, false));
+  }
   memory.addMessage("user", text);
 
   if (text.toUpperCase() === "CONFIRMAR") {
@@ -25,6 +35,12 @@ async function handleMessage(message) {
     return respondBlocked(incomingSafety.reason, "input.blocked", buildAiMeta(null, text, false));
   }
 
+  const clarificationResponse = await handlePendingClarification(text);
+  if (clarificationResponse) return clarificationResponse;
+
+  const contextResponse = await handleContextFollowUp(text);
+  if (contextResponse) return contextResponse;
+
   const memoryRequest = memoryEngine.parseMemoryRequest(text);
   if (memoryRequest) {
     return respondMemory(memoryRequest, text);
@@ -36,15 +52,54 @@ async function handleMessage(message) {
   }
 
   const aiResult = localAI.classifyIntent(text);
-  const responseAiMeta = buildAiMeta(aiResult, text, true);
-  const parsedAction = parseActionFromIntent(aiResult.intent, text);
+  const entityResult = extractEntities(text, aiResult.intent, {
+    context: memory.getCommandContext()
+  });
+  return processClassifiedCommand(text, aiResult, entityResult);
+}
+
+async function processClassifiedCommand(text, aiResult, entityResult, options = {}) {
+  const originalText = options.originalText || text;
+  const responseAiMeta = buildAiMeta(aiResult, originalText, true, {
+    entities: entityResult.sanitized,
+    contextUsed: entityResult.usedContext,
+    requiresClarification: entityResult.missing.length > 0
+  });
+  const parsedAction = parseActionFromIntent(aiResult.intent, text, {
+    entities: entityResult.entities,
+    context: memory.getCommandContext()
+  });
   parsedAction.original = text;
   const conversationResult = conversationAI.respondToConversation(text, {
     history: memory.getMemory().messages
   });
 
-  if (shouldUseConversation(text, parsedAction, conversationResult)) {
+  if (!options.skipConversation && !entityResult.missing.length && shouldUseConversation(text, parsedAction, conversationResult)) {
     return respondConversation(conversationResult, text, aiResult);
+  }
+
+  if (aiResult.intent !== "unknown" && entityResult.missing.length) {
+    const pending = {
+      id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+      intent: aiResult.intent,
+      entities: entityResult.entities,
+      missing: entityResult.missing,
+      originalText,
+      ai: aiResult,
+      createdAt: new Date().toISOString()
+    };
+    memory.setPendingClarification(pending);
+    logger.writeLog({
+      level: "info",
+      action: "command.clarification_requested",
+      message: "Atenea solicito un dato faltante",
+      details: { intent: pending.intent, missing: pending.missing }
+    });
+    return respond(
+      clarificationPrompt(aiResult.intent, entityResult.missing),
+      { level: "info", action: "command.clarification_requested", summary: "Dato faltante solicitado." },
+      { skipLog: true, aiMeta: responseAiMeta }
+    );
   }
 
   if (aiResult.intent === "unknown" || parsedAction.type === "unknown") {
@@ -65,8 +120,11 @@ async function handleMessage(message) {
 
   parsedAction.ai = {
     intent: aiResult.intent,
-    confidence: aiResult.confidence
+    confidence: aiResult.confidence,
+    secondIntent: aiResult.secondIntent,
+    margin: aiResult.margin
   };
+  parsedAction.aiMeta = responseAiMeta;
 
   const guard = guardAction(parsedAction);
   if (!guard.ok) {
@@ -102,11 +160,110 @@ async function handleMessage(message) {
         action: "action.pending_confirmation",
         summary: "Accion pendiente de confirmacion."
       },
-      { skipLog: true, aiMeta: responseAiMeta }
+      { skipLog: true, aiMeta: { ...responseAiMeta, requiresConfirmation: true } }
     );
   }
 
   return executeAllowedAction(parsedAction);
+}
+
+async function handlePendingClarification(text) {
+  const pending = memory.getPendingClarification();
+  if (!pending) return null;
+
+  if (/^(cancelar|cancela|olvidalo)$/i.test(text)) {
+    memory.clearPendingClarification();
+    logger.writeLog({ level: "info", action: "command.clarification_cancelled", message: "Aclaracion cancelada por el usuario" });
+    return respond(
+      "Listo, cancele la accion pendiente.",
+      { level: "info", action: "command.clarification_cancelled", summary: "Aclaracion cancelada." },
+      { skipLog: true, aiMeta: buildAiMeta(pending.ai, pending.originalText, true, { fallbackReason: "cancelled" }) }
+    );
+  }
+
+  const resolved = resolveClarification(pending, text);
+  if (resolved.missing.length) {
+    memory.setPendingClarification({ ...pending, entities: resolved.entities, missing: resolved.missing });
+    return respond(
+      clarificationPrompt(pending.intent, resolved.missing),
+      { level: "info", action: "command.clarification_requested", summary: "La aclaracion sigue incompleta." },
+      {
+        skipLog: true,
+        aiMeta: buildAiMeta(pending.ai, pending.originalText, true, {
+          entities: resolved.sanitized,
+          contextUsed: resolved.usedContext,
+          requiresClarification: true
+        })
+      }
+    );
+  }
+
+  memory.clearPendingClarification();
+  logger.writeLog({
+    level: "info",
+    action: "command.clarification_resolved",
+    message: "Dato faltante completado",
+    details: { intent: pending.intent }
+  });
+  return processClassifiedCommand(pending.originalText, pending.ai, resolved, {
+    originalText: pending.originalText,
+    skipConversation: true
+  });
+}
+
+async function handleContextFollowUp(text) {
+  const context = memory.getCommandContext();
+  const followUp = detectContextFollowUp(text, context);
+  if (!followUp) return null;
+
+  if (followUp.type === "save_favorite") {
+    try {
+      const favorite = favorites.createFavorite({ command: followUp.command });
+      logger.writeLog({
+        level: "info",
+        action: "favorite.create_from_context",
+        message: "Comando anterior guardado como favorito",
+        details: { favoriteId: favorite.id, actionType: favorite.actionType }
+      });
+      return respond(
+        `Favorito guardado: ${favorite.name}`,
+        { level: "info", action: "favorite.create_from_context", summary: "Favorito creado desde contexto." },
+        { skipLog: true, aiMeta: buildAiMeta(null, text, false, { contextUsed: followUp.usedContext }) }
+      );
+    } catch (error) {
+      return respond(
+        `No pude guardar el comando anterior como favorito: ${error.message}`,
+        { level: "warn", action: "favorite.create_from_context.failed", summary: "No se pudo crear el favorito." },
+        { aiMeta: buildAiMeta(null, text, false, { contextUsed: followUp.usedContext }) }
+      );
+    }
+  }
+
+  if (followUp.type === "already_executed_correction") {
+    return respond(
+      "La accion anterior ya se ejecuto. No voy a renombrar ni modificar archivos automaticamente; podes pedirme una accion nueva.",
+      { level: "info", action: "context.correction_not_executed", summary: "Correccion posterior no ejecutada." },
+      { aiMeta: buildAiMeta(null, text, false, { contextUsed: followUp.usedContext, fallbackReason: "already_executed" }) }
+    );
+  }
+
+  const aiResult = {
+    intent: followUp.intent,
+    confidence: 1,
+    secondIntent: null,
+    secondConfidence: 0,
+    margin: 1,
+    relevantWords: [],
+    ambiguous: false,
+    fallbackReason: null
+  };
+  const entityResult = {
+    entities: followUp.entities,
+    missing: [],
+    usedContext: followUp.usedContext,
+    sanitized: sanitizeEntitiesForDebug(followUp.entities)
+  };
+  return processClassifiedCommand(text, aiResult, entityResult, { skipConversation: true });
 }
 
 function shouldUseConversation(text, parsedAction, conversationResult) {
@@ -198,7 +355,7 @@ async function executePendingAction() {
 }
 
 async function executeAllowedAction(action, meta = {}) {
-  const responseAiMeta = buildAiMeta(action.ai, action.original, Boolean(action.ai));
+  const responseAiMeta = action.aiMeta || buildAiMeta(action.ai, action.original, Boolean(action.ai));
 
   try {
     const result = await performAllowedAction(action, meta);
@@ -227,6 +384,7 @@ async function executeAllowedAction(action, meta = {}) {
 async function performAllowedAction(action, meta = {}) {
   try {
     const result = await actions.executeAction(action);
+    rememberCommandContext(action);
     logger.writeLog({
       level: "info",
       action: `action.${action.type}`,
@@ -597,7 +755,17 @@ function respond(content, logEntry, options = {}) {
     originalText: responseAiMeta.originalText,
     responseOrigin: responseAiMeta.responseOrigin,
     commandIntent: responseAiMeta.commandIntent || null,
-    commandConfidence: responseAiMeta.commandConfidence || 0
+    commandConfidence: responseAiMeta.commandConfidence || 0,
+    secondIntent: responseAiMeta.secondIntent || null,
+    secondConfidence: responseAiMeta.secondConfidence || 0,
+    margin: responseAiMeta.margin || 0,
+    relevantWords: responseAiMeta.relevantWords || [],
+    entities: responseAiMeta.entities || {},
+    contextUsed: responseAiMeta.contextUsed || [],
+    fallbackReason: responseAiMeta.fallbackReason || null,
+    ambiguous: Boolean(responseAiMeta.ambiguous),
+    requiresClarification: Boolean(responseAiMeta.requiresClarification),
+    requiresConfirmation: Boolean(responseAiMeta.requiresConfirmation)
   });
 
   if (!options.skipLog) {
@@ -625,7 +793,7 @@ function respond(content, logEntry, options = {}) {
   };
 }
 
-function buildAiMeta(aiResult, originalText, canLearn) {
+function buildAiMeta(aiResult, originalText, canLearn, extra = {}) {
   return {
     aiDomain: aiResult ? "command" : null,
     detectedIntent: aiResult?.intent || null,
@@ -634,7 +802,17 @@ function buildAiMeta(aiResult, originalText, canLearn) {
     canLearn: Boolean(canLearn && aiResult && originalText),
     canLearnResponse: false,
     originalText: originalText || null,
-    responseOrigin: null
+    responseOrigin: null,
+    secondIntent: aiResult?.secondIntent || null,
+    secondConfidence: Number(aiResult?.secondConfidence || 0),
+    margin: Number(aiResult?.margin || 0),
+    relevantWords: aiResult?.relevantWords || [],
+    entities: extra.entities || {},
+    contextUsed: extra.contextUsed || [],
+    fallbackReason: extra.fallbackReason || aiResult?.fallbackReason || null,
+    ambiguous: Boolean(aiResult?.ambiguous),
+    requiresClarification: Boolean(extra.requiresClarification),
+    requiresConfirmation: Boolean(extra.requiresConfirmation)
   };
 }
 
@@ -674,6 +852,57 @@ function sanitizeLogDetails(details) {
   delete clone.text;
   delete clone.content;
   return clone;
+}
+
+function rememberCommandContext(action) {
+  const intentByAction = {
+    help: "help",
+    open_app: "open_app",
+    create_desktop_folder: "create_folder",
+    list_downloads: "list_downloads",
+    find_files: "search_files",
+    create_note: "create_note",
+    system_status: "system_status",
+    organize_downloads: "organize_downloads"
+  };
+  const intent = action.ai?.intent || intentByAction[action.type] || null;
+  if (!intent || action.type === "help") return;
+
+  const entities = {};
+  if (action.type === "open_app") entities.app = action.payload.app;
+  if (action.type === "create_desktop_folder") entities.folderName = action.payload.name;
+  if (action.type === "find_files") {
+    entities.searchTerm = action.payload.term;
+    if (action.payload.extension) entities.extension = action.payload.extension;
+    if (action.payload.category) entities.category = action.payload.category;
+    if (action.payload.limit) entities.limit = action.payload.limit;
+  }
+  if (action.type === "create_note") entities.noteName = action.payload.name;
+
+  memory.setCommandContext({
+    intent,
+    actionType: action.type,
+    entities,
+    originalText: action.original,
+    storableCommand: toStoredCommand(action),
+    executed: true,
+    updatedAt: new Date().toISOString()
+  });
+}
+
+function toStoredCommand(action) {
+  if (action.type === "open_app") return `abrir ${action.payload.app}`;
+  if (action.type === "list_downloads") return "listar archivos de descargas";
+  if (action.type === "system_status") return "mostrar estado del sistema";
+  if (action.type === "organize_downloads") return "organizar descargas por tipo";
+  if (action.type === "create_desktop_folder") return `crear carpeta llamada ${action.payload.name} en escritorio`;
+  if (action.type === "create_note") return `crear nota llamada ${action.payload.name} con este texto: ${action.payload.text}`;
+  if (action.type === "find_files") {
+    const extension = action.payload.extension ? ` ${action.payload.extension}` : "";
+    const limit = action.payload.limit ? ` limite ${action.payload.limit}` : "";
+    return `buscar archivos${extension} que contengan ${action.payload.term}${limit}`;
+  }
+  return action.original;
 }
 
 module.exports = {

@@ -1,0 +1,40 @@
+{
+  "evaluatedAt": "2026-07-17T03:41:09.216Z",
+  "total": 32,
+  "correct": 32,
+  "failures": 0,
+  "accuracy": 1,
+  "ambiguous": 2,
+  "unknown": 8,
+  "errors": [],
+  "confusionMatrix": {
+    "help": {
+      "help": 3
+    },
+    "open_app": {
+      "open_app": 3
+    },
+    "create_folder": {
+      "create_folder": 3
+    },
+    "list_downloads": {
+      "list_downloads": 3
+    },
+    "search_files": {
+      "search_files": 3
+    },
+    "create_note": {
+      "create_note": 3
+    },
+    "system_status": {
+      "system_status": 3
+    },
+    "organize_downloads": {
+      "organize_downloads": 3,
+      "unknown": 1
+    },
+    "unknown": {
+      "unknown": 7
+    }
+  }
+}

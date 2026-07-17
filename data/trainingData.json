@@ -1,6 +1,7 @@
 {
   "version": 1,
   "minConfidence": 0.34,
+  "minMargin": 0.07,
   "intents": {
     "help": [
       "ayuda",
@@ -10,7 +11,11 @@
       "necesito ayuda",
       "lista de comandos",
       "como te uso",
-      "que podes hacer"
+      "que podes hacer",
+      "mostrame los comandos disponibles",
+      "no se como usar atenea",
+      "explicame los comandos",
+      "ayudame con atenea"
     ],
     "open_app": [
       "abrir chrome",
@@ -24,6 +29,9 @@
       "abrir explorador",
       "abrí el explorador de archivos",
       "abre el explorador",
+      "abrime chrome",
+      "abri crhome",
+      "pone el navegador",
       "abrí chrome por favor"
     ],
     "create_folder": [
@@ -33,7 +41,10 @@
       "nueva carpeta llamada fotos",
       "crear carpeta en el escritorio",
       "crear una carpeta llamada proyecto",
-      "necesito una carpeta llamada notas"
+      "necesito una carpeta llamada notas",
+      "creame una carpeta proyecto",
+      "haceme una carpeta que se llame facturas",
+      "crear carpeta nueva"
     ],
     "list_downloads": [
       "listar descargas",
@@ -42,7 +53,10 @@
       "ver archivos descargados",
       "que hay en descargas",
       "mostrame la carpeta descargas",
-      "lista los archivos de downloads"
+      "lista los archivos de downloads",
+      "listame descargas",
+      "que archivos baje",
+      "ver lo que descargue"
     ],
     "search_files": [
       "buscar archivos que contengan factura",
@@ -51,7 +65,10 @@
       "buscar pdf",
       "localizar archivos que contengan foto",
       "buscar documentos con contrato",
-      "encontrar archivo notas"
+      "encontrar archivo notas",
+      "buscame archivos factura",
+      "buscar pdf de impuestos",
+      "encontra el archivo presupuesto"
     ],
     "create_note": [
       "crear nota llamada ideas con este texto hola",
@@ -59,7 +76,10 @@
       "guardar nota llamada recordatorio con este texto llamar",
       "nueva nota llamada pendientes con este texto revisar",
       "escribir nota llamada prueba con este texto contenido",
-      "crear archivo de nota llamado diario con este texto hoy"
+      "crear archivo de nota llamado diario con este texto hoy",
+      "creame una nota llamada tareas que diga estudiar",
+      "hacer nota llamada ideas con texto nuevo proyecto",
+      "quiero guardar una nota"
     ],
     "system_status": [
       "mostrar estado del sistema",
@@ -68,7 +88,10 @@
       "como esta mi pc",
       "mostrar informacion del sistema",
       "estado de windows",
-      "ver memoria y cpu"
+      "ver memoria y cpu",
+      "como anda la compu",
+      "mostrame el estado de windows",
+      "informacion de mi computadora"
     ],
     "organize_downloads": [
       "organizar descargas por tipo",
@@ -77,7 +100,10 @@
       "separar archivos de descargas",
       "clasificar descargas",
       "organiza la carpeta descargas",
-      "mover descargas a carpetas por tipo"
+      "mover descargas a carpetas por tipo",
+      "ordename las descargas",
+      "acomoda los archivos descargados por tipo",
+      "clasifica downloads por extension"
     ],
     "unknown": [
       "contame un chiste",
@@ -87,7 +113,11 @@
       "subir mis archivos",
       "reproducir musica",
       "hacer una transferencia",
-      "crear una cuenta"
+      "crear una cuenta",
+      "quiero una receta de pizza",
+      "cuanto es la raiz cuadrada",
+      "escribi una historia de ciencia ficcion",
+      "reservame un hotel"
     ]
   }
 }

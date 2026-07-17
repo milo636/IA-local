@@ -8,8 +8,10 @@ const DEFAULT_TRAINING_PATH = path.join(DATA_DIR, "trainingData.json");
 const DEFAULT_BASE_TRAINING_PATH = path.join(DATA_DIR, "baseTrainingData.json");
 const DEFAULT_MODEL_PATH = path.join(DATA_DIR, "localAIModel.json");
 const DEFAULT_BACKUP_DIR = path.join(DATA_DIR, "backups");
-const MODEL_VERSION = 1;
+const MODEL_VERSION = 2;
 const DEFAULT_MIN_CONFIDENCE = 0.34;
+const DEFAULT_MIN_MARGIN = 0.07;
+const MAX_INPUT_LENGTH = 2000;
 const INTENT_LABELS = {
   help: "Ayuda",
   open_app: "Abrir aplicacion",
@@ -61,15 +63,56 @@ const STOPWORDS = new Set([
   "y"
 ]);
 
+const TOKEN_NORMALIZATIONS = {
+  abri: "abrir",
+  abre: "abrir",
+  abrime: "abrir",
+  abreme: "abrir",
+  abrirme: "abrir",
+  busca: "buscar",
+  buscame: "buscar",
+  crea: "crear",
+  creame: "crear",
+  haceme: "crear",
+  hace: "crear",
+  mostra: "mostrar",
+  mostrame: "mostrar",
+  ordena: "organizar",
+  ordename: "organizar",
+  organiza: "organizar",
+  organizame: "organizar",
+  lista: "listar",
+  listame: "listar"
+};
+
+const INTENT_KEYWORDS = {
+  help: ["ayuda", "comandos"],
+  open_app: ["abrir", "chrome", "navegador", "notepad", "bloc", "explorador"],
+  create_folder: ["crear", "carpeta", "directorio"],
+  list_downloads: ["listar", "mostrar", "descargas", "downloads"],
+  search_files: ["buscar", "encontrar", "localizar", "archivo", "pdf", "imagen"],
+  create_note: ["crear", "nota", "texto", "escribir"],
+  system_status: ["estado", "sistema", "computadora", "memoria", "cpu", "windows"],
+  organize_downloads: ["organizar", "ordenar", "clasificar", "descargas", "tipo", "extension"],
+  unknown: []
+};
+
 let cachedModel = null;
 
 function cleanText(text) {
-  return String(text || "")
+  const cleaned = String(text || "")
+    .slice(0, MAX_INPUT_LENGTH)
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
+    .trim();
+
+  return cleaned
+    .split(" ")
+    .map((token) => TOKEN_NORMALIZATIONS[token] || token)
+    .join(" ")
     .trim();
 }
 
@@ -145,14 +188,20 @@ function trainModel(trainingData) {
     for (const phrase of phrases) {
       const tokens = tokenize(phrase);
       if (!tokens.length) continue;
-      examples.push({ intent, text: phrase, tokens });
+      examples.push({
+        intent,
+        text: phrase,
+        normalizedText: cleanText(phrase),
+        tokens,
+        features: buildFeatures(tokens)
+      });
     }
   }
 
   const documentFrequency = {};
   for (const example of examples) {
-    for (const token of new Set(example.tokens)) {
-      documentFrequency[token] = (documentFrequency[token] || 0) + 1;
+    for (const feature of new Set(example.features)) {
+      documentFrequency[feature] = (documentFrequency[feature] || 0) + 1;
     }
   }
 
@@ -165,7 +214,8 @@ function trainModel(trainingData) {
     intent: example.intent,
     text: example.text,
     tokens: example.tokens,
-    vector: vectorize(example.tokens, tokenWeights)
+    normalizedText: example.normalizedText,
+    vector: vectorize(example.features, tokenWeights)
   }));
 
   const profiles = {};
@@ -182,6 +232,7 @@ function trainModel(trainingData) {
     modelVersion: MODEL_VERSION,
     trainedAt: new Date().toISOString(),
     minConfidence: trainingData.minConfidence || DEFAULT_MIN_CONFIDENCE,
+    minMargin: trainingData.minMargin || DEFAULT_MIN_MARGIN,
     intents: Object.keys(trainingData.intents),
     tokenWeights,
     profiles,
@@ -211,8 +262,11 @@ function loadModel(options = {}) {
   if (cachedModel && !options.fresh) return cachedModel;
 
   if (fs.existsSync(modelPath)) {
-    cachedModel = JSON.parse(fs.readFileSync(modelPath, "utf8"));
-    return cachedModel;
+    const storedModel = JSON.parse(fs.readFileSync(modelPath, "utf8"));
+    if (storedModel.modelVersion === MODEL_VERSION) {
+      cachedModel = storedModel;
+      return cachedModel;
+    }
   }
 
   cachedModel = trainFromFile(trainingPath);
@@ -222,27 +276,52 @@ function loadModel(options = {}) {
 function classifyIntent(text, options = {}) {
   const model = options.model || loadModel(options);
   const tokens = tokenize(text);
+  const normalizedText = cleanText(text);
 
   if (!tokens.length) {
-    return result("unknown", 0, tokens, []);
+    return result("unknown", 0, tokens, [], { fallbackReason: "no_tokens" });
   }
 
-  const inputVector = vectorize(tokens, model.tokenWeights);
+  const inputVector = vectorize(buildFeatures(tokens), model.tokenWeights);
   const scores = model.intents
     .map((intent) => ({
       intent,
-      score: scoreIntent(intent, inputVector, model)
+      score: scoreIntent(intent, normalizedText, tokens, inputVector, model)
     }))
     .sort((a, b) => b.score - a.score);
 
   const best = scores[0] || { intent: "unknown", score: 0 };
+  const second = scores.find((item) => item.intent !== best.intent) || { intent: null, score: 0 };
   const confidence = round(Math.max(0, Math.min(1, best.score)));
+  const margin = round(Math.max(0, best.score - second.score));
+  const minConfidence = Number(options.minConfidence ?? model.minConfidence ?? DEFAULT_MIN_CONFIDENCE);
+  const minMargin = Number(options.minMargin ?? model.minMargin ?? DEFAULT_MIN_MARGIN);
+  const commonMeta = {
+    secondIntent: second.intent,
+    secondConfidence: round(second.score),
+    margin,
+    relevantWords: relevantWords(tokens, model),
+    ambiguous: false,
+    fallbackReason: null
+  };
 
-  if (best.intent === "unknown" || confidence < (options.minConfidence || model.minConfidence || DEFAULT_MIN_CONFIDENCE)) {
-    return result("unknown", confidence, tokens, scores);
+  if (best.intent === "unknown") {
+    return result("unknown", confidence, tokens, scores, { ...commonMeta, fallbackReason: "best_unknown" });
   }
 
-  return result(best.intent, confidence, tokens, scores);
+  if (confidence < minConfidence) {
+    return result("unknown", confidence, tokens, scores, { ...commonMeta, fallbackReason: "low_confidence" });
+  }
+
+  if (margin < minMargin && second.intent !== "unknown") {
+    return result("unknown", confidence, tokens, scores, {
+      ...commonMeta,
+      ambiguous: true,
+      fallbackReason: "ambiguous"
+    });
+  }
+
+  return result(best.intent, confidence, tokens, scores, commonMeta);
 }
 
 function addTrainingExample(intent, text, options = {}) {
@@ -319,6 +398,7 @@ function getModelStatus(options = {}) {
     exampleCount: modelExampleCount || trainingExampleCount,
     trainingExampleCount,
     minConfidence: model?.minConfidence || trainingData.minConfidence || DEFAULT_MIN_CONFIDENCE,
+    minMargin: model?.minMargin || trainingData.minMargin || DEFAULT_MIN_MARGIN,
     lastTrainedAt: model?.trainedAt || modelStats?.mtime?.toISOString() || null
   };
 }
@@ -519,16 +599,94 @@ function exampleKey(intent, text) {
   return `${intent}\0${cleanText(text)}`;
 }
 
-function scoreIntent(intent, inputVector, model) {
+function scoreIntent(intent, normalizedText, inputTokens, inputVector, model) {
   const profileScore = cosineSimilarity(inputVector, model.profiles[intent] || {});
   const matchingExamples = model.examples
     .filter((example) => example.intent === intent)
-    .map((example) => cosineSimilarity(inputVector, example.vector))
+    .map((example) => {
+      const cosine = cosineSimilarity(inputVector, example.vector);
+      const tokenScore = tokenSetSimilarity(inputTokens, example.tokens || []);
+      const fuzzyScore = fuzzyTokenSimilarity(inputTokens, example.tokens || []);
+      const phraseScore = stringSimilarity(normalizedText, example.normalizedText || cleanText(example.text));
+      return round(cosine * 0.42 + tokenScore * 0.22 + fuzzyScore * 0.2 + phraseScore * 0.16);
+    })
     .sort((a, b) => b - a);
 
   const bestExampleScore = matchingExamples[0] || 0;
   const secondExampleScore = matchingExamples[1] || 0;
-  return round(bestExampleScore * 0.68 + secondExampleScore * 0.12 + profileScore * 0.2);
+  const keyword = keywordAffinity(intent, inputTokens);
+  const contradiction = contradictionPenalty(intent, inputTokens);
+  return round(clamp(bestExampleScore * 0.62 + secondExampleScore * 0.1 + profileScore * 0.18 + keyword * 0.1 - contradiction));
+}
+
+function buildFeatures(tokens) {
+  const features = [...tokens];
+  for (let index = 0; index < tokens.length - 1; index += 1) {
+    features.push(`bi:${tokens[index]}_${tokens[index + 1]}`);
+  }
+  return features;
+}
+
+function keywordAffinity(intent, tokens) {
+  const keywords = INTENT_KEYWORDS[intent] || [];
+  if (!keywords.length) return 0;
+  const matches = keywords.filter((keyword) => tokens.some((token) => token === keyword || stringSimilarity(token, keyword) >= 0.82));
+  return Math.min(1, matches.length / Math.min(3, keywords.length));
+}
+
+function contradictionPenalty(intent, tokens) {
+  const own = new Set(INTENT_KEYWORDS[intent] || []);
+  let strongestOther = 0;
+  for (const [otherIntent, keywords] of Object.entries(INTENT_KEYWORDS)) {
+    if (otherIntent === intent || otherIntent === "unknown") continue;
+    const matches = keywords.filter((keyword) => !own.has(keyword) && tokens.includes(keyword)).length;
+    strongestOther = Math.max(strongestOther, matches);
+  }
+  return strongestOther >= 2 ? 0.08 : 0;
+}
+
+function tokenSetSimilarity(a, b) {
+  const left = new Set(a);
+  const right = new Set(b);
+  const intersection = [...left].filter((token) => right.has(token)).length;
+  const union = new Set([...left, ...right]).size;
+  return union ? intersection / union : 0;
+}
+
+function fuzzyTokenSimilarity(inputTokens, exampleTokens) {
+  if (!inputTokens.length || !exampleTokens.length) return 0;
+  const scores = inputTokens.map((token) => {
+    return Math.max(...exampleTokens.map((candidate) => stringSimilarity(token, candidate)), 0);
+  });
+  return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+}
+
+function stringSimilarity(a, b) {
+  const left = String(a || "");
+  const right = String(b || "");
+  if (left === right) return left ? 1 : 0;
+  const longest = Math.max(left.length, right.length);
+  if (!longest) return 1;
+  return Math.max(0, 1 - levenshteinDistance(left, right) / longest);
+}
+
+function levenshteinDistance(a, b) {
+  const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let row = 1; row <= a.length; row += 1) {
+    const current = [row];
+    for (let column = 1; column <= b.length; column += 1) {
+      const cost = a[row - 1] === b[column - 1] ? 0 : 1;
+      current[column] = Math.min(current[column - 1] + 1, previous[column] + 1, previous[column - 1] + cost);
+    }
+    previous.splice(0, previous.length, ...current);
+  }
+  return previous[b.length];
+}
+
+function relevantWords(tokens, model) {
+  return [...new Set(tokens)]
+    .sort((a, b) => (model.tokenWeights[b] || 1) - (model.tokenWeights[a] || 1))
+    .slice(0, 6);
 }
 
 function vectorize(tokens, tokenWeights) {
@@ -569,16 +727,26 @@ function cosineSimilarity(a, b) {
   return round(score);
 }
 
-function result(intent, confidence, tokens, scores) {
+function result(intent, confidence, tokens, scores, meta = {}) {
   return {
     intent,
     confidence: round(confidence),
     tokens,
+    secondIntent: meta.secondIntent || null,
+    secondConfidence: round(meta.secondConfidence || 0),
+    margin: round(meta.margin || 0),
+    relevantWords: meta.relevantWords || [],
+    ambiguous: Boolean(meta.ambiguous),
+    fallbackReason: meta.fallbackReason || null,
     scores: scores.slice(0, 5).map((item) => ({
       intent: item.intent,
       score: round(item.score)
     }))
   };
+}
+
+function clamp(value) {
+  return Math.max(0, Math.min(1, Number(value || 0)));
 }
 
 function round(value) {
@@ -603,6 +771,7 @@ module.exports = {
   restoreBaseTrainingData,
   saveTrainingData,
   tokenize,
+  stringSimilarity,
   trainAndSave,
   trainFromFile,
   trainModel,

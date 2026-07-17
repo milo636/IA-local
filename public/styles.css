@@ -682,6 +682,38 @@ textarea:focus-visible {
   font-weight: 800;
 }
 
+.evaluation-errors {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.evaluation-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.evaluation-error {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 185, 86, 0.22);
+  border-radius: 6px;
+  background: rgba(78, 50, 18, 0.2);
+}
+
+.evaluation-error strong,
+.evaluation-error span {
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+}
+
+.evaluation-error span {
+  color: var(--muted);
+}
+
 .correction-box {
   display: grid;
   gap: 8px;
@@ -1192,6 +1224,18 @@ textarea:focus-visible {
   .app-shell {
     display: flex;
     flex-direction: column;
+  }
+
+  .chat-panel {
+    order: 1;
+  }
+
+  .side-panel-left {
+    order: 2;
+  }
+
+  .side-panel-right {
+    order: 3;
   }
 
   .side-panel,

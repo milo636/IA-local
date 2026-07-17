@@ -5,6 +5,7 @@ const state = {
   conversation: {},
   conversationIntents: [],
   debugMode: localStorage.getItem("sawLocalDebug") === "true",
+  evaluation: {},
   examples: [],
   examplesFilter: "all",
   favorites: [],
@@ -48,6 +49,7 @@ const elements = {
   exportLogsButton: document.querySelector("#exportLogsButton"),
   exportMemoryButton: document.querySelector("#exportMemoryButton"),
   exportRoutinesButton: document.querySelector("#exportRoutinesButton"),
+  evaluateAIButton: document.querySelector("#evaluateAIButton"),
   favoriteCommand: document.querySelector("#favoriteCommand"),
   favoriteCount: document.querySelector("#favoriteCount"),
   favoriteForm: document.querySelector("#favoriteForm"),
@@ -84,7 +86,14 @@ const elements = {
   routineName: document.querySelector("#routineName"),
   routinesList: document.querySelector("#routinesList"),
   saveLastCommandButton: document.querySelector("#saveLastCommandButton"),
-  toastRegion: document.querySelector("#toastRegion")
+  toastRegion: document.querySelector("#toastRegion"),
+  understandingAccuracy: document.querySelector("#understandingAccuracy"),
+  understandingAmbiguous: document.querySelector("#understandingAmbiguous"),
+  understandingBadge: document.querySelector("#understandingBadge"),
+  understandingCorrect: document.querySelector("#understandingCorrect"),
+  understandingErrors: document.querySelector("#understandingErrors"),
+  understandingEvaluatedAt: document.querySelector("#understandingEvaluatedAt"),
+  understandingFailures: document.querySelector("#understandingFailures")
 };
 
 const permissionLabels = {
@@ -231,6 +240,10 @@ elements.retrainConversationButton.addEventListener("click", () => {
   retrainConversation();
 });
 
+elements.evaluateAIButton.addEventListener("click", () => {
+  evaluateAI();
+});
+
 async function boot() {
   const response = await fetch("/api/state");
   const payload = await response.json();
@@ -366,6 +379,25 @@ async function retrainConversation() {
     showToast("No pude reentrenar la conversacion.", "error");
   } finally {
     setBusy(false, modelUpdated ? "Modelo actualizado" : "Atenea esta lista");
+  }
+}
+
+async function evaluateAI() {
+  setBusy(true, "Evaluando comprension...");
+  try {
+    const response = await fetch("/api/ai/evaluate", { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) {
+      showToast(payload.error || "No pude evaluar la comprension.", "error");
+      return;
+    }
+    applyState(payload.state);
+    showToast(`Evaluacion completa: ${payload.evaluation.correct}/${payload.evaluation.total}.`, "success");
+  } catch (error) {
+    addTransientAssistantMessage(`No pude evaluar la comprension local: ${error.message}`);
+    showToast("No pude evaluar la comprension local.", "error");
+  } finally {
+    setBusy(false);
   }
 }
 
@@ -660,6 +692,7 @@ function applyState(nextState) {
   state.actions = nextState.actions || [];
   state.conversation = nextState.conversation || state.conversation || {};
   state.conversationIntents = nextState.conversationIntents || state.conversationIntents || [];
+  state.evaluation = nextState.evaluation || state.evaluation || {};
   state.favorites = nextState.favorites || state.favorites || [];
   state.intents = nextState.intents || state.intents || [];
   state.logs = nextState.logs || [];
@@ -670,6 +703,7 @@ function applyState(nextState) {
 
   renderAiPanel();
   renderConversationPanel();
+  renderUnderstandingPanel();
   renderMemoryPanel();
   renderProductivityPanel();
   renderSettings();
@@ -860,6 +894,40 @@ function renderConversationPanel() {
   elements.conversationResponseCount.textContent = String(state.conversation.responseCount || 0);
   elements.conversationLearnedCount.textContent = String(state.conversation.learnedResponseCount || 0);
   elements.conversationLastTrained.textContent = state.conversation.lastTrainedAt ? formatDateTime(state.conversation.lastTrainedAt) : "Nunca";
+}
+
+function renderUnderstandingPanel() {
+  const report = state.evaluation || {};
+  const evaluated = Boolean(report.evaluatedAt);
+  const healthy = evaluated && Number(report.accuracy || 0) >= 0.8;
+  elements.understandingBadge.textContent = evaluated ? (healthy ? "Evaluada" : "Revisar") : "Sin evaluar";
+  elements.understandingBadge.className = `status-pill ${healthy ? "status-ok" : "status-warn"}`;
+  elements.understandingAccuracy.textContent = formatPercent(report.accuracy || 0);
+  elements.understandingCorrect.textContent = `${report.correct || 0} / ${report.total || 0}`;
+  elements.understandingFailures.textContent = String(report.failures || 0);
+  elements.understandingAmbiguous.textContent = String(report.ambiguous || 0);
+  elements.understandingEvaluatedAt.textContent = evaluated ? formatDateTime(report.evaluatedAt) : "Nunca";
+
+  elements.understandingErrors.replaceChildren();
+  const errors = Array.isArray(report.errors) ? report.errors.slice(0, 4) : [];
+  if (!evaluated || !errors.length) {
+    const empty = document.createElement("p");
+    empty.className = "evaluation-empty";
+    empty.textContent = evaluated ? "Sin errores recientes." : "Ejecuta una evaluacion local.";
+    elements.understandingErrors.append(empty);
+    return;
+  }
+
+  errors.forEach((error) => {
+    const item = document.createElement("div");
+    item.className = "evaluation-error";
+    const text = document.createElement("strong");
+    text.textContent = error.text;
+    const detail = document.createElement("span");
+    detail.textContent = `${error.expectedIntent} -> ${error.detectedIntent}`;
+    item.append(text, detail);
+    elements.understandingErrors.append(item);
+  });
 }
 
 function renderDebugButton() {
@@ -1054,6 +1122,18 @@ function createDebugPanel(message) {
     debugLine.append(origin);
   }
 
+  if (meta.secondIntent) appendDebugChip(debugLine, `Segunda: ${meta.secondIntent} (${formatPercent(meta.secondConfidence)})`);
+  if (Number.isFinite(Number(meta.margin))) appendDebugChip(debugLine, `Margen: ${formatPercent(meta.margin)}`);
+  if (Array.isArray(meta.relevantWords) && meta.relevantWords.length) appendDebugChip(debugLine, `Palabras: ${meta.relevantWords.join(", ")}`);
+  if (meta.entities && Object.keys(meta.entities).length) {
+    appendDebugChip(debugLine, `Entidades: ${Object.entries(meta.entities).map(([key, value]) => `${key}=${value}`).join(", ")}`);
+  }
+  if (Array.isArray(meta.contextUsed) && meta.contextUsed.length) appendDebugChip(debugLine, `Contexto: ${meta.contextUsed.join(", ")}`);
+  if (meta.fallbackReason) appendDebugChip(debugLine, `Fallback: ${meta.fallbackReason}`);
+  if (meta.ambiguous) appendDebugChip(debugLine, "Resultado ambiguo");
+  if (meta.requiresClarification) appendDebugChip(debugLine, "Falta una entidad");
+  if (meta.requiresConfirmation) appendDebugChip(debugLine, "Requiere confirmacion");
+
   panel.append(debugLine);
 
   if (meta.canLearn && meta.originalText && state.intents.length) {
@@ -1065,6 +1145,12 @@ function createDebugPanel(message) {
   }
 
   return panel;
+}
+
+function appendDebugChip(container, text) {
+  const chip = document.createElement("span");
+  chip.textContent = text;
+  container.append(chip);
 }
 
 function createCorrectionForm(meta) {
@@ -1503,6 +1589,7 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.messageInput.disabled = value;
   elements.retrainAIButton.disabled = value;
   elements.retrainConversationButton.disabled = value;
+  elements.evaluateAIButton.disabled = value;
   elements.refreshExamplesButton.disabled = value;
   elements.exportDatasetButton.disabled = value;
   elements.restoreDatasetButton.disabled = value;

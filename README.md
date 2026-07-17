@@ -267,6 +267,31 @@ El modo debug muestra:
 - modo `command` o `conversation`
 - origen de respuesta conversacional: `base` o `learned`
 
+El debug de comandos muestra la intencion principal y secundaria, confidence, margen entre ambas, palabras relevantes, entidades extraidas, contexto reutilizado y motivo del fallback. Tambien indica si Atenea necesita una aclaracion o confirmacion. Los valores sensibles se ocultan antes de mostrarlos.
+
+## Comprension avanzada
+
+Atenea combina ejemplos locales, similitud de palabras, bigramas, tolerancia a errores tipograficos y normalizacion de verbos frecuentes en espanol rioplatense. El clasificador compara varios ejemplos por intencion y usa un margen minimo entre las dos mejores opciones. Cuando el resultado tiene baja confianza o es ambiguo, responde con un fallback y no ejecuta acciones.
+
+El extractor local identifica aplicaciones, nombres de carpetas y notas, texto de notas, terminos de busqueda, extensiones, limites y referencias a favoritos o rutinas. Si falta un dato obligatorio, Atenea lo pregunta y guarda una aclaracion pendiente. La respuesta del usuario vuelve a pasar por `safety.js`, `permissions.js` y la allowlist antes de cualquier accion.
+
+El contexto corto permite continuaciones controladas como:
+
+```text
+buscar archivos que contengan factura
+solamente los PDF
+```
+
+Tambien permite guardar el ultimo comando ejecutado como favorito. Una correccion posterior a una accion ya ejecutada nunca renombra ni modifica archivos automaticamente.
+
+Para medir el modelo sin ejecutar acciones ni cambiar el dataset:
+
+```bash
+npm run evaluate
+```
+
+La interfaz incluye el panel **Comprension** con precision, aciertos, fallos, casos ambiguos, fecha de evaluacion y errores recientes. El conjunto de casos esta en `data/evaluationData.json` y el ultimo informe local en `data/evaluationResults.json`.
+
 ## Seguridad local
 
 Atenea Local aplica estas reglas:
@@ -340,6 +365,8 @@ IA-local/
     actions.js
     commandParser.js
     conversationAI.js
+    entityExtractor.js
+    evaluateLocalAI.js
     favorites.js
     fileManager.js
     localAI.js
@@ -355,6 +382,8 @@ IA-local/
     baseTrainingData.json
     conversations.json
     conversationModel.json
+    evaluationData.json
+    evaluationResults.json
     favorites.json
     localAIModel.json
     logs.json
@@ -387,6 +416,7 @@ GET    /api/ai/intents
 GET    /api/ai/examples
 POST   /api/ai/learn
 POST   /api/ai/train
+POST   /api/ai/evaluate
 PUT    /api/ai/examples/:id
 DELETE /api/ai/examples/:id
 POST   /api/ai/dataset/export
@@ -460,15 +490,23 @@ Fase 5 completada:
 - Exportacion local de favoritos, rutinas y paquete completo.
 - Tests de almacenamiento, endpoints, safety y busqueda.
 
-Fase 6:
+Fase 6 completada:
 
-- Tareas programadas con permisos y confirmaciones.
+- Comprension avanzada con similitud por palabras y tolerancia a errores.
+- Extraccion local de entidades y aclaraciones de datos faltantes.
+- Contexto corto seguro para continuaciones.
+- Evaluacion reproducible con metricas y matriz de confusion.
+- Panel de comprension y debug ampliado.
 
 Fase 7:
 
-- App de escritorio con Electron.
+- Tareas programadas con permisos y confirmaciones.
 
 Fase 8:
+
+- App de escritorio con Electron.
+
+Fase 9:
 
 - Comunidad de automatizaciones seguras con revision y firmas.
 

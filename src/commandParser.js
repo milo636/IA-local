@@ -1,3 +1,5 @@
+const { extractEntities } = require("./entityExtractor");
+
 function parseCommand(message) {
   const raw = String(message || "").trim();
   const normalized = normalize(raw);
@@ -54,24 +56,25 @@ function parseCommand(message) {
   };
 }
 
-function parseActionFromIntent(intent, message) {
+function parseActionFromIntent(intent, message, options = {}) {
   const exactAction = parseCommand(message);
   if (exactAction.type !== "unknown") return exactAction;
 
   const raw = String(message || "").trim();
   const normalized = normalize(raw);
+  const entities = options.entities || extractEntities(raw, intent, { context: options.context }).entities;
 
   if (intent === "help") {
     return action("help");
   }
 
   if (intent === "open_app") {
-    const app = extractApp(normalized);
+    const app = entities.app || extractApp(normalized);
     return app ? action("open_app", { app }) : unknown(raw);
   }
 
   if (intent === "create_folder") {
-    const name = extractFolderName(raw);
+    const name = entities.folderName || extractFolderName(raw);
     return name ? action("create_desktop_folder", { name }) : unknown(raw);
   }
 
@@ -80,12 +83,19 @@ function parseActionFromIntent(intent, message) {
   }
 
   if (intent === "search_files") {
-    const query = parseSearchCommand(raw) || extractSearchQuery(raw);
+    const query = compactSearchPayload({
+      term: entities.searchTerm,
+      extension: entities.extension,
+      category: entities.category,
+      limit: entities.limit
+    }) || parseSearchCommand(raw) || extractSearchQuery(raw);
     return query ? action("find_files", query) : unknown(raw);
   }
 
   if (intent === "create_note") {
-    const note = extractNote(raw);
+    const note = entities.noteName && entities.noteText
+      ? { name: entities.noteName, text: entities.noteText }
+      : extractNote(raw);
     return note ? action("create_note", note) : unknown(raw);
   }
 

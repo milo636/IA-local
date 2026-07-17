@@ -18,7 +18,9 @@ const DEFAULT_SETTINGS = {
 
 const DEFAULT_MEMORY = {
   messages: [],
-  pendingAction: null
+  pendingAction: null,
+  pendingClarification: null,
+  commandContext: null
 };
 
 const DEFAULT_USER_PROFILE = {

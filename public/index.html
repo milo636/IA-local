@@ -148,6 +148,43 @@
           </button>
         </section>
 
+        <section class="status-block understanding-block" aria-labelledby="understanding-title">
+          <div class="section-heading">
+            <h2 id="understanding-title">Comprension</h2>
+            <span id="understandingBadge" class="status-pill status-warn">Sin evaluar</span>
+          </div>
+          <div class="ai-metrics understanding-metrics">
+            <div class="metric-row">
+              <span>Precision</span>
+              <strong id="understandingAccuracy">0%</strong>
+            </div>
+            <div class="metric-row">
+              <span>Correctas</span>
+              <strong id="understandingCorrect">0 / 0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Fallos</span>
+              <strong id="understandingFailures">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Ambiguas</span>
+              <strong id="understandingAmbiguous">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Ultima evaluacion</span>
+              <strong id="understandingEvaluatedAt">Nunca</strong>
+            </div>
+          </div>
+          <button id="evaluateAIButton" class="icon-button retrain-button" type="button" title="Evaluar comprension local">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+            <span>Evaluar IA</span>
+          </button>
+          <div id="understandingErrors" class="evaluation-errors"></div>
+        </section>
+
         <section class="status-block conversation-block" aria-labelledby="conversation-title">
           <div class="section-heading">
             <h2 id="conversation-title">Conversacion</h2>

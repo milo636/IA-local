@@ -1,7 +1,8 @@
 {
-  "modelVersion": 1,
-  "trainedAt": "2026-06-22T03:30:51.509Z",
+  "modelVersion": 2,
+  "trainedAt": "2026-07-17T03:36:51.648Z",
   "minConfidence": 0.34,
+  "minMargin": 0.07,
   "intents": [
     "help",
     "open_app",
@@ -14,254 +15,617 @@
     "unknown"
   ],
   "tokenWeights": {
-    "ayuda": 3.8622,
-    "help": 4.5553,
-    "comandos": 4.1499,
-    "hay": 4.1499,
-    "mostrame": 4.1499,
-    "necesito": 4.1499,
-    "lista": 4.1499,
-    "como": 4.1499,
-    "te": 4.5553,
-    "uso": 4.5553,
-    "podes": 4.5553,
-    "hacer": 3.8622,
-    "abrir": 3.4567,
-    "chrome": 3.3026,
-    "abri": 3.6391,
-    "abre": 4.1499,
-    "google": 4.5553,
-    "iniciar": 4.5553,
-    "bloc": 4.1499,
-    "notas": 3.6391,
-    "notepad": 4.5553,
-    "explorador": 3.8622,
-    "archivos": 2.8506,
-    "favor": 4.5553,
-    "crear": 3.1691,
-    "carpeta": 2.9459,
-    "llamada": 2.7636,
-    "prueba": 4.1499,
-    "crea": 4.5553,
-    "documentos": 4.1499,
-    "trabajo": 4.5553,
-    "escritorio": 4.1499,
-    "nueva": 4.1499,
-    "fotos": 4.5553,
-    "proyecto": 4.5553,
-    "listar": 4.1499,
-    "descargas": 2.6835,
-    "mostrar": 3.8622,
-    "ver": 3.8622,
-    "descargados": 4.5553,
-    "downloads": 4.5553,
-    "buscar": 3.8622,
-    "contengan": 4.1499,
-    "factura": 4.5553,
-    "busca": 4.5553,
-    "presupuesto": 4.5553,
-    "encontrar": 4.1499,
-    "llamados": 4.5553,
-    "informe": 4.5553,
-    "pdf": 4.5553,
-    "localizar": 4.5553,
-    "foto": 4.5553,
-    "contrato": 4.5553,
-    "archivo": 4.1499,
-    "nota": 3.3026,
-    "ideas": 4.5553,
-    "texto": 3.3026,
-    "hola": 4.5553,
-    "compras": 4.5553,
-    "leche": 4.5553,
-    "guardar": 4.5553,
-    "recordatorio": 4.5553,
-    "llamar": 4.5553,
-    "pendientes": 4.5553,
-    "revisar": 4.5553,
-    "escribir": 4.5553,
-    "contenido": 4.5553,
-    "llamado": 4.5553,
-    "diario": 4.5553,
-    "hoy": 4.5553,
-    "estado": 3.6391,
-    "sistema": 3.8622,
-    "computadora": 4.5553,
-    "esta": 4.5553,
-    "pc": 4.5553,
-    "informacion": 4.5553,
-    "windows": 4.5553,
-    "memoria": 4.5553,
-    "cpu": 4.5553,
-    "organizar": 4.5553,
-    "tipo": 3.8622,
-    "ordena": 4.5553,
-    "acomodar": 4.5553,
-    "extension": 4.5553,
-    "separar": 4.5553,
-    "clasificar": 4.5553,
-    "organiza": 4.5553,
-    "mover": 4.5553,
-    "carpetas": 4.5553,
-    "contame": 4.5553,
-    "chiste": 4.5553,
-    "clima": 4.5553,
-    "hace": 4.5553,
-    "comprar": 4.5553,
-    "entradas": 4.5553,
-    "mandar": 4.5553,
-    "email": 4.5553,
-    "subir": 4.5553,
-    "reproducir": 4.5553,
-    "musica": 4.5553,
-    "transferencia": 4.5553,
-    "cuenta": 4.5553
+    "ayuda": 4.2088,
+    "help": 4.902,
+    "comandos": 3.9857,
+    "hay": 4.4965,
+    "bi:comandos_hay": 4.902,
+    "mostrar": 3.5157,
+    "bi:mostrar_ayuda": 4.902,
+    "necesito": 4.4965,
+    "bi:necesito_ayuda": 4.902,
+    "listar": 3.8034,
+    "bi:listar_comandos": 4.902,
+    "como": 3.9857,
+    "te": 4.902,
+    "uso": 4.902,
+    "bi:como_te": 4.902,
+    "bi:te_uso": 4.902,
+    "podes": 4.902,
+    "hacer": 3.9857,
+    "bi:podes_hacer": 4.902,
+    "disponibles": 4.902,
+    "bi:mostrar_comandos": 4.902,
+    "bi:comandos_disponibles": 4.902,
+    "no": 4.902,
+    "se": 4.4965,
+    "usar": 4.902,
+    "atenea": 4.4965,
+    "bi:no_se": 4.902,
+    "bi:se_como": 4.902,
+    "bi:como_usar": 4.902,
+    "bi:usar_atenea": 4.902,
+    "explicame": 4.902,
+    "bi:explicame_comandos": 4.902,
+    "ayudame": 4.902,
+    "bi:ayudame_atenea": 4.902,
+    "abrir": 2.9561,
+    "chrome": 3.5157,
+    "bi:abrir_chrome": 3.8034,
+    "google": 4.902,
+    "bi:abrir_google": 4.902,
+    "bi:google_chrome": 4.902,
+    "iniciar": 4.902,
+    "bi:iniciar_chrome": 4.902,
+    "bloc": 4.4965,
+    "notas": 3.9857,
+    "bi:abrir_bloc": 4.4965,
+    "bi:bloc_notas": 4.4965,
+    "notepad": 4.902,
+    "bi:abrir_notepad": 4.902,
+    "explorador": 4.2088,
+    "bi:abrir_explorador": 4.2088,
+    "archivos": 2.9561,
+    "bi:explorador_archivos": 4.902,
+    "crhome": 4.902,
+    "bi:abrir_crhome": 4.902,
+    "pone": 4.902,
+    "navegador": 4.902,
+    "bi:pone_navegador": 4.902,
+    "favor": 4.902,
+    "bi:chrome_favor": 4.902,
+    "crear": 2.9561,
+    "carpeta": 3.0302,
+    "llamada": 2.9561,
+    "prueba": 4.4965,
+    "bi:crear_carpeta": 3.5157,
+    "bi:carpeta_llamada": 3.6492,
+    "bi:llamada_prueba": 4.4965,
+    "documentos": 4.4965,
+    "bi:llamada_documentos": 4.902,
+    "trabajo": 4.902,
+    "escritorio": 4.4965,
+    "bi:hacer_carpeta": 4.902,
+    "bi:llamada_trabajo": 4.902,
+    "bi:trabajo_escritorio": 4.902,
+    "nueva": 4.2088,
+    "fotos": 4.902,
+    "bi:nueva_carpeta": 4.902,
+    "bi:llamada_fotos": 4.902,
+    "bi:carpeta_escritorio": 4.902,
+    "proyecto": 4.2088,
+    "bi:llamada_proyecto": 4.902,
+    "bi:necesito_carpeta": 4.902,
+    "bi:llamada_notas": 4.902,
+    "bi:carpeta_proyecto": 4.902,
+    "llame": 4.902,
+    "facturas": 4.902,
+    "bi:carpeta_se": 4.902,
+    "bi:se_llame": 4.902,
+    "bi:llame_facturas": 4.902,
+    "bi:carpeta_nueva": 4.902,
+    "descargas": 2.8871,
+    "bi:listar_descargas": 4.4965,
+    "bi:listar_archivos": 4.4965,
+    "bi:archivos_descargas": 4.4965,
+    "bi:mostrar_descargas": 4.902,
+    "ver": 3.9857,
+    "descargados": 4.4965,
+    "bi:ver_archivos": 4.902,
+    "bi:archivos_descargados": 4.4965,
+    "bi:hay_descargas": 4.902,
+    "bi:mostrar_carpeta": 4.902,
+    "bi:carpeta_descargas": 4.4965,
+    "downloads": 4.4965,
+    "bi:archivos_downloads": 4.902,
+    "baje": 4.902,
+    "bi:archivos_baje": 4.902,
+    "descargue": 4.902,
+    "bi:ver_descargue": 4.902,
+    "buscar": 3.6492,
+    "contengan": 4.4965,
+    "factura": 4.4965,
+    "bi:buscar_archivos": 4.2088,
+    "bi:archivos_contengan": 4.4965,
+    "bi:contengan_factura": 4.902,
+    "presupuesto": 4.4965,
+    "bi:archivos_presupuesto": 4.902,
+    "encontrar": 4.4965,
+    "llamados": 4.902,
+    "informe": 4.902,
+    "bi:encontrar_archivos": 4.902,
+    "bi:archivos_llamados": 4.902,
+    "bi:llamados_informe": 4.902,
+    "pdf": 4.4965,
+    "bi:buscar_pdf": 4.4965,
+    "localizar": 4.902,
+    "foto": 4.902,
+    "bi:localizar_archivos": 4.902,
+    "bi:contengan_foto": 4.902,
+    "contrato": 4.902,
+    "bi:buscar_documentos": 4.902,
+    "bi:documentos_contrato": 4.902,
+    "archivo": 4.2088,
+    "bi:encontrar_archivo": 4.902,
+    "bi:archivo_notas": 4.902,
+    "bi:archivos_factura": 4.902,
+    "impuestos": 4.902,
+    "bi:pdf_impuestos": 4.902,
+    "encontra": 4.902,
+    "bi:encontra_archivo": 4.902,
+    "bi:archivo_presupuesto": 4.902,
+    "nota": 3.2925,
+    "ideas": 4.4965,
+    "texto": 3.5157,
+    "hola": 4.902,
+    "bi:crear_nota": 4.2088,
+    "bi:nota_llamada": 3.5157,
+    "bi:llamada_ideas": 4.4965,
+    "bi:ideas_texto": 4.4965,
+    "bi:texto_hola": 4.902,
+    "compras": 4.902,
+    "leche": 4.902,
+    "bi:llamada_compras": 4.902,
+    "bi:compras_texto": 4.902,
+    "bi:texto_leche": 4.902,
+    "guardar": 4.4965,
+    "recordatorio": 4.902,
+    "llamar": 4.902,
+    "bi:guardar_nota": 4.4965,
+    "bi:llamada_recordatorio": 4.902,
+    "bi:recordatorio_texto": 4.902,
+    "bi:texto_llamar": 4.902,
+    "pendientes": 4.902,
+    "revisar": 4.902,
+    "bi:nueva_nota": 4.902,
+    "bi:llamada_pendientes": 4.902,
+    "bi:pendientes_texto": 4.902,
+    "bi:texto_revisar": 4.902,
+    "escribir": 4.902,
+    "contenido": 4.902,
+    "bi:escribir_nota": 4.902,
+    "bi:prueba_texto": 4.902,
+    "bi:texto_contenido": 4.902,
+    "llamado": 4.902,
+    "diario": 4.902,
+    "hoy": 4.902,
+    "bi:crear_archivo": 4.902,
+    "bi:archivo_nota": 4.902,
+    "bi:nota_llamado": 4.902,
+    "bi:llamado_diario": 4.902,
+    "bi:diario_texto": 4.902,
+    "bi:texto_hoy": 4.902,
+    "tareas": 4.902,
+    "diga": 4.902,
+    "estudiar": 4.902,
+    "bi:llamada_tareas": 4.902,
+    "bi:tareas_diga": 4.902,
+    "bi:diga_estudiar": 4.902,
+    "nuevo": 4.902,
+    "bi:hacer_nota": 4.902,
+    "bi:texto_nuevo": 4.902,
+    "bi:nuevo_proyecto": 4.902,
+    "estado": 3.8034,
+    "sistema": 4.2088,
+    "bi:mostrar_estado": 4.4965,
+    "bi:estado_sistema": 4.4965,
+    "computadora": 4.4965,
+    "bi:ver_estado": 4.902,
+    "bi:estado_computadora": 4.902,
+    "esta": 4.902,
+    "pc": 4.902,
+    "bi:como_esta": 4.902,
+    "bi:esta_pc": 4.902,
+    "informacion": 4.4965,
+    "bi:mostrar_informacion": 4.902,
+    "bi:informacion_sistema": 4.902,
+    "windows": 4.4965,
+    "bi:estado_windows": 4.4965,
+    "memoria": 4.902,
+    "cpu": 4.902,
+    "bi:ver_memoria": 4.902,
+    "bi:memoria_cpu": 4.902,
+    "anda": 4.902,
+    "compu": 4.902,
+    "bi:como_anda": 4.902,
+    "bi:anda_compu": 4.902,
+    "bi:informacion_computadora": 4.902,
+    "organizar": 3.9857,
+    "tipo": 3.9857,
+    "bi:organizar_descargas": 4.2088,
+    "bi:descargas_tipo": 4.4965,
+    "acomodar": 4.902,
+    "extension": 4.4965,
+    "bi:acomodar_descargas": 4.902,
+    "bi:descargas_extension": 4.902,
+    "separar": 4.902,
+    "bi:separar_archivos": 4.902,
+    "clasificar": 4.902,
+    "bi:clasificar_descargas": 4.902,
+    "bi:organizar_carpeta": 4.902,
+    "mover": 4.902,
+    "carpetas": 4.902,
+    "bi:mover_descargas": 4.902,
+    "bi:descargas_carpetas": 4.902,
+    "bi:carpetas_tipo": 4.902,
+    "acomoda": 4.902,
+    "bi:acomoda_archivos": 4.902,
+    "bi:descargados_tipo": 4.902,
+    "clasifica": 4.902,
+    "bi:clasifica_downloads": 4.902,
+    "bi:downloads_extension": 4.902,
+    "contame": 4.902,
+    "chiste": 4.902,
+    "bi:contame_chiste": 4.902,
+    "clima": 4.902,
+    "bi:clima_crear": 4.902,
+    "comprar": 4.902,
+    "entradas": 4.902,
+    "bi:comprar_entradas": 4.902,
+    "mandar": 4.902,
+    "email": 4.902,
+    "bi:mandar_email": 4.902,
+    "subir": 4.902,
+    "bi:subir_archivos": 4.902,
+    "reproducir": 4.902,
+    "musica": 4.902,
+    "bi:reproducir_musica": 4.902,
+    "transferencia": 4.902,
+    "bi:hacer_transferencia": 4.902,
+    "cuenta": 4.902,
+    "bi:crear_cuenta": 4.902,
+    "receta": 4.902,
+    "pizza": 4.902,
+    "bi:receta_pizza": 4.902,
+    "cuanto": 4.902,
+    "es": 4.902,
+    "raiz": 4.902,
+    "cuadrada": 4.902,
+    "bi:cuanto_es": 4.902,
+    "bi:es_raiz": 4.902,
+    "bi:raiz_cuadrada": 4.902,
+    "escribi": 4.902,
+    "historia": 4.902,
+    "ciencia": 4.902,
+    "ficcion": 4.902,
+    "bi:escribi_historia": 4.902,
+    "bi:historia_ciencia": 4.902,
+    "bi:ciencia_ficcion": 4.902,
+    "reservame": 4.902,
+    "hotel": 4.902,
+    "bi:reservame_hotel": 4.902
   },
   "profiles": {
     "help": {
-      "ayuda": 0.6642,
-      "help": 0.2811,
-      "comandos": 0.3976,
-      "hay": 0.1988,
-      "mostrame": 0.2058,
-      "necesito": 0.2058,
-      "lista": 0.1988,
-      "como": 0.1522,
-      "te": 0.1671,
-      "uso": 0.1671,
-      "podes": 0.2144,
-      "hacer": 0.1818
+      "ayuda": 0.489,
+      "help": 0.2321,
+      "comandos": 0.4528,
+      "hay": 0.1346,
+      "bi:comandos_hay": 0.1467,
+      "mostrar": 0.1924,
+      "bi:mostrar_ayuda": 0.1547,
+      "necesito": 0.1326,
+      "bi:necesito_ayuda": 0.1445,
+      "listar": 0.1197,
+      "bi:listar_comandos": 0.1543,
+      "como": 0.1528,
+      "te": 0.1075,
+      "uso": 0.1075,
+      "bi:como_te": 0.1075,
+      "bi:te_uso": 0.1075,
+      "podes": 0.1423,
+      "hacer": 0.1157,
+      "bi:podes_hacer": 0.1423,
+      "disponibles": 0.1136,
+      "bi:mostrar_comandos": 0.1136,
+      "bi:comandos_disponibles": 0.1136,
+      "no": 0.0804,
+      "se": 0.0737,
+      "usar": 0.0804,
+      "atenea": 0.2,
+      "bi:no_se": 0.0804,
+      "bi:se_como": 0.0804,
+      "bi:como_usar": 0.0804,
+      "bi:usar_atenea": 0.0804,
+      "explicame": 0.1423,
+      "bi:explicame_comandos": 0.1423,
+      "ayudame": 0.1377,
+      "bi:ayudame_atenea": 0.1377
     },
     "open_app": {
-      "abrir": 0.5088,
-      "chrome": 0.5648,
-      "abri": 0.3819,
-      "abre": 0.2076,
-      "google": 0.1021,
-      "iniciar": 0.1268,
-      "bloc": 0.1981,
-      "notas": 0.1737,
-      "notepad": 0.1248,
-      "explorador": 0.3239,
-      "archivos": 0.0741,
-      "favor": 0.1065
+      "abrir": 0.6573,
+      "chrome": 0.4444,
+      "bi:abrir_chrome": 0.3705,
+      "google": 0.0634,
+      "bi:abrir_google": 0.0634,
+      "bi:google_chrome": 0.0634,
+      "iniciar": 0.0787,
+      "bi:iniciar_chrome": 0.0787,
+      "bloc": 0.1216,
+      "notas": 0.1078,
+      "bi:abrir_bloc": 0.1216,
+      "bi:bloc_notas": 0.1216,
+      "notepad": 0.0812,
+      "bi:abrir_notepad": 0.0812,
+      "explorador": 0.2181,
+      "bi:abrir_explorador": 0.2181,
+      "archivos": 0.0421,
+      "bi:explorador_archivos": 0.0698,
+      "crhome": 0.0812,
+      "bi:abrir_crhome": 0.0812,
+      "pone": 0.0721,
+      "navegador": 0.0721,
+      "bi:pone_navegador": 0.0721,
+      "favor": 0.0669,
+      "bi:chrome_favor": 0.0669
     },
     "create_folder": {
-      "crear": 0.3207,
-      "carpeta": 0.6437,
-      "llamada": 0.5034,
-      "prueba": 0.1371,
-      "crea": 0.1348,
-      "documentos": 0.1229,
-      "hacer": 0.1013,
-      "trabajo": 0.1194,
-      "escritorio": 0.2598,
-      "nueva": 0.1229,
-      "fotos": 0.1348,
-      "proyecto": 0.1448,
-      "necesito": 0.1323,
-      "notas": 0.1161
+      "crear": 0.3672,
+      "carpeta": 0.5104,
+      "llamada": 0.2846,
+      "prueba": 0.0787,
+      "bi:crear_carpeta": 0.4367,
+      "bi:carpeta_llamada": 0.3513,
+      "bi:llamada_prueba": 0.0787,
+      "documentos": 0.0771,
+      "bi:llamada_documentos": 0.0841,
+      "hacer": 0.0526,
+      "trabajo": 0.0646,
+      "escritorio": 0.1471,
+      "bi:hacer_carpeta": 0.0646,
+      "bi:llamada_trabajo": 0.0646,
+      "bi:trabajo_escritorio": 0.0646,
+      "nueva": 0.1481,
+      "fotos": 0.0751,
+      "bi:nueva_carpeta": 0.0751,
+      "bi:llamada_fotos": 0.0751,
+      "bi:carpeta_escritorio": 0.0957,
+      "proyecto": 0.1568,
+      "bi:llamada_proyecto": 0.0852,
+      "necesito": 0.0706,
+      "notas": 0.0626,
+      "bi:necesito_carpeta": 0.0769,
+      "bi:llamada_notas": 0.0769,
+      "bi:carpeta_proyecto": 0.0974,
+      "se": 0.058,
+      "llame": 0.0633,
+      "facturas": 0.0633,
+      "bi:carpeta_se": 0.0633,
+      "bi:se_llame": 0.0633,
+      "bi:llame_facturas": 0.0633,
+      "bi:carpeta_nueva": 0.0974
     },
     "list_downloads": {
-      "listar": 0.4073,
-      "descargas": 0.674,
-      "archivos": 0.3509,
-      "mostrar": 0.2134,
-      "ver": 0.1517,
-      "descargados": 0.1789,
-      "hay": 0.2182,
-      "mostrame": 0.1875,
-      "carpeta": 0.1331,
-      "lista": 0.1588,
-      "downloads": 0.1744
+      "listar": 0.4349,
+      "descargas": 0.5151,
+      "bi:listar_descargas": 0.2961,
+      "archivos": 0.2957,
+      "bi:listar_archivos": 0.2181,
+      "bi:archivos_descargas": 0.1144,
+      "mostrar": 0.2017,
+      "bi:mostrar_descargas": 0.1583,
+      "ver": 0.1988,
+      "descargados": 0.1029,
+      "bi:ver_archivos": 0.1121,
+      "bi:archivos_descargados": 0.1029,
+      "hay": 0.1339,
+      "bi:hay_descargas": 0.146,
+      "carpeta": 0.076,
+      "bi:mostrar_carpeta": 0.1229,
+      "bi:carpeta_descargas": 0.1128,
+      "downloads": 0.1037,
+      "bi:archivos_downloads": 0.113,
+      "baje": 0.1404,
+      "bi:archivos_baje": 0.1404,
+      "descargue": 0.1324,
+      "bi:ver_descargue": 0.1324
     },
     "search_files": {
-      "buscar": 0.4907,
-      "archivos": 0.4304,
-      "contengan": 0.3049,
-      "factura": 0.1711,
-      "busca": 0.1897,
-      "presupuesto": 0.1897,
-      "encontrar": 0.3253,
-      "llamados": 0.1635,
-      "informe": 0.1635,
-      "pdf": 0.2238,
-      "localizar": 0.1635,
-      "foto": 0.1635,
-      "documentos": 0.1674,
-      "contrato": 0.1838,
-      "archivo": 0.1764,
-      "notas": 0.1547
+      "buscar": 0.5178,
+      "archivos": 0.3095,
+      "contengan": 0.1719,
+      "factura": 0.198,
+      "bi:buscar_archivos": 0.287,
+      "bi:archivos_contengan": 0.1719,
+      "bi:contengan_factura": 0.0973,
+      "presupuesto": 0.2036,
+      "bi:archivos_presupuesto": 0.1185,
+      "encontrar": 0.1802,
+      "llamados": 0.0889,
+      "informe": 0.0889,
+      "bi:encontrar_archivos": 0.0889,
+      "bi:archivos_llamados": 0.0889,
+      "bi:llamados_informe": 0.0889,
+      "pdf": 0.2346,
+      "bi:buscar_pdf": 0.2346,
+      "localizar": 0.0901,
+      "foto": 0.0901,
+      "bi:localizar_archivos": 0.0901,
+      "bi:contengan_foto": 0.0901,
+      "documentos": 0.0969,
+      "contrato": 0.1057,
+      "bi:buscar_documentos": 0.1057,
+      "bi:documentos_contrato": 0.1057,
+      "archivo": 0.1813,
+      "notas": 0.0875,
+      "bi:encontrar_archivo": 0.1076,
+      "bi:archivo_notas": 0.1076,
+      "bi:archivos_factura": 0.1185,
+      "impuestos": 0.1076,
+      "bi:pdf_impuestos": 0.1076,
+      "encontra": 0.1035,
+      "bi:encontra_archivo": 0.1035,
+      "bi:archivo_presupuesto": 0.1035
     },
     "create_note": {
-      "crear": 0.253,
-      "nota": 0.5277,
-      "llamada": 0.3756,
-      "ideas": 0.1275,
-      "texto": 0.5277,
-      "hola": 0.1275,
-      "compras": 0.1275,
-      "leche": 0.1275,
-      "guardar": 0.1198,
-      "recordatorio": 0.1198,
-      "llamar": 0.1198,
-      "nueva": 0.1113,
-      "pendientes": 0.1222,
-      "revisar": 0.1222,
-      "escribir": 0.1222,
-      "prueba": 0.1113,
-      "contenido": 0.1222,
-      "archivo": 0.0991,
-      "llamado": 0.1087,
-      "diario": 0.1087,
-      "hoy": 0.1087
+      "crear": 0.1723,
+      "nota": 0.4771,
+      "llamada": 0.3041,
+      "ideas": 0.1316,
+      "texto": 0.3551,
+      "hola": 0.0765,
+      "bi:crear_nota": 0.1912,
+      "bi:nota_llamada": 0.3617,
+      "bi:llamada_ideas": 0.1316,
+      "bi:ideas_texto": 0.1316,
+      "bi:texto_hola": 0.0765,
+      "compras": 0.0742,
+      "leche": 0.0742,
+      "bi:llamada_compras": 0.0742,
+      "bi:compras_texto": 0.0742,
+      "bi:texto_leche": 0.0742,
+      "guardar": 0.197,
+      "recordatorio": 0.0716,
+      "llamar": 0.0716,
+      "bi:guardar_nota": 0.197,
+      "bi:llamada_recordatorio": 0.0716,
+      "bi:recordatorio_texto": 0.0716,
+      "bi:texto_llamar": 0.0716,
+      "nueva": 0.0613,
+      "pendientes": 0.0714,
+      "revisar": 0.0714,
+      "bi:nueva_nota": 0.0714,
+      "bi:llamada_pendientes": 0.0714,
+      "bi:pendientes_texto": 0.0714,
+      "bi:texto_revisar": 0.0714,
+      "escribir": 0.0716,
+      "prueba": 0.0657,
+      "contenido": 0.0716,
+      "bi:escribir_nota": 0.0716,
+      "bi:llamada_prueba": 0.0657,
+      "bi:prueba_texto": 0.0716,
+      "bi:texto_contenido": 0.0716,
+      "archivo": 0.054,
+      "llamado": 0.0629,
+      "diario": 0.0629,
+      "hoy": 0.0629,
+      "bi:crear_archivo": 0.0629,
+      "bi:archivo_nota": 0.0629,
+      "bi:nota_llamado": 0.0629,
+      "bi:llamado_diario": 0.0629,
+      "bi:diario_texto": 0.0629,
+      "bi:texto_hoy": 0.0629,
+      "tareas": 0.072,
+      "diga": 0.072,
+      "estudiar": 0.072,
+      "bi:llamada_tareas": 0.072,
+      "bi:tareas_diga": 0.072,
+      "bi:diga_estudiar": 0.072,
+      "hacer": 0.0544,
+      "nuevo": 0.0669,
+      "proyecto": 0.0574,
+      "bi:hacer_nota": 0.0669,
+      "bi:texto_nuevo": 0.0669,
+      "bi:nuevo_proyecto": 0.0669
     },
     "system_status": {
-      "mostrar": 0.2947,
-      "estado": 0.6211,
-      "sistema": 0.4842,
-      "ver": 0.2777,
-      "computadora": 0.1697,
-      "como": 0.141,
-      "esta": 0.1548,
-      "pc": 0.1548,
-      "informacion": 0.1668,
-      "windows": 0.2035,
-      "memoria": 0.158,
-      "cpu": 0.158
+      "mostrar": 0.2481,
+      "estado": 0.5001,
+      "sistema": 0.3264,
+      "bi:mostrar_estado": 0.2161,
+      "bi:estado_sistema": 0.2475,
+      "ver": 0.1736,
+      "computadora": 0.226,
+      "bi:ver_estado": 0.1102,
+      "bi:estado_computadora": 0.1102,
+      "como": 0.1681,
+      "esta": 0.1034,
+      "pc": 0.1034,
+      "bi:como_esta": 0.1034,
+      "bi:esta_pc": 0.1034,
+      "informacion": 0.2262,
+      "bi:mostrar_informacion": 0.1103,
+      "bi:informacion_sistema": 0.1103,
+      "windows": 0.2427,
+      "bi:estado_windows": 0.2427,
+      "memoria": 0.1034,
+      "cpu": 0.1034,
+      "bi:ver_memoria": 0.1034,
+      "bi:memoria_cpu": 0.1034,
+      "anda": 0.1034,
+      "compu": 0.1034,
+      "bi:como_anda": 0.1034,
+      "bi:anda_compu": 0.1034,
+      "bi:informacion_computadora": 0.1362
     },
     "organize_downloads": {
-      "organizar": 0.1727,
-      "descargas": 0.7296,
-      "tipo": 0.4131,
-      "ordena": 0.1727,
-      "acomodar": 0.1621,
-      "extension": 0.1621,
-      "separar": 0.1883,
+      "organizar": 0.4054,
+      "descargas": 0.5457,
+      "tipo": 0.324,
+      "bi:organizar_descargas": 0.3298,
+      "bi:descargas_tipo": 0.2095,
+      "acomodar": 0.1005,
+      "extension": 0.1795,
+      "bi:acomodar_descargas": 0.1005,
+      "bi:descargas_extension": 0.1005,
+      "separar": 0.1092,
       "archivos": 0.1178,
-      "clasificar": 0.2139,
-      "organiza": 0.1869,
-      "carpeta": 0.1208,
-      "mover": 0.1418,
-      "carpetas": 0.1418
+      "bi:separar_archivos": 0.1092,
+      "bi:archivos_descargas": 0.1001,
+      "clasificar": 0.1343,
+      "bi:clasificar_descargas": 0.1343,
+      "carpeta": 0.0708,
+      "bi:organizar_carpeta": 0.1145,
+      "bi:carpeta_descargas": 0.105,
+      "mover": 0.084,
+      "carpetas": 0.084,
+      "bi:mover_descargas": 0.084,
+      "bi:descargas_carpetas": 0.084,
+      "bi:carpetas_tipo": 0.084,
+      "acomoda": 0.0861,
+      "descargados": 0.079,
+      "bi:acomoda_archivos": 0.0861,
+      "bi:archivos_descargados": 0.079,
+      "bi:descargados_tipo": 0.0861,
+      "clasifica": 0.0951,
+      "downloads": 0.0872,
+      "bi:clasifica_downloads": 0.0951,
+      "bi:downloads_extension": 0.0951
     },
     "unknown": {
-      "contame": 0.25,
-      "chiste": 0.25,
-      "clima": 0.25,
-      "hace": 0.25,
-      "comprar": 0.25,
-      "entradas": 0.25,
-      "mandar": 0.25,
-      "email": 0.25,
-      "subir": 0.2997,
-      "archivos": 0.1876,
-      "reproducir": 0.25,
-      "musica": 0.25,
-      "hacer": 0.2286,
-      "transferencia": 0.2697,
-      "crear": 0.2019,
-      "cuenta": 0.2902
+      "contame": 0.1646,
+      "chiste": 0.1646,
+      "bi:contame_chiste": 0.1646,
+      "clima": 0.1854,
+      "crear": 0.2236,
+      "bi:clima_crear": 0.1854,
+      "comprar": 0.1646,
+      "entradas": 0.1646,
+      "bi:comprar_entradas": 0.1646,
+      "mandar": 0.1646,
+      "email": 0.1646,
+      "bi:mandar_email": 0.1646,
+      "subir": 0.1854,
+      "archivos": 0.1118,
+      "bi:subir_archivos": 0.1854,
+      "reproducir": 0.1646,
+      "musica": 0.1646,
+      "bi:reproducir_musica": 0.1646,
+      "hacer": 0.1421,
+      "transferencia": 0.1747,
+      "bi:hacer_transferencia": 0.1747,
+      "cuenta": 0.1854,
+      "bi:crear_cuenta": 0.1854,
+      "receta": 0.1646,
+      "pizza": 0.1646,
+      "bi:receta_pizza": 0.1646,
+      "cuanto": 0.1077,
+      "es": 0.1077,
+      "raiz": 0.1077,
+      "cuadrada": 0.1077,
+      "bi:cuanto_es": 0.1077,
+      "bi:es_raiz": 0.1077,
+      "bi:raiz_cuadrada": 0.1077,
+      "escribi": 0.1077,
+      "historia": 0.1077,
+      "ciencia": 0.1077,
+      "ficcion": 0.1077,
+      "bi:escribi_historia": 0.1077,
+      "bi:historia_ciencia": 0.1077,
+      "bi:ciencia_ficcion": 0.1077,
+      "reservame": 0.1646,
+      "hotel": 0.1646,
+      "bi:reservame_hotel": 0.1646
     }
   },
   "examples": [
@@ -271,6 +635,7 @@
       "tokens": [
         "ayuda"
       ],
+      "normalizedText": "ayuda",
       "vector": {
         "ayuda": 1
       }
@@ -281,6 +646,7 @@
       "tokens": [
         "help"
       ],
+      "normalizedText": "help",
       "vector": {
         "help": 1
       }
@@ -292,21 +658,25 @@
         "comandos",
         "hay"
       ],
+      "normalizedText": "que comandos hay",
       "vector": {
-        "comandos": 0.7071,
-        "hay": 0.7071
+        "comandos": 0.514,
+        "hay": 0.5798,
+        "bi:comandos_hay": 0.6321
       }
     },
     {
       "intent": "help",
       "text": "mostrame la ayuda",
       "tokens": [
-        "mostrame",
+        "mostrar",
         "ayuda"
       ],
+      "normalizedText": "mostrar la ayuda",
       "vector": {
-        "mostrame": 0.732,
-        "ayuda": 0.6813
+        "mostrar": 0.478,
+        "ayuda": 0.5722,
+        "bi:mostrar_ayuda": 0.6664
       }
     },
     {
@@ -316,21 +686,25 @@
         "necesito",
         "ayuda"
       ],
+      "normalizedText": "necesito ayuda",
       "vector": {
-        "necesito": 0.732,
-        "ayuda": 0.6813
+        "necesito": 0.5712,
+        "ayuda": 0.5347,
+        "bi:necesito_ayuda": 0.6227
       }
     },
     {
       "intent": "help",
       "text": "lista de comandos",
       "tokens": [
-        "lista",
+        "listar",
         "comandos"
       ],
+      "normalizedText": "listar de comandos",
       "vector": {
-        "lista": 0.7071,
-        "comandos": 0.7071
+        "listar": 0.5158,
+        "comandos": 0.5405,
+        "bi:listar_comandos": 0.6647
       }
     },
     {
@@ -341,10 +715,13 @@
         "te",
         "uso"
       ],
+      "normalizedText": "como te uso",
       "vector": {
-        "como": 0.5415,
-        "te": 0.5944,
-        "uso": 0.5944
+        "como": 0.3766,
+        "te": 0.4632,
+        "uso": 0.4632,
+        "bi:como_te": 0.4632,
+        "bi:te_uso": 0.4632
       }
     },
     {
@@ -354,9 +731,79 @@
         "podes",
         "hacer"
       ],
+      "normalizedText": "que podes hacer",
       "vector": {
-        "podes": 0.7627,
-        "hacer": 0.6467
+        "podes": 0.613,
+        "hacer": 0.4984,
+        "bi:podes_hacer": 0.613
+      }
+    },
+    {
+      "intent": "help",
+      "text": "mostrame los comandos disponibles",
+      "tokens": [
+        "mostrar",
+        "comandos",
+        "disponibles"
+      ],
+      "normalizedText": "mostrar los comandos disponibles",
+      "vector": {
+        "mostrar": 0.351,
+        "comandos": 0.3979,
+        "disponibles": 0.4894,
+        "bi:mostrar_comandos": 0.4894,
+        "bi:comandos_disponibles": 0.4894
+      }
+    },
+    {
+      "intent": "help",
+      "text": "no se como usar atenea",
+      "tokens": [
+        "no",
+        "se",
+        "como",
+        "usar",
+        "atenea"
+      ],
+      "normalizedText": "no se como usar atenea",
+      "vector": {
+        "no": 0.3462,
+        "se": 0.3176,
+        "como": 0.2815,
+        "usar": 0.3462,
+        "atenea": 0.3176,
+        "bi:no_se": 0.3462,
+        "bi:se_como": 0.3462,
+        "bi:como_usar": 0.3462,
+        "bi:usar_atenea": 0.3462
+      }
+    },
+    {
+      "intent": "help",
+      "text": "explicame los comandos",
+      "tokens": [
+        "explicame",
+        "comandos"
+      ],
+      "normalizedText": "explicame los comandos",
+      "vector": {
+        "explicame": 0.613,
+        "comandos": 0.4984,
+        "bi:explicame_comandos": 0.613
+      }
+    },
+    {
+      "intent": "help",
+      "text": "ayudame con atenea",
+      "tokens": [
+        "ayudame",
+        "atenea"
+      ],
+      "normalizedText": "ayudame con atenea",
+      "vector": {
+        "ayudame": 0.5932,
+        "atenea": 0.5442,
+        "bi:ayudame_atenea": 0.5932
       }
     },
     {
@@ -366,35 +813,42 @@
         "abrir",
         "chrome"
       ],
+      "normalizedText": "abrir chrome",
       "vector": {
-        "abrir": 0.723,
-        "chrome": 0.6908
+        "abrir": 0.4957,
+        "chrome": 0.5895,
+        "bi:abrir_chrome": 0.6378
       }
     },
     {
       "intent": "open_app",
       "text": "abrí chrome",
       "tokens": [
-        "abri",
+        "abrir",
         "chrome"
       ],
+      "normalizedText": "abrir chrome",
       "vector": {
-        "abri": 0.7405,
-        "chrome": 0.672
+        "abrir": 0.4957,
+        "chrome": 0.5895,
+        "bi:abrir_chrome": 0.6378
       }
     },
     {
       "intent": "open_app",
       "text": "abre google chrome",
       "tokens": [
-        "abre",
+        "abrir",
         "google",
         "chrome"
       ],
+      "normalizedText": "abrir google chrome",
       "vector": {
-        "abre": 0.5936,
-        "google": 0.6516,
-        "chrome": 0.4724
+        "abrir": 0.3062,
+        "google": 0.5078,
+        "chrome": 0.3642,
+        "bi:abrir_google": 0.5078,
+        "bi:google_chrome": 0.5078
       }
     },
     {
@@ -404,9 +858,11 @@
         "abrir",
         "chrome"
       ],
+      "normalizedText": "quiero abrir chrome",
       "vector": {
-        "abrir": 0.723,
-        "chrome": 0.6908
+        "abrir": 0.4957,
+        "chrome": 0.5895,
+        "bi:abrir_chrome": 0.6378
       }
     },
     {
@@ -416,9 +872,11 @@
         "iniciar",
         "chrome"
       ],
+      "normalizedText": "iniciar chrome",
       "vector": {
-        "iniciar": 0.8096,
-        "chrome": 0.587
+        "iniciar": 0.6306,
+        "chrome": 0.4523,
+        "bi:iniciar_chrome": 0.6306
       }
     },
     {
@@ -429,24 +887,30 @@
         "bloc",
         "notas"
       ],
+      "normalizedText": "abrir bloc de notas",
       "vector": {
-        "abrir": 0.5308,
-        "bloc": 0.6372,
-        "notas": 0.5588
+        "abrir": 0.3201,
+        "bloc": 0.4869,
+        "notas": 0.4316,
+        "bi:abrir_bloc": 0.4869,
+        "bi:bloc_notas": 0.4869
       }
     },
     {
       "intent": "open_app",
       "text": "abrí el bloc de notas",
       "tokens": [
-        "abri",
+        "abrir",
         "bloc",
         "notas"
       ],
+      "normalizedText": "abrir el bloc de notas",
       "vector": {
-        "abri": 0.5504,
-        "bloc": 0.6277,
-        "notas": 0.5504
+        "abrir": 0.3201,
+        "bloc": 0.4869,
+        "notas": 0.4316,
+        "bi:abrir_bloc": 0.4869,
+        "bi:bloc_notas": 0.4869
       }
     },
     {
@@ -456,9 +920,11 @@
         "abrir",
         "notepad"
       ],
+      "normalizedText": "abrir notepad",
       "vector": {
-        "abrir": 0.6045,
-        "notepad": 0.7966
+        "abrir": 0.3922,
+        "notepad": 0.6504,
+        "bi:abrir_notepad": 0.6504
       }
     },
     {
@@ -468,49 +934,101 @@
         "abrir",
         "explorador"
       ],
+      "normalizedText": "abrir explorador",
       "vector": {
-        "abrir": 0.6669,
-        "explorador": 0.7451
+        "abrir": 0.4448,
+        "explorador": 0.6333,
+        "bi:abrir_explorador": 0.6333
       }
     },
     {
       "intent": "open_app",
       "text": "abrí el explorador de archivos",
       "tokens": [
-        "abri",
+        "abrir",
         "explorador",
         "archivos"
       ],
+      "normalizedText": "abrir el explorador de archivos",
       "vector": {
-        "abri": 0.6041,
-        "explorador": 0.6412,
-        "archivos": 0.4732
+        "abrir": 0.337,
+        "explorador": 0.4798,
+        "archivos": 0.337,
+        "bi:abrir_explorador": 0.4798,
+        "bi:explorador_archivos": 0.5589
       }
     },
     {
       "intent": "open_app",
       "text": "abre el explorador",
       "tokens": [
-        "abre",
+        "abrir",
         "explorador"
       ],
+      "normalizedText": "abrir el explorador",
       "vector": {
-        "abre": 0.732,
-        "explorador": 0.6813
+        "abrir": 0.4448,
+        "explorador": 0.6333,
+        "bi:abrir_explorador": 0.6333
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abrime chrome",
+      "tokens": [
+        "abrir",
+        "chrome"
+      ],
+      "normalizedText": "abrir chrome",
+      "vector": {
+        "abrir": 0.4957,
+        "chrome": 0.5895,
+        "bi:abrir_chrome": 0.6378
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "abri crhome",
+      "tokens": [
+        "abrir",
+        "crhome"
+      ],
+      "normalizedText": "abrir crhome",
+      "vector": {
+        "abrir": 0.3922,
+        "crhome": 0.6504,
+        "bi:abrir_crhome": 0.6504
+      }
+    },
+    {
+      "intent": "open_app",
+      "text": "pone el navegador",
+      "tokens": [
+        "pone",
+        "navegador"
+      ],
+      "normalizedText": "pone el navegador",
+      "vector": {
+        "pone": 0.5774,
+        "navegador": 0.5774,
+        "bi:pone_navegador": 0.5774
       }
     },
     {
       "intent": "open_app",
       "text": "abrí chrome por favor",
       "tokens": [
-        "abri",
+        "abrir",
         "chrome",
         "favor"
       ],
+      "normalizedText": "abrir chrome por favor",
       "vector": {
-        "abri": 0.5431,
-        "chrome": 0.4929,
-        "favor": 0.6798
+        "abrir": 0.3233,
+        "chrome": 0.3845,
+        "favor": 0.5361,
+        "bi:abrir_chrome": 0.4159,
+        "bi:chrome_favor": 0.5361
       }
     },
     {
@@ -522,27 +1040,35 @@
         "llamada",
         "prueba"
       ],
+      "normalizedText": "crear carpeta llamada prueba",
       "vector": {
-        "crear": 0.4801,
-        "carpeta": 0.4462,
-        "llamada": 0.4186,
-        "prueba": 0.6286
+        "crear": 0.3069,
+        "carpeta": 0.3146,
+        "llamada": 0.3069,
+        "prueba": 0.4668,
+        "bi:crear_carpeta": 0.365,
+        "bi:carpeta_llamada": 0.3789,
+        "bi:llamada_prueba": 0.4668
       }
     },
     {
       "intent": "create_folder",
       "text": "crea una carpeta llamada documentos",
       "tokens": [
-        "crea",
+        "crear",
         "carpeta",
         "llamada",
         "documentos"
       ],
+      "normalizedText": "crear una carpeta llamada documentos",
       "vector": {
-        "crea": 0.6182,
-        "carpeta": 0.3998,
-        "llamada": 0.3751,
-        "documentos": 0.5632
+        "crear": 0.3008,
+        "carpeta": 0.3083,
+        "llamada": 0.3008,
+        "documentos": 0.4575,
+        "bi:crear_carpeta": 0.3577,
+        "bi:carpeta_llamada": 0.3713,
+        "bi:llamada_documentos": 0.4988
       }
     },
     {
@@ -555,12 +1081,17 @@
         "trabajo",
         "escritorio"
       ],
+      "normalizedText": "hacer carpeta llamada trabajo en escritorio",
       "vector": {
-        "hacer": 0.4643,
-        "carpeta": 0.3541,
-        "llamada": 0.3322,
-        "trabajo": 0.5476,
-        "escritorio": 0.4988
+        "hacer": 0.3117,
+        "carpeta": 0.237,
+        "llamada": 0.2312,
+        "trabajo": 0.3834,
+        "escritorio": 0.3517,
+        "bi:hacer_carpeta": 0.3834,
+        "bi:carpeta_llamada": 0.2854,
+        "bi:llamada_trabajo": 0.3834,
+        "bi:trabajo_escritorio": 0.3834
       }
     },
     {
@@ -572,11 +1103,15 @@
         "llamada",
         "fotos"
       ],
+      "normalizedText": "nueva carpeta llamada fotos",
       "vector": {
-        "nueva": 0.5632,
-        "carpeta": 0.3998,
-        "llamada": 0.3751,
-        "fotos": 0.6182
+        "nueva": 0.3826,
+        "carpeta": 0.2754,
+        "llamada": 0.2687,
+        "fotos": 0.4456,
+        "bi:nueva_carpeta": 0.4456,
+        "bi:carpeta_llamada": 0.3317,
+        "bi:llamada_fotos": 0.4456
       }
     },
     {
@@ -587,10 +1122,13 @@
         "carpeta",
         "escritorio"
       ],
+      "normalizedText": "crear carpeta en el escritorio",
       "vector": {
-        "crear": 0.5286,
-        "carpeta": 0.4914,
-        "escritorio": 0.6922
+        "crear": 0.3424,
+        "carpeta": 0.351,
+        "escritorio": 0.5208,
+        "bi:crear_carpeta": 0.4072,
+        "bi:carpeta_escritorio": 0.5678
       }
     },
     {
@@ -602,11 +1140,15 @@
         "llamada",
         "proyecto"
       ],
+      "normalizedText": "crear una carpeta llamada proyecto",
       "vector": {
-        "crear": 0.4617,
-        "carpeta": 0.4292,
-        "llamada": 0.4026,
-        "proyecto": 0.6637
+        "crear": 0.3048,
+        "carpeta": 0.3124,
+        "llamada": 0.3048,
+        "proyecto": 0.4339,
+        "bi:crear_carpeta": 0.3625,
+        "bi:carpeta_llamada": 0.3762,
+        "bi:llamada_proyecto": 0.5054
       }
     },
     {
@@ -618,11 +1160,72 @@
         "llamada",
         "notas"
       ],
+      "normalizedText": "necesito una carpeta llamada notas",
       "vector": {
-        "necesito": 0.6067,
-        "carpeta": 0.4307,
-        "llamada": 0.4041,
-        "notas": 0.5321
+        "necesito": 0.4186,
+        "carpeta": 0.2821,
+        "llamada": 0.2752,
+        "notas": 0.371,
+        "bi:necesito_carpeta": 0.4563,
+        "bi:carpeta_llamada": 0.3397,
+        "bi:llamada_notas": 0.4563
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "creame una carpeta proyecto",
+      "tokens": [
+        "crear",
+        "carpeta",
+        "proyecto"
+      ],
+      "normalizedText": "crear una carpeta proyecto",
+      "vector": {
+        "crear": 0.3483,
+        "carpeta": 0.3571,
+        "proyecto": 0.4959,
+        "bi:crear_carpeta": 0.4143,
+        "bi:carpeta_proyecto": 0.5776
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "haceme una carpeta que se llame facturas",
+      "tokens": [
+        "crear",
+        "carpeta",
+        "se",
+        "llame",
+        "facturas"
+      ],
+      "normalizedText": "crear una carpeta que se llame facturas",
+      "vector": {
+        "crear": 0.2263,
+        "carpeta": 0.232,
+        "se": 0.3442,
+        "llame": 0.3753,
+        "facturas": 0.3753,
+        "bi:crear_carpeta": 0.2691,
+        "bi:carpeta_se": 0.3753,
+        "bi:se_llame": 0.3753,
+        "bi:llame_facturas": 0.3753
+      }
+    },
+    {
+      "intent": "create_folder",
+      "text": "crear carpeta nueva",
+      "tokens": [
+        "crear",
+        "carpeta",
+        "nueva"
+      ],
+      "normalizedText": "crear carpeta nueva",
+      "vector": {
+        "crear": 0.3483,
+        "carpeta": 0.3571,
+        "nueva": 0.4959,
+        "bi:crear_carpeta": 0.4143,
+        "bi:carpeta_nueva": 0.5776
       }
     },
     {
@@ -632,9 +1235,11 @@
         "listar",
         "descargas"
       ],
+      "normalizedText": "listar descargas",
       "vector": {
-        "listar": 0.8397,
-        "descargas": 0.543
+        "listar": 0.5799,
+        "descargas": 0.4402,
+        "bi:listar_descargas": 0.6856
       }
     },
     {
@@ -645,10 +1250,13 @@
         "archivos",
         "descargas"
       ],
+      "normalizedText": "listar archivos de descargas",
       "vector": {
-        "listar": 0.7274,
-        "archivos": 0.4997,
-        "descargas": 0.4704
+        "listar": 0.4483,
+        "archivos": 0.3484,
+        "descargas": 0.3403,
+        "bi:listar_archivos": 0.53,
+        "bi:archivos_descargas": 0.53
       }
     },
     {
@@ -658,9 +1266,11 @@
         "mostrar",
         "descargas"
       ],
+      "normalizedText": "mostrar descargas",
       "vector": {
-        "mostrar": 0.8212,
-        "descargas": 0.5706
+        "mostrar": 0.5257,
+        "descargas": 0.4317,
+        "bi:mostrar_descargas": 0.733
       }
     },
     {
@@ -671,10 +1281,13 @@
         "archivos",
         "descargados"
       ],
+      "normalizedText": "ver archivos descargados",
       "vector": {
-        "ver": 0.5836,
-        "archivos": 0.4308,
-        "descargados": 0.6884
+        "ver": 0.4223,
+        "archivos": 0.3132,
+        "descargados": 0.4764,
+        "bi:ver_archivos": 0.5193,
+        "bi:archivos_descargados": 0.4764
       }
     },
     {
@@ -684,37 +1297,87 @@
         "hay",
         "descargas"
       ],
+      "normalizedText": "que hay en descargas",
       "vector": {
-        "hay": 0.8397,
-        "descargas": 0.543
+        "hay": 0.6201,
+        "descargas": 0.3981,
+        "bi:hay_descargas": 0.676
       }
     },
     {
       "intent": "list_downloads",
       "text": "mostrame la carpeta descargas",
       "tokens": [
-        "mostrame",
+        "mostrar",
         "carpeta",
         "descargas"
       ],
+      "normalizedText": "mostrar la carpeta descargas",
       "vector": {
-        "mostrame": 0.7213,
-        "carpeta": 0.512,
-        "descargas": 0.4664
+        "mostrar": 0.4083,
+        "carpeta": 0.352,
+        "descargas": 0.3353,
+        "bi:mostrar_carpeta": 0.5694,
+        "bi:carpeta_descargas": 0.5223
       }
     },
     {
       "intent": "list_downloads",
       "text": "lista los archivos de downloads",
       "tokens": [
-        "lista",
+        "listar",
         "archivos",
         "downloads"
       ],
+      "normalizedText": "listar los archivos de downloads",
       "vector": {
-        "lista": 0.6112,
-        "archivos": 0.4198,
-        "downloads": 0.6709
+        "listar": 0.4062,
+        "archivos": 0.3157,
+        "downloads": 0.4802,
+        "bi:listar_archivos": 0.4802,
+        "bi:archivos_downloads": 0.5235
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "listame descargas",
+      "tokens": [
+        "listar",
+        "descargas"
+      ],
+      "normalizedText": "listar descargas",
+      "vector": {
+        "listar": 0.5799,
+        "descargas": 0.4402,
+        "bi:listar_descargas": 0.6856
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "que archivos baje",
+      "tokens": [
+        "archivos",
+        "baje"
+      ],
+      "normalizedText": "que archivos baje",
+      "vector": {
+        "archivos": 0.3922,
+        "baje": 0.6504,
+        "bi:archivos_baje": 0.6504
+      }
+    },
+    {
+      "intent": "list_downloads",
+      "text": "ver lo que descargue",
+      "tokens": [
+        "ver",
+        "descargue"
+      ],
+      "normalizedText": "ver lo que descargue",
+      "vector": {
+        "ver": 0.4984,
+        "descargue": 0.613,
+        "bi:ver_descargue": 0.613
       }
     },
     {
@@ -726,25 +1389,32 @@
         "contengan",
         "factura"
       ],
+      "normalizedText": "buscar archivos que contengan factura",
       "vector": {
-        "buscar": 0.4944,
-        "archivos": 0.3649,
-        "contengan": 0.5313,
-        "factura": 0.5832
+        "buscar": 0.3271,
+        "archivos": 0.265,
+        "contengan": 0.4031,
+        "factura": 0.4031,
+        "bi:buscar_archivos": 0.3773,
+        "bi:archivos_contengan": 0.4031,
+        "bi:contengan_factura": 0.4394
       }
     },
     {
       "intent": "search_files",
       "text": "busca archivos con presupuesto",
       "tokens": [
-        "busca",
+        "buscar",
         "archivos",
         "presupuesto"
       ],
+      "normalizedText": "buscar archivos con presupuesto",
       "vector": {
-        "busca": 0.6466,
-        "archivos": 0.4046,
-        "presupuesto": 0.6466
+        "buscar": 0.3981,
+        "archivos": 0.3225,
+        "presupuesto": 0.4906,
+        "bi:buscar_archivos": 0.4592,
+        "bi:archivos_presupuesto": 0.5348
       }
     },
     {
@@ -756,11 +1426,15 @@
         "llamados",
         "informe"
       ],
+      "normalizedText": "encontrar archivos llamados informe",
       "vector": {
-        "encontrar": 0.5076,
-        "archivos": 0.3486,
-        "llamados": 0.5571,
-        "informe": 0.5571
+        "encontrar": 0.3682,
+        "archivos": 0.2421,
+        "llamados": 0.4014,
+        "informe": 0.4014,
+        "bi:encontrar_archivos": 0.4014,
+        "bi:archivos_llamados": 0.4014,
+        "bi:llamados_informe": 0.4014
       }
     },
     {
@@ -770,9 +1444,11 @@
         "buscar",
         "pdf"
       ],
+      "normalizedText": "buscar pdf",
       "vector": {
-        "buscar": 0.6467,
-        "pdf": 0.7627
+        "buscar": 0.4977,
+        "pdf": 0.6133,
+        "bi:buscar_pdf": 0.6133
       }
     },
     {
@@ -784,11 +1460,15 @@
         "contengan",
         "foto"
       ],
+      "normalizedText": "localizar archivos que contengan foto",
       "vector": {
-        "localizar": 0.5571,
-        "archivos": 0.3486,
-        "contengan": 0.5076,
-        "foto": 0.5571
+        "localizar": 0.4067,
+        "archivos": 0.2452,
+        "contengan": 0.373,
+        "foto": 0.4067,
+        "bi:localizar_archivos": 0.4067,
+        "bi:archivos_contengan": 0.373,
+        "bi:contengan_foto": 0.4067
       }
     },
     {
@@ -799,10 +1479,13 @@
         "documentos",
         "contrato"
       ],
+      "normalizedText": "buscar documentos con contrato",
       "vector": {
-        "buscar": 0.5311,
-        "documentos": 0.5706,
-        "contrato": 0.6264
+        "buscar": 0.3551,
+        "documentos": 0.4375,
+        "contrato": 0.477,
+        "bi:buscar_documentos": 0.477,
+        "bi:documentos_contrato": 0.477
       }
     },
     {
@@ -813,10 +1496,64 @@
         "archivo",
         "notas"
       ],
+      "normalizedText": "encontrar archivo notas",
       "vector": {
-        "encontrar": 0.601,
-        "archivo": 0.601,
-        "notas": 0.527
+        "encontrar": 0.4455,
+        "archivo": 0.417,
+        "notas": 0.3949,
+        "bi:encontrar_archivo": 0.4857,
+        "bi:archivo_notas": 0.4857
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "buscame archivos factura",
+      "tokens": [
+        "buscar",
+        "archivos",
+        "factura"
+      ],
+      "normalizedText": "buscar archivos factura",
+      "vector": {
+        "buscar": 0.3981,
+        "archivos": 0.3225,
+        "factura": 0.4906,
+        "bi:buscar_archivos": 0.4592,
+        "bi:archivos_factura": 0.5348
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "buscar pdf de impuestos",
+      "tokens": [
+        "buscar",
+        "pdf",
+        "impuestos"
+      ],
+      "normalizedText": "buscar pdf de impuestos",
+      "vector": {
+        "buscar": 0.3617,
+        "pdf": 0.4456,
+        "impuestos": 0.4858,
+        "bi:buscar_pdf": 0.4456,
+        "bi:pdf_impuestos": 0.4858
+      }
+    },
+    {
+      "intent": "search_files",
+      "text": "encontra el archivo presupuesto",
+      "tokens": [
+        "encontra",
+        "archivo",
+        "presupuesto"
+      ],
+      "normalizedText": "encontra el archivo presupuesto",
+      "vector": {
+        "encontra": 0.4673,
+        "archivo": 0.4013,
+        "presupuesto": 0.4287,
+        "bi:encontra_archivo": 0.4673,
+        "bi:archivo_presupuesto": 0.4673
       }
     },
     {
@@ -830,13 +1567,19 @@
         "texto",
         "hola"
       ],
+      "normalizedText": "crear nota llamada ideas con este texto hola",
       "vector": {
-        "crear": 0.3521,
-        "nota": 0.367,
-        "llamada": 0.3071,
-        "ideas": 0.5062,
-        "texto": 0.367,
-        "hola": 0.5062
+        "crear": 0.2207,
+        "nota": 0.2458,
+        "llamada": 0.2207,
+        "ideas": 0.3356,
+        "texto": 0.2624,
+        "hola": 0.3659,
+        "bi:crear_nota": 0.3142,
+        "bi:nota_llamada": 0.2624,
+        "bi:llamada_ideas": 0.3356,
+        "bi:ideas_texto": 0.3356,
+        "bi:texto_hola": 0.3659
       }
     },
     {
@@ -850,13 +1593,19 @@
         "texto",
         "leche"
       ],
+      "normalizedText": "crear nota llamada compras con este texto leche",
       "vector": {
-        "crear": 0.3521,
-        "nota": 0.367,
-        "llamada": 0.3071,
-        "compras": 0.5062,
-        "texto": 0.367,
-        "leche": 0.5062
+        "crear": 0.214,
+        "nota": 0.2383,
+        "llamada": 0.214,
+        "compras": 0.3548,
+        "texto": 0.2545,
+        "leche": 0.3548,
+        "bi:crear_nota": 0.3046,
+        "bi:nota_llamada": 0.2545,
+        "bi:llamada_compras": 0.3548,
+        "bi:compras_texto": 0.3548,
+        "bi:texto_leche": 0.3548
       }
     },
     {
@@ -870,13 +1619,19 @@
         "texto",
         "llamar"
       ],
+      "normalizedText": "guardar nota llamada recordatorio con este texto llamar",
       "vector": {
-        "guardar": 0.4757,
-        "nota": 0.3449,
-        "llamada": 0.2886,
-        "recordatorio": 0.4757,
-        "texto": 0.3449,
-        "llamar": 0.4757
+        "guardar": 0.3141,
+        "nota": 0.23,
+        "llamada": 0.2065,
+        "recordatorio": 0.3425,
+        "texto": 0.2456,
+        "llamar": 0.3425,
+        "bi:guardar_nota": 0.3141,
+        "bi:nota_llamada": 0.2456,
+        "bi:llamada_recordatorio": 0.3425,
+        "bi:recordatorio_texto": 0.3425,
+        "bi:texto_llamar": 0.3425
       }
     },
     {
@@ -890,13 +1645,19 @@
         "texto",
         "revisar"
       ],
+      "normalizedText": "nueva nota llamada pendientes con este texto revisar",
       "vector": {
-        "nueva": 0.4419,
-        "nota": 0.3517,
-        "llamada": 0.2943,
-        "pendientes": 0.4851,
-        "texto": 0.3517,
-        "revisar": 0.4851
+        "nueva": 0.2931,
+        "nota": 0.2293,
+        "llamada": 0.2059,
+        "pendientes": 0.3414,
+        "texto": 0.2448,
+        "revisar": 0.3414,
+        "bi:nueva_nota": 0.3414,
+        "bi:nota_llamada": 0.2448,
+        "bi:llamada_pendientes": 0.3414,
+        "bi:pendientes_texto": 0.3414,
+        "bi:texto_revisar": 0.3414
       }
     },
     {
@@ -910,13 +1671,19 @@
         "texto",
         "contenido"
       ],
+      "normalizedText": "escribir nota llamada prueba con este texto contenido",
       "vector": {
-        "escribir": 0.4851,
-        "nota": 0.3517,
-        "llamada": 0.2943,
-        "prueba": 0.4419,
-        "texto": 0.3517,
-        "contenido": 0.4851
+        "escribir": 0.3425,
+        "nota": 0.23,
+        "llamada": 0.2065,
+        "prueba": 0.3141,
+        "texto": 0.2456,
+        "contenido": 0.3425,
+        "bi:escribir_nota": 0.3425,
+        "bi:nota_llamada": 0.2456,
+        "bi:llamada_prueba": 0.3141,
+        "bi:prueba_texto": 0.3425,
+        "bi:texto_contenido": 0.3425
       }
     },
     {
@@ -931,14 +1698,90 @@
         "texto",
         "hoy"
       ],
+      "normalizedText": "crear archivo de nota llamado diario con este texto hoy",
       "vector": {
-        "crear": 0.3003,
-        "archivo": 0.3933,
-        "nota": 0.313,
-        "llamado": 0.4317,
-        "diario": 0.4317,
-        "texto": 0.313,
-        "hoy": 0.4317
+        "crear": 0.1813,
+        "archivo": 0.2581,
+        "nota": 0.2019,
+        "llamado": 0.3006,
+        "diario": 0.3006,
+        "texto": 0.2156,
+        "hoy": 0.3006,
+        "bi:crear_archivo": 0.3006,
+        "bi:archivo_nota": 0.3006,
+        "bi:nota_llamado": 0.3006,
+        "bi:llamado_diario": 0.3006,
+        "bi:diario_texto": 0.3006,
+        "bi:texto_hoy": 0.3006
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "creame una nota llamada tareas que diga estudiar",
+      "tokens": [
+        "crear",
+        "nota",
+        "llamada",
+        "tareas",
+        "diga",
+        "estudiar"
+      ],
+      "normalizedText": "crear una nota llamada tareas que diga estudiar",
+      "vector": {
+        "crear": 0.2077,
+        "nota": 0.2313,
+        "llamada": 0.2077,
+        "tareas": 0.3444,
+        "diga": 0.3444,
+        "estudiar": 0.3444,
+        "bi:crear_nota": 0.2957,
+        "bi:nota_llamada": 0.247,
+        "bi:llamada_tareas": 0.3444,
+        "bi:tareas_diga": 0.3444,
+        "bi:diga_estudiar": 0.3444
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "hacer nota llamada ideas con texto nuevo proyecto",
+      "tokens": [
+        "hacer",
+        "nota",
+        "llamada",
+        "ideas",
+        "texto",
+        "nuevo",
+        "proyecto"
+      ],
+      "normalizedText": "hacer nota llamada ideas con texto nuevo proyecto",
+      "vector": {
+        "hacer": 0.2602,
+        "nota": 0.2149,
+        "llamada": 0.193,
+        "ideas": 0.2935,
+        "texto": 0.2295,
+        "nuevo": 0.32,
+        "proyecto": 0.2747,
+        "bi:hacer_nota": 0.32,
+        "bi:nota_llamada": 0.2295,
+        "bi:llamada_ideas": 0.2935,
+        "bi:ideas_texto": 0.2935,
+        "bi:texto_nuevo": 0.32,
+        "bi:nuevo_proyecto": 0.32
+      }
+    },
+    {
+      "intent": "create_note",
+      "text": "quiero guardar una nota",
+      "tokens": [
+        "guardar",
+        "nota"
+      ],
+      "normalizedText": "quiero guardar una nota",
+      "vector": {
+        "guardar": 0.6279,
+        "nota": 0.4598,
+        "bi:guardar_nota": 0.6279
       }
     },
     {
@@ -949,10 +1792,13 @@
         "estado",
         "sistema"
       ],
+      "normalizedText": "mostrar estado del sistema",
       "vector": {
-        "mostrar": 0.5885,
-        "estado": 0.5545,
-        "sistema": 0.5885
+        "mostrar": 0.3814,
+        "estado": 0.4126,
+        "sistema": 0.4566,
+        "bi:mostrar_estado": 0.4878,
+        "bi:estado_sistema": 0.4878
       }
     },
     {
@@ -962,9 +1808,11 @@
         "estado",
         "sistema"
       ],
+      "normalizedText": "estado del sistema",
       "vector": {
-        "estado": 0.6858,
-        "sistema": 0.7278
+        "estado": 0.5254,
+        "sistema": 0.5814,
+        "bi:estado_sistema": 0.6212
       }
     },
     {
@@ -975,10 +1823,13 @@
         "estado",
         "computadora"
       ],
+      "normalizedText": "ver estado de la computadora",
       "vector": {
-        "ver": 0.5522,
-        "estado": 0.5203,
-        "computadora": 0.6514
+        "ver": 0.4013,
+        "estado": 0.383,
+        "computadora": 0.4528,
+        "bi:ver_estado": 0.4936,
+        "bi:estado_computadora": 0.4936
       }
     },
     {
@@ -989,10 +1840,13 @@
         "esta",
         "pc"
       ],
+      "normalizedText": "como esta mi pc",
       "vector": {
-        "como": 0.5415,
-        "esta": 0.5944,
-        "pc": 0.5944
+        "como": 0.3766,
+        "esta": 0.4632,
+        "pc": 0.4632,
+        "bi:como_esta": 0.4632,
+        "bi:esta_pc": 0.4632
       }
     },
     {
@@ -1003,10 +1857,13 @@
         "informacion",
         "sistema"
       ],
+      "normalizedText": "mostrar informacion del sistema",
       "vector": {
-        "mostrar": 0.543,
-        "informacion": 0.6405,
-        "sistema": 0.543
+        "mostrar": 0.3545,
+        "informacion": 0.4534,
+        "sistema": 0.4244,
+        "bi:mostrar_informacion": 0.4943,
+        "bi:informacion_sistema": 0.4943
       }
     },
     {
@@ -1016,9 +1873,11 @@
         "estado",
         "windows"
       ],
+      "normalizedText": "estado de windows",
       "vector": {
-        "estado": 0.6242,
-        "windows": 0.7813
+        "estado": 0.5133,
+        "windows": 0.6068,
+        "bi:estado_windows": 0.6068
       }
     },
     {
@@ -1029,10 +1888,61 @@
         "memoria",
         "cpu"
       ],
+      "normalizedText": "ver memoria y cpu",
       "vector": {
-        "ver": 0.5142,
-        "memoria": 0.6065,
-        "cpu": 0.6065
+        "ver": 0.3766,
+        "memoria": 0.4632,
+        "cpu": 0.4632,
+        "bi:ver_memoria": 0.4632,
+        "bi:memoria_cpu": 0.4632
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "como anda la compu",
+      "tokens": [
+        "como",
+        "anda",
+        "compu"
+      ],
+      "normalizedText": "como anda la compu",
+      "vector": {
+        "como": 0.3766,
+        "anda": 0.4632,
+        "compu": 0.4632,
+        "bi:como_anda": 0.4632,
+        "bi:anda_compu": 0.4632
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "mostrame el estado de windows",
+      "tokens": [
+        "mostrar",
+        "estado",
+        "windows"
+      ],
+      "normalizedText": "mostrar el estado de windows",
+      "vector": {
+        "mostrar": 0.3759,
+        "estado": 0.4066,
+        "windows": 0.4807,
+        "bi:mostrar_estado": 0.4807,
+        "bi:estado_windows": 0.4807
+      }
+    },
+    {
+      "intent": "system_status",
+      "text": "informacion de mi computadora",
+      "tokens": [
+        "informacion",
+        "computadora"
+      ],
+      "normalizedText": "informacion de mi computadora",
+      "vector": {
+        "informacion": 0.56,
+        "computadora": 0.56,
+        "bi:informacion_computadora": 0.6105
       }
     },
     {
@@ -1043,24 +1953,30 @@
         "descargas",
         "tipo"
       ],
+      "normalizedText": "organizar descargas por tipo",
       "vector": {
-        "organizar": 0.6957,
-        "descargas": 0.4099,
-        "tipo": 0.5899
+        "organizar": 0.4512,
+        "descargas": 0.3268,
+        "tipo": 0.4512,
+        "bi:organizar_descargas": 0.4764,
+        "bi:descargas_tipo": 0.509
       }
     },
     {
       "intent": "organize_downloads",
       "text": "ordena descargas por tipo",
       "tokens": [
-        "ordena",
+        "organizar",
         "descargas",
         "tipo"
       ],
+      "normalizedText": "organizar descargas por tipo",
       "vector": {
-        "ordena": 0.6957,
-        "descargas": 0.4099,
-        "tipo": 0.5899
+        "organizar": 0.4512,
+        "descargas": 0.3268,
+        "tipo": 0.4512,
+        "bi:organizar_descargas": 0.4764,
+        "bi:descargas_tipo": 0.509
       }
     },
     {
@@ -1071,10 +1987,13 @@
         "descargas",
         "extension"
       ],
+      "normalizedText": "acomodar descargas por extension",
       "vector": {
-        "acomodar": 0.6527,
-        "descargas": 0.3845,
-        "extension": 0.6527
+        "acomodar": 0.4886,
+        "descargas": 0.2878,
+        "extension": 0.4482,
+        "bi:acomodar_descargas": 0.4886,
+        "bi:descargas_extension": 0.4886
       }
     },
     {
@@ -1085,10 +2004,13 @@
         "archivos",
         "descargas"
       ],
+      "normalizedText": "separar archivos de descargas",
       "vector": {
-        "separar": 0.7584,
-        "archivos": 0.4746,
-        "descargas": 0.4468
+        "separar": 0.5306,
+        "archivos": 0.32,
+        "descargas": 0.3125,
+        "bi:separar_archivos": 0.5306,
+        "bi:archivos_descargas": 0.4867
       }
     },
     {
@@ -1098,23 +2020,28 @@
         "clasificar",
         "descargas"
       ],
+      "normalizedText": "clasificar descargas",
       "vector": {
-        "clasificar": 0.8616,
-        "descargas": 0.5076
+        "clasificar": 0.6528,
+        "descargas": 0.3845,
+        "bi:clasificar_descargas": 0.6528
       }
     },
     {
       "intent": "organize_downloads",
       "text": "organiza la carpeta descargas",
       "tokens": [
-        "organiza",
+        "organizar",
         "carpeta",
         "descargas"
       ],
+      "normalizedText": "organizar la carpeta descargas",
       "vector": {
-        "organiza": 0.7527,
-        "carpeta": 0.4867,
-        "descargas": 0.4434
+        "organizar": 0.4523,
+        "carpeta": 0.3439,
+        "descargas": 0.3276,
+        "bi:organizar_carpeta": 0.5563,
+        "bi:carpeta_descargas": 0.5103
       }
     },
     {
@@ -1126,11 +2053,66 @@
         "carpetas",
         "tipo"
       ],
+      "normalizedText": "mover descargas a carpetas por tipo",
       "vector": {
-        "mover": 0.5711,
-        "descargas": 0.3364,
-        "carpetas": 0.5711,
-        "tipo": 0.4842
+        "mover": 0.408,
+        "descargas": 0.2403,
+        "carpetas": 0.408,
+        "tipo": 0.3317,
+        "bi:mover_descargas": 0.408,
+        "bi:descargas_carpetas": 0.408,
+        "bi:carpetas_tipo": 0.408
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "ordename las descargas",
+      "tokens": [
+        "organizar",
+        "descargas"
+      ],
+      "normalizedText": "organizar las descargas",
+      "vector": {
+        "organizar": 0.6155,
+        "descargas": 0.4458,
+        "bi:organizar_descargas": 0.6499
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "acomoda los archivos descargados por tipo",
+      "tokens": [
+        "acomoda",
+        "archivos",
+        "descargados",
+        "tipo"
+      ],
+      "normalizedText": "acomoda los archivos descargados por tipo",
+      "vector": {
+        "acomoda": 0.4186,
+        "archivos": 0.2524,
+        "descargados": 0.384,
+        "tipo": 0.3403,
+        "bi:acomoda_archivos": 0.4186,
+        "bi:archivos_descargados": 0.384,
+        "bi:descargados_tipo": 0.4186
+      }
+    },
+    {
+      "intent": "organize_downloads",
+      "text": "clasifica downloads por extension",
+      "tokens": [
+        "clasifica",
+        "downloads",
+        "extension"
+      ],
+      "normalizedText": "clasifica downloads por extension",
+      "vector": {
+        "clasifica": 0.4621,
+        "downloads": 0.4239,
+        "extension": 0.4239,
+        "bi:clasifica_downloads": 0.4621,
+        "bi:downloads_extension": 0.4621
       }
     },
     {
@@ -1140,9 +2122,11 @@
         "contame",
         "chiste"
       ],
+      "normalizedText": "contame un chiste",
       "vector": {
-        "contame": 0.7071,
-        "chiste": 0.7071
+        "contame": 0.5774,
+        "chiste": 0.5774,
+        "bi:contame_chiste": 0.5774
       }
     },
     {
@@ -1150,11 +2134,13 @@
       "text": "que clima hace",
       "tokens": [
         "clima",
-        "hace"
+        "crear"
       ],
+      "normalizedText": "que clima crear",
       "vector": {
-        "clima": 0.7071,
-        "hace": 0.7071
+        "clima": 0.6504,
+        "crear": 0.3922,
+        "bi:clima_crear": 0.6504
       }
     },
     {
@@ -1164,9 +2150,11 @@
         "comprar",
         "entradas"
       ],
+      "normalizedText": "comprar entradas",
       "vector": {
-        "comprar": 0.7071,
-        "entradas": 0.7071
+        "comprar": 0.5774,
+        "entradas": 0.5774,
+        "bi:comprar_entradas": 0.5774
       }
     },
     {
@@ -1176,9 +2164,11 @@
         "mandar",
         "email"
       ],
+      "normalizedText": "mandar un email",
       "vector": {
-        "mandar": 0.7071,
-        "email": 0.7071
+        "mandar": 0.5774,
+        "email": 0.5774,
+        "bi:mandar_email": 0.5774
       }
     },
     {
@@ -1188,9 +2178,11 @@
         "subir",
         "archivos"
       ],
+      "normalizedText": "subir mis archivos",
       "vector": {
-        "subir": 0.8477,
-        "archivos": 0.5305
+        "subir": 0.6504,
+        "archivos": 0.3922,
+        "bi:subir_archivos": 0.6504
       }
     },
     {
@@ -1200,9 +2192,11 @@
         "reproducir",
         "musica"
       ],
+      "normalizedText": "reproducir musica",
       "vector": {
-        "reproducir": 0.7071,
-        "musica": 0.7071
+        "reproducir": 0.5774,
+        "musica": 0.5774,
+        "bi:reproducir_musica": 0.5774
       }
     },
     {
@@ -1212,9 +2206,11 @@
         "hacer",
         "transferencia"
       ],
+      "normalizedText": "hacer una transferencia",
       "vector": {
-        "hacer": 0.6467,
-        "transferencia": 0.7627
+        "hacer": 0.4984,
+        "transferencia": 0.613,
+        "bi:hacer_transferencia": 0.613
       }
     },
     {
@@ -1224,9 +2220,79 @@
         "crear",
         "cuenta"
       ],
+      "normalizedText": "crear una cuenta",
       "vector": {
-        "crear": 0.5711,
-        "cuenta": 0.8209
+        "crear": 0.3922,
+        "cuenta": 0.6504,
+        "bi:crear_cuenta": 0.6504
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "quiero una receta de pizza",
+      "tokens": [
+        "receta",
+        "pizza"
+      ],
+      "normalizedText": "quiero una receta de pizza",
+      "vector": {
+        "receta": 0.5774,
+        "pizza": 0.5774,
+        "bi:receta_pizza": 0.5774
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "cuanto es la raiz cuadrada",
+      "tokens": [
+        "cuanto",
+        "es",
+        "raiz",
+        "cuadrada"
+      ],
+      "normalizedText": "cuanto es la raiz cuadrada",
+      "vector": {
+        "cuanto": 0.378,
+        "es": 0.378,
+        "raiz": 0.378,
+        "cuadrada": 0.378,
+        "bi:cuanto_es": 0.378,
+        "bi:es_raiz": 0.378,
+        "bi:raiz_cuadrada": 0.378
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "escribi una historia de ciencia ficcion",
+      "tokens": [
+        "escribi",
+        "historia",
+        "ciencia",
+        "ficcion"
+      ],
+      "normalizedText": "escribi una historia de ciencia ficcion",
+      "vector": {
+        "escribi": 0.378,
+        "historia": 0.378,
+        "ciencia": 0.378,
+        "ficcion": 0.378,
+        "bi:escribi_historia": 0.378,
+        "bi:historia_ciencia": 0.378,
+        "bi:ciencia_ficcion": 0.378
+      }
+    },
+    {
+      "intent": "unknown",
+      "text": "reservame un hotel",
+      "tokens": [
+        "reservame",
+        "hotel"
+      ],
+      "normalizedText": "reservame un hotel",
+      "vector": {
+        "reservame": 0.5774,
+        "hotel": 0.5774,
+        "bi:reservame_hotel": 0.5774
       }
     }
   ]

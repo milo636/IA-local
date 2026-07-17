@@ -4,6 +4,7 @@ const path = require("path");
 const { handleMessage, runStoredCommands } = require("./src/agent");
 const actions = require("./src/actions");
 const conversationAI = require("./src/conversationAI");
+const evaluation = require("./src/evaluateLocalAI");
 const favorites = require("./src/favorites");
 const fileManager = require("./src/fileManager");
 const logger = require("./src/logger");
@@ -223,6 +224,33 @@ app.get("/api/ai/intents", (req, res) => {
     intents: localAI.listIntents(),
     status: localAI.getModelStatus()
   });
+});
+
+app.post("/api/ai/evaluate", (req, res) => {
+  try {
+    const report = evaluation.evaluate();
+    logger.writeLog({
+      level: "info",
+      action: "ai.evaluate",
+      message: "Comprension local evaluada sin ejecutar acciones",
+      details: {
+        total: report.total,
+        correct: report.correct,
+        failures: report.failures,
+        accuracy: report.accuracy,
+        ambiguous: report.ambiguous
+      }
+    });
+    res.json({ ok: true, evaluation: report, state: buildState() });
+  } catch (error) {
+    logger.writeLog({
+      level: "error",
+      action: "ai.evaluate.failed",
+      message: "No se pudo evaluar la comprension local",
+      details: { error: error.message }
+    });
+    res.status(500).json({ error: "No pude evaluar la comprension local." });
+  }
 });
 
 app.post("/api/ai/learn", (req, res) => {
@@ -810,6 +838,7 @@ if (require.main === module) {
 function buildState() {
   return {
     ai: localAI.getModelStatus(),
+    evaluation: evaluation.getLastEvaluation(),
     intents: localAI.listIntents(),
     conversation: conversationAI.getModelStatus(),
     conversationIntents: conversationAI.listConversationIntents(),
