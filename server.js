@@ -13,6 +13,7 @@ const memory = require("./src/memory");
 const memoryEngine = require("./src/memoryEngine");
 const permissions = require("./src/permissions");
 const routines = require("./src/routines");
+const scheduler = require("./src/scheduler");
 const suggestions = require("./src/suggestions");
 const { detectSensitiveText } = require("./src/sensitiveText");
 
@@ -887,6 +888,116 @@ app.get("/api/routines/export", (req, res) => {
   });
 });
 
+app.get("/api/scheduled-tasks", (req, res) => {
+  res.json({ scheduledTasks: scheduler.listScheduledTasks(), state: buildState() });
+});
+
+app.post("/api/scheduled-tasks", (req, res) => {
+  try {
+    const task = scheduler.createScheduledTask({
+      name: typeof req.body.name === "string" ? req.body.name.trim() : "",
+      command: typeof req.body.command === "string" ? req.body.command.trim() : "",
+      runAt: req.body.runAt,
+      repeat: req.body.repeat,
+      autoRun: req.body.autoRun === true
+    });
+    logger.writeLog({
+      level: "info",
+      action: "schedule.create",
+      message: "Tarea local programada sin ejecutar acciones",
+      details: {
+        taskId: task.id,
+        actionType: task.actionType,
+        autoRun: task.autoRun,
+        repeat: task.repeat
+      }
+    });
+    res.status(201).json({ ok: true, task, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "schedule.create.denied");
+  }
+});
+
+app.put("/api/scheduled-tasks/:id", (req, res) => {
+  try {
+    const allowedKeys = ["name", "command", "runAt", "repeat", "autoRun", "enabled"];
+    const patch = Object.fromEntries(Object.entries(req.body || {}).filter(([key]) => allowedKeys.includes(key)));
+    const task = scheduler.updateScheduledTask(String(req.params.id || "").trim(), patch);
+    logger.writeLog({
+      level: "info",
+      action: "schedule.update",
+      message: "Tarea programada actualizada sin ejecutar acciones",
+      details: { taskId: task.id, changedKeys: Object.keys(patch) }
+    });
+    res.json({ ok: true, task, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "schedule.update.denied");
+  }
+});
+
+app.delete("/api/scheduled-tasks/:id", (req, res) => {
+  if (req.body?.confirm !== true) {
+    return res.status(409).json({
+      error: "Borrar una tarea programada necesita confirmacion explicita.",
+      requiresConfirmation: true
+    });
+  }
+
+  try {
+    const task = scheduler.deleteScheduledTask(String(req.params.id || "").trim());
+    logger.writeLog({
+      level: "info",
+      action: "schedule.delete",
+      message: "Tarea programada borrada con confirmacion",
+      details: { taskId: task.id, actionType: task.actionType }
+    });
+    res.json({ ok: true, task, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "schedule.delete.denied");
+  }
+});
+
+app.post("/api/scheduled-tasks/:id/run", async (req, res) => {
+  try {
+    const task = scheduler.findScheduledTask(String(req.params.id || "").trim());
+    if (!task) throw new Error("No encontre esa tarea programada.");
+    logger.writeLog({
+      level: "info",
+      action: "schedule.run.requested",
+      message: "Ejecucion manual de tarea programada solicitada",
+      details: { taskId: task.id, actionType: task.actionType }
+    });
+    const result = await runStoredCommands([task.command], {
+      source: "schedule",
+      sourceId: task.id,
+      sourceName: task.name
+    });
+    const outcome = scheduledRunOutcome(result);
+    const updatedTask = scheduler.recordTaskRun(task.id, outcome);
+    logger.writeLog({
+      level: outcome === "failed" ? "warn" : "info",
+      action: `schedule.run.${outcome}`,
+      message: outcome === "awaiting_confirmation"
+        ? "Tarea programada pausada para confirmacion"
+        : outcome === "completed" ? "Tarea programada completada" : "Tarea programada detenida",
+      details: { taskId: task.id, actionType: task.actionType }
+    });
+    res.json({ ok: true, result, task: updatedTask, state: buildState() });
+  } catch (error) {
+    handleProductivityError(res, error, "schedule.run.denied");
+  }
+});
+
+app.get("/api/scheduled-tasks/export", (req, res) => {
+  logger.writeLog({ level: "info", action: "schedule.export", message: "Agenda local exportada" });
+  sendJsonDownload(res, "atenea-local-agenda", {
+    exportedAt: new Date().toISOString(),
+    app: "SAW Local",
+    localOnly: true,
+    scheduledTasks: scheduler.getState()
+  });
+});
+
 app.get("/api/export/all", (req, res) => {
   logger.writeLog({
     level: "info",
@@ -902,6 +1013,7 @@ app.get("/api/export/all", (req, res) => {
     logs: logger.getLogs(),
     memory: memoryEngine.getMemoryState(),
     routines: routines.getState(),
+    scheduledTasks: scheduler.getState(),
     settings: permissions.getSettings()
   });
 });
@@ -920,9 +1032,11 @@ app.get("*", (req, res) => {
 });
 
 if (require.main === module) {
-  app.listen(port, "127.0.0.1", () => {
+  const server = app.listen(port, "127.0.0.1", () => {
     console.log(`SAW Local listo en http://127.0.0.1:${port}`);
   });
+  scheduler.startScheduler({ execute: executeAutomaticScheduledTask });
+  server.on("close", () => scheduler.stopScheduler());
 }
 
 function buildState() {
@@ -939,9 +1053,31 @@ function buildState() {
     memory: currentMemory,
     logs: logger.getRecentLogs(30),
     routines: routines.listRoutines(),
+    scheduledTasks: scheduler.listScheduledTasks(),
     actions: actions.listActions(),
     suggestions: suggestions.getSuggestions(currentMemory)
   };
+}
+
+async function executeAutomaticScheduledTask(task) {
+  const result = await runStoredCommands([task.command], {
+    source: "schedule",
+    sourceId: task.id,
+    sourceName: task.name
+  });
+  const outcome = scheduledRunOutcome(result);
+  if (outcome !== "completed") {
+    throw new Error("La ejecucion automatica no termino como una accion de solo lectura.");
+  }
+  return result;
+}
+
+function scheduledRunOutcome(result) {
+  const lastMessage = result?.memory?.messages?.at(-1);
+  const action = String(lastMessage?.meta?.action || "");
+  if (action === "productivity.pending_confirmation") return "awaiting_confirmation";
+  if (action.endsWith(".completed")) return "completed";
+  return "failed";
 }
 
 function handleProductivityError(res, error, action) {

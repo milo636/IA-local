@@ -12,6 +12,7 @@ El objetivo es que cualquier persona pueda clonar el proyecto, ejecutarlo en su 
 - Motor conversacional propio para saludos, despedidas, ayuda y preguntas basicas.
 - Memoria inteligente local con perfil de usuario.
 - Favoritos y rutinas locales con ejecucion controlada.
+- Agenda local con tareas unicas, diarias o semanales.
 - Historial de conversaciones con busqueda local por contenido.
 - Sugerencias contextuales que siempre se envian como mensajes normales.
 - Busqueda de archivos por nombre, extension o categoria.
@@ -45,7 +46,7 @@ La interfaz esta pensada para uso local y diario:
 
 - Chat principal con estados como `Atenea esta lista`, `Entrenando modelo...` y `Modelo actualizado`.
 - Panel izquierdo con modo seguro, permisos y acciones disponibles.
-- Panel derecho con IA local, conversacion, memoria, productividad, ejemplos aprendidos, comandos rapidos y logs.
+- Panel derecho con IA local, conversacion, memoria, productividad, agenda, ejemplos aprendidos, comandos rapidos y logs.
 - Panel de memoria con perfil, recuerdos editables, busqueda y exportacion.
 - Modo debug para inspeccionar intencion, confidence y origen de respuesta.
 - Boton para copiar respuestas del asistente.
@@ -158,6 +159,26 @@ Desde la interfaz se puede:
 - exportar favoritos, rutinas o todos los datos locales en JSON
 
 Las rutinas no aceptan shell, comandos arbitrarios ni acciones fuera de la allowlist.
+
+## Agenda local
+
+El panel `Agenda local` permite preparar un comando permitido para una fecha futura y repetirlo cada dia o cada semana. Los datos se guardan en:
+
+```text
+data/scheduledTasks.json
+```
+
+Crear, editar, pausar o borrar una tarea no ejecuta su comando. Desde la interfaz se puede:
+
+- programar una tarea unica, diaria o semanal
+- ver tareas pendientes, pausadas y completadas
+- ejecutar manualmente mediante el agente seguro
+- pausar, reanudar o borrar con confirmacion
+- exportar la agenda en JSON local
+
+La ejecucion automatica esta desactivada por defecto mediante `allowScheduledActions: false`. Si el usuario activa ese permiso, el temporizador solo admite acciones de lectura: ayuda, estado del sistema, listar Descargas y buscar archivos. Abrir aplicaciones, crear carpetas o notas y organizar archivos siempre queda en modo manual. Toda ejecucion vuelve a pasar por la allowlist, `safety.js` y `permissions.js`.
+
+El temporizador funciona solamente mientras el servidor de Atenea esta abierto. Esta fase no instala servicios, tareas de Windows ni procesos persistentes ocultos.
 
 ## Conversacion basica
 
@@ -391,6 +412,7 @@ IA-local/
     permissions.js
     routines.js
     safety.js
+    scheduler.js
     sensitiveText.js
     trainLocalAI.js
   data/
@@ -404,6 +426,7 @@ IA-local/
     logs.json
     memory.json
     routines.json
+    scheduledTasks.json
     settings.json
     trainingData.json
     userProfile.json
@@ -459,6 +482,13 @@ POST   /api/routines
 DELETE /api/routines/:id
 POST   /api/routines/:id/run
 GET    /api/routines/export
+
+GET    /api/scheduled-tasks
+POST   /api/scheduled-tasks
+PUT    /api/scheduled-tasks/:id
+DELETE /api/scheduled-tasks/:id
+POST   /api/scheduled-tasks/:id/run
+GET    /api/scheduled-tasks/export
 
 GET    /api/export/all
 ```
@@ -529,9 +559,13 @@ Mejoras continuas completadas:
 - Busqueda de mensajes entre conversaciones con salto al resultado.
 - Sugerencias contextuales explicables y sin ejecucion directa.
 
-Fase 7:
+Fase 7 completada:
 
-- Tareas programadas con permisos y confirmaciones.
+- Agenda local con tareas unicas, diarias y semanales.
+- Ejecucion manual revalidada por safety y permisos.
+- Autoejecucion opcional, apagada por defecto y limitada a lectura.
+- Pausa, reanudacion, exportacion y borrado confirmado.
+- Panel responsive y tests de seguridad/endpoints.
 
 Fase 8:
 

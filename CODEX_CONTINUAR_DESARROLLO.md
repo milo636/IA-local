@@ -18,6 +18,23 @@ Repositorio GitHub:
 https://github.com/milo636/IA-local
 ```
 
+## Estado de continuidad actualizado
+
+Las Fases 5, 6 y 7 ya estan implementadas. Las especificaciones historicas de Fase 5 que aparecen mas abajo sirven como referencia y no deben volver a implementarse.
+
+Estado agregado desde ese documento:
+
+- favoritos y rutinas allowlisted
+- busqueda de archivos ampliada
+- comprension avanzada y evaluacion local
+- historial y busqueda de conversaciones
+- sugerencias contextuales sin ejecucion directa
+- agenda local con tareas unicas, diarias y semanales
+- autoejecucion apagada por defecto y limitada a lectura
+- `99` pruebas automatizadas aprobadas al completar Fase 7
+
+Antes de desarrollar una fase nueva, revisar `README.md`, `SECURITY.md`, el estado de Git y los tests actuales. No incluir `data/logs.json`, `data/memory.json` ni resultados locales de evaluacion en commits.
+
 El proyecto debe seguir siendo:
 
 - Gratis.
@@ -95,9 +112,9 @@ No guardar informacion sensible:
 
 No exponer el servidor a internet. Debe seguir usando localhost.
 
-## Objetivo de la proxima fase
+## Especificacion historica completada
 
-Implementar una nueva fase de mejoras para Atenea Local agregando mas funciones utiles, manteniendo todo local y seguro.
+Esta seccion describe la Fase 5 ya completada y se conserva como registro de requisitos.
 
 Nombre sugerido:
 
@@ -295,7 +312,7 @@ Al terminar:
 
 ```powershell
 git status
-git add .
+git add <archivos del cambio>
 git commit -m "Agregar automatizaciones locales seguras"
 git push origin main
 ```

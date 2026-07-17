@@ -336,6 +336,48 @@
           </div>
         </section>
 
+        <section class="status-block schedule-block" aria-labelledby="schedule-title">
+          <div class="section-heading">
+            <h2 id="schedule-title">Agenda local</h2>
+            <span id="scheduleBadge" class="status-pill status-warn">Sin tareas</span>
+          </div>
+
+          <div class="productivity-summary schedule-summary">
+            <div class="metric-row">
+              <span>Programadas</span>
+              <strong id="scheduledTaskCount">0</strong>
+            </div>
+            <div class="metric-row">
+              <span>Pendientes</span>
+              <strong id="scheduledDueCount">0</strong>
+            </div>
+          </div>
+
+          <form id="scheduleForm" class="productivity-form schedule-form">
+            <label for="scheduleName">Nueva tarea</label>
+            <input id="scheduleName" maxlength="60" placeholder="Nombre de la tarea" required />
+            <input id="scheduleCommand" maxlength="500" placeholder="Comando permitido" required />
+            <div class="schedule-form-grid">
+              <input id="scheduleRunAt" type="datetime-local" aria-label="Fecha y hora programada" required />
+              <select id="scheduleRepeat" aria-label="Repeticion de la tarea">
+                <option value="none">Una vez</option>
+                <option value="daily">Cada dia</option>
+                <option value="weekly">Cada semana</option>
+              </select>
+            </div>
+            <label class="schedule-auto" for="scheduleAutoRun" title="Solo disponible para comandos de lectura local">
+              <input id="scheduleAutoRun" type="checkbox" />
+              <span>Automatica (solo lectura)</span>
+            </label>
+            <button id="createScheduledTaskButton" class="icon-button retrain-button" type="submit">
+              <span>Programar tarea</span>
+            </button>
+          </form>
+
+          <div id="scheduledTasksList" class="productivity-list schedule-list"></div>
+          <button id="exportScheduledTasksButton" class="icon-button export-button" type="button">Exportar agenda</button>
+        </section>
+
         <section class="status-block examples-block" aria-labelledby="examples-title">
           <div class="section-heading">
             <h2 id="examples-title">Ejemplos aprendidos</h2>

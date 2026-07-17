@@ -20,6 +20,8 @@ const state = {
   memorySearchTimer: null,
   pendingSensitive: null,
   routines: [],
+  scheduledTasks: [],
+  schedulePollTimer: null,
   statusResetTimer: null,
   settings: {},
   suggestions: [],
@@ -48,6 +50,7 @@ const elements = {
   conversationsList: document.querySelector("#conversationsList"),
   createFavoriteButton: document.querySelector("#createFavoriteButton"),
   createRoutineButton: document.querySelector("#createRoutineButton"),
+  createScheduledTaskButton: document.querySelector("#createScheduledTaskButton"),
   debugModeButton: document.querySelector("#debugModeButton"),
   examplesIntentFilter: document.querySelector("#examplesIntentFilter"),
   examplesList: document.querySelector("#examplesList"),
@@ -57,6 +60,7 @@ const elements = {
   exportLogsButton: document.querySelector("#exportLogsButton"),
   exportMemoryButton: document.querySelector("#exportMemoryButton"),
   exportRoutinesButton: document.querySelector("#exportRoutinesButton"),
+  exportScheduledTasksButton: document.querySelector("#exportScheduledTasksButton"),
   evaluateAIButton: document.querySelector("#evaluateAIButton"),
   favoriteCommand: document.querySelector("#favoriteCommand"),
   favoriteCount: document.querySelector("#favoriteCount"),
@@ -95,6 +99,16 @@ const elements = {
   routineForm: document.querySelector("#routineForm"),
   routineName: document.querySelector("#routineName"),
   routinesList: document.querySelector("#routinesList"),
+  scheduleAutoRun: document.querySelector("#scheduleAutoRun"),
+  scheduleBadge: document.querySelector("#scheduleBadge"),
+  scheduleCommand: document.querySelector("#scheduleCommand"),
+  scheduleForm: document.querySelector("#scheduleForm"),
+  scheduleName: document.querySelector("#scheduleName"),
+  scheduleRepeat: document.querySelector("#scheduleRepeat"),
+  scheduleRunAt: document.querySelector("#scheduleRunAt"),
+  scheduledDueCount: document.querySelector("#scheduledDueCount"),
+  scheduledTaskCount: document.querySelector("#scheduledTaskCount"),
+  scheduledTasksList: document.querySelector("#scheduledTasksList"),
   saveLastCommandButton: document.querySelector("#saveLastCommandButton"),
   toastRegion: document.querySelector("#toastRegion"),
   understandingAccuracy: document.querySelector("#understandingAccuracy"),
@@ -113,10 +127,11 @@ const permissionLabels = {
   allowFileWrite: "Crear o mover",
   allowDelete: "Borrar",
   allowShellCommands: "Shell",
-  allowNetwork: "Red"
+  allowNetwork: "Red",
+  allowScheduledActions: "Tareas automaticas"
 };
 
-const editableSettings = new Set(["safeMode", "allowOpenApps", "allowFileRead", "allowFileWrite"]);
+const editableSettings = new Set(["safeMode", "allowOpenApps", "allowFileRead", "allowFileWrite", "allowScheduledActions"]);
 
 const quickCommands = [
   "ayuda",
@@ -212,6 +227,10 @@ elements.exportRoutinesButton.addEventListener("click", () => {
   window.location.href = "/api/routines/export";
 });
 
+elements.exportScheduledTasksButton.addEventListener("click", () => {
+  window.location.href = "/api/scheduled-tasks/export";
+});
+
 elements.exportAllButton.addEventListener("click", () => {
   window.location.href = "/api/export/all";
 });
@@ -239,6 +258,11 @@ elements.routineForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const commands = elements.routineCommands.value.split(/\r?\n/).map((command) => command.trim()).filter(Boolean);
   await createRoutine(elements.routineName.value, commands);
+});
+
+elements.scheduleForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await createScheduledTask();
 });
 
 elements.memoryForm.addEventListener("submit", async (event) => {
@@ -297,6 +321,8 @@ async function boot() {
   }
 
   await refreshExamples();
+  setDefaultScheduleTime();
+  startSchedulePolling();
 
   if (window.matchMedia("(min-width: 821px)").matches) {
     elements.messageInput.focus();
@@ -807,6 +833,84 @@ async function createRoutine(name, commands) {
   }
 }
 
+async function createScheduledTask() {
+  const runAtValue = elements.scheduleRunAt.value;
+  const runAt = new Date(runAtValue);
+  if (!runAtValue || Number.isNaN(runAt.getTime())) {
+    showToast("Elegi una fecha y hora validas.", "warn");
+    return;
+  }
+
+  const payload = await productivityRequest("/api/scheduled-tasks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: elements.scheduleName.value.trim(),
+      command: elements.scheduleCommand.value.trim(),
+      runAt: runAt.toISOString(),
+      repeat: elements.scheduleRepeat.value,
+      autoRun: elements.scheduleAutoRun.checked
+    })
+  }, "Tarea programada sin ejecutar acciones.");
+
+  if (payload) {
+    elements.scheduleName.value = "";
+    elements.scheduleCommand.value = "";
+    elements.scheduleRepeat.value = "none";
+    elements.scheduleAutoRun.checked = false;
+    setDefaultScheduleTime();
+  }
+}
+
+async function runScheduledTask(id) {
+  await productivityRequest(`/api/scheduled-tasks/${encodeURIComponent(id)}/run`, { method: "POST" }, "Tarea enviada al agente seguro.");
+}
+
+async function toggleScheduledTask(task) {
+  const enabled = task.status === "paused";
+  await productivityRequest(`/api/scheduled-tasks/${encodeURIComponent(task.id)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ enabled })
+  }, enabled ? "Tarea reanudada." : "Tarea pausada.");
+}
+
+async function deleteScheduledTask(id) {
+  if (!window.confirm("Eliminar esta tarea programada local?")) return;
+  await productivityRequest(`/api/scheduled-tasks/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ confirm: true })
+  }, "Tarea programada eliminada.");
+}
+
+async function refreshScheduledTasks() {
+  if (state.busy || document.hidden) return;
+  try {
+    const response = await fetch("/api/scheduled-tasks");
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude actualizar la agenda.");
+    state.scheduledTasks = payload.scheduledTasks || [];
+    renderScheduledTasksPanel();
+  } catch (error) {
+    window.clearInterval(state.schedulePollTimer);
+    state.schedulePollTimer = null;
+    showToast(`Agenda local: ${error.message}`, "error");
+  }
+}
+
+function startSchedulePolling() {
+  window.clearInterval(state.schedulePollTimer);
+  state.schedulePollTimer = window.setInterval(refreshScheduledTasks, 30000);
+}
+
+function setDefaultScheduleTime() {
+  if (elements.scheduleRunAt.value) return;
+  const date = new Date(Date.now() + 5 * 60 * 1000);
+  date.setSeconds(0, 0);
+  elements.scheduleRunAt.value = toLocalDateTimeInput(date);
+}
+
 async function deleteRoutine(id) {
   if (!window.confirm("Eliminar esta rutina local?")) return;
   await productivityRequest(`/api/routines/${encodeURIComponent(id)}`, { method: "DELETE" }, "Rutina eliminada.");
@@ -848,6 +952,7 @@ function applyState(nextState) {
   state.logs = nextState.logs || [];
   state.memory = nextState.memory || { messages: [], pendingAction: null };
   state.routines = nextState.routines || state.routines || [];
+  state.scheduledTasks = nextState.scheduledTasks || state.scheduledTasks || [];
   state.settings = nextState.settings || {};
   state.suggestions = nextState.suggestions || [];
   state.userMemory = nextState.userMemory || state.userMemory || { memories: [], profile: {}, stats: {} };
@@ -858,6 +963,7 @@ function applyState(nextState) {
   renderConversations();
   renderMemoryPanel();
   renderProductivityPanel();
+  renderScheduledTasksPanel();
   renderSettings();
   renderActions();
   renderQuickCommands();
@@ -882,6 +988,106 @@ function renderProductivityPanel() {
   elements.productivityBadge.className = `status-pill ${hasItems ? "status-ok" : "status-warn"}`;
   renderProductivityList(elements.favoritesList, favorites, "favorite");
   renderProductivityList(elements.routinesList, routines, "routine");
+}
+
+function renderScheduledTasksPanel() {
+  const tasks = Array.isArray(state.scheduledTasks) ? state.scheduledTasks : [];
+  const dueCount = tasks.filter((task) => ["due", "awaiting_confirmation", "failed"].includes(task.status)).length;
+  elements.scheduledTaskCount.textContent = String(tasks.length);
+  elements.scheduledDueCount.textContent = String(dueCount);
+  elements.scheduleBadge.textContent = dueCount ? `${dueCount} pendiente${dueCount === 1 ? "" : "s"}` : tasks.length ? "Al dia" : "Sin tareas";
+  elements.scheduleBadge.className = `status-pill ${dueCount ? "status-warn" : tasks.length ? "status-ok" : "status-warn"}`;
+  elements.scheduleAutoRun.disabled = state.busy || !state.settings.allowScheduledActions;
+  elements.scheduleAutoRun.title = state.settings.allowScheduledActions
+    ? "Solo ejecuta comandos de lectura local"
+    : "Activa el permiso Tareas automaticas para usar esta opcion";
+
+  elements.scheduledTasksList.replaceChildren();
+  if (!tasks.length) {
+    const empty = document.createElement("p");
+    empty.className = "log-message";
+    empty.textContent = "Sin tareas programadas.";
+    elements.scheduledTasksList.append(empty);
+    return;
+  }
+
+  tasks.forEach((task) => elements.scheduledTasksList.append(createScheduledTaskNode(task)));
+}
+
+function createScheduledTaskNode(task) {
+  const item = document.createElement("article");
+  item.className = `productivity-item schedule-item schedule-${task.status}`;
+
+  const heading = document.createElement("div");
+  heading.className = "productivity-item-heading";
+  const titleRow = document.createElement("div");
+  titleRow.className = "schedule-title-row";
+  const title = document.createElement("strong");
+  title.textContent = task.name;
+  const status = document.createElement("span");
+  status.className = `schedule-status schedule-status-${task.status}`;
+  status.textContent = scheduleStatusLabel(task.status);
+  titleRow.append(title, status);
+
+  const command = document.createElement("span");
+  command.textContent = task.command;
+  const timing = document.createElement("small");
+  timing.className = "schedule-time";
+  timing.textContent = task.nextRunAt
+    ? `${formatDateTime(task.nextRunAt)} - ${scheduleRepeatLabel(task.repeat)} - ${task.autoRun ? "automatica" : "manual"}`
+    : `${scheduleRepeatLabel(task.repeat)} - ${task.runCount || 0} ejecuciones`;
+  heading.append(titleRow, command, timing);
+
+  const actions = document.createElement("div");
+  actions.className = "productivity-item-actions schedule-actions";
+  const run = document.createElement("button");
+  run.type = "button";
+  run.className = "learn-button";
+  run.textContent = "Ejecutar";
+  run.disabled = state.busy;
+  run.addEventListener("click", () => runScheduledTask(task.id));
+  actions.append(run);
+
+  if (["scheduled", "due", "paused"].includes(task.status)) {
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "icon-button export-button";
+    toggle.textContent = task.status === "paused" ? "Reanudar" : "Pausar";
+    toggle.disabled = state.busy;
+    toggle.addEventListener("click", () => toggleScheduledTask(task));
+    actions.append(toggle);
+  }
+
+  const remove = document.createElement("button");
+  remove.type = "button";
+  remove.className = "danger-button icon-button";
+  remove.textContent = "Eliminar";
+  remove.disabled = state.busy;
+  remove.addEventListener("click", () => deleteScheduledTask(task.id));
+  actions.append(remove);
+
+  item.append(heading, actions);
+  return item;
+}
+
+function scheduleStatusLabel(status) {
+  return {
+    scheduled: "Programada",
+    due: "Pendiente",
+    paused: "Pausada",
+    completed: "Completada",
+    awaiting_confirmation: "Confirmacion",
+    failed: "Detenida"
+  }[status] || "Local";
+}
+
+function scheduleRepeatLabel(repeat) {
+  return { none: "una vez", daily: "diaria", weekly: "semanal" }[repeat] || "una vez";
+}
+
+function toLocalDateTimeInput(date) {
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
 
 function renderConversations() {
@@ -1897,6 +2103,9 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.suggestionsBar.querySelectorAll("button").forEach((button) => {
     button.disabled = value;
   });
+  elements.scheduledTasksList.querySelectorAll("button").forEach((button) => {
+    button.disabled = value;
+  });
   elements.evaluateAIButton.disabled = value;
   elements.refreshExamplesButton.disabled = value;
   elements.exportDatasetButton.disabled = value;
@@ -1905,14 +2114,21 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.exportMemoryButton.disabled = value;
   elements.exportFavoritesButton.disabled = value;
   elements.exportRoutinesButton.disabled = value;
+  elements.exportScheduledTasksButton.disabled = value;
   elements.exportAllButton.disabled = value;
   elements.createFavoriteButton.disabled = value;
   elements.createRoutineButton.disabled = value;
+  elements.createScheduledTaskButton.disabled = value;
   elements.saveLastCommandButton.disabled = value;
   elements.favoriteName.disabled = value;
   elements.favoriteCommand.disabled = value;
   elements.routineName.disabled = value;
   elements.routineCommands.disabled = value;
+  elements.scheduleName.disabled = value;
+  elements.scheduleCommand.disabled = value;
+  elements.scheduleRunAt.disabled = value;
+  elements.scheduleRepeat.disabled = value;
+  elements.scheduleAutoRun.disabled = value || !state.settings.allowScheduledActions;
   elements.memoryInput.disabled = value;
   elements.memorySearchInput.disabled = value;
   elements.confirmSensitiveButton.disabled = value;

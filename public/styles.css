@@ -1180,7 +1180,8 @@ textarea:focus-visible {
 }
 
 .productivity-form input,
-.productivity-form textarea {
+.productivity-form textarea,
+.productivity-form select {
   width: 100%;
   min-width: 0;
   min-height: 36px;
@@ -1198,8 +1199,89 @@ textarea:focus-visible {
 }
 
 .productivity-form input:focus,
-.productivity-form textarea:focus {
+.productivity-form textarea:focus,
+.productivity-form select:focus {
   border-color: var(--blue);
+}
+
+.schedule-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 7px;
+}
+
+.schedule-auto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.productivity-form .schedule-auto input {
+  width: 17px;
+  min-height: 17px;
+  margin: 0;
+  accent-color: var(--green);
+}
+
+.schedule-list {
+  max-height: 420px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.schedule-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.schedule-status {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.schedule-status-due,
+.schedule-status-awaiting_confirmation,
+.schedule-status-failed {
+  border-color: rgba(245, 184, 75, 0.42);
+  color: var(--amber);
+}
+
+.schedule-status-completed {
+  border-color: rgba(84, 216, 138, 0.38);
+  color: var(--green);
+}
+
+.schedule-time {
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.schedule-due,
+.schedule-awaiting_confirmation,
+.schedule-failed {
+  border-color: rgba(245, 184, 75, 0.35);
+}
+
+.schedule-actions {
+  flex-wrap: wrap;
+}
+
+.schedule-actions button {
+  flex: 1 1 78px;
 }
 
 .productivity-form-actions,
@@ -1587,6 +1669,10 @@ textarea:focus-visible {
 
   .correction-form,
   .conversation-learn-form {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-form-grid {
     grid-template-columns: 1fr;
   }
 }

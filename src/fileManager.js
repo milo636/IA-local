@@ -13,7 +13,8 @@ const DEFAULT_SETTINGS = {
   allowFileWrite: true,
   allowDelete: false,
   allowShellCommands: false,
-  allowNetwork: false
+  allowNetwork: false,
+  allowScheduledActions: false
 };
 
 const DEFAULT_MEMORY = {
@@ -51,12 +52,19 @@ const DEFAULT_ROUTINES = {
   updatedAt: null
 };
 
+const DEFAULT_SCHEDULED_TASKS = {
+  version: 1,
+  items: [],
+  updatedAt: null
+};
+
 const DATA_FILES = {
   favorites: "favorites.json",
   settings: "settings.json",
   memory: "memory.json",
   logs: "logs.json",
   routines: "routines.json",
+  scheduledTasks: "scheduledTasks.json",
   userProfile: "userProfile.json"
 };
 
@@ -67,6 +75,7 @@ function ensureDataFiles() {
   ensureJsonFile(dataPath(DATA_FILES.logs), DEFAULT_LOGS);
   ensureJsonFile(dataPath(DATA_FILES.favorites), DEFAULT_FAVORITES);
   ensureJsonFile(dataPath(DATA_FILES.routines), DEFAULT_ROUTINES);
+  ensureJsonFile(dataPath(DATA_FILES.scheduledTasks), DEFAULT_SCHEDULED_TASKS);
   ensureJsonFile(dataPath(DATA_FILES.userProfile), DEFAULT_USER_PROFILE);
 }
 
@@ -460,6 +469,7 @@ module.exports = {
   DEFAULT_LOGS,
   DEFAULT_MEMORY,
   DEFAULT_ROUTINES,
+  DEFAULT_SCHEDULED_TASKS,
   DEFAULT_SETTINGS,
   DEFAULT_USER_PROFILE,
   categoryForFile,

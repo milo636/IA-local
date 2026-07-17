@@ -7,7 +7,8 @@ const PERMISSION_LABELS = {
   allowFileWrite: "Crear o mover archivos",
   allowDelete: "Borrar archivos",
   allowShellCommands: "Ejecutar comandos shell",
-  allowNetwork: "Usar red"
+  allowNetwork: "Usar red",
+  allowScheduledActions: "Ejecutar tareas de solo lectura"
 };
 
 function getSettings() {
