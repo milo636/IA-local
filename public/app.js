@@ -32,12 +32,15 @@ const elements = {
   cancelSensitiveButton: document.querySelector("#cancelSensitiveButton"),
   chatForm: document.querySelector("#chatForm"),
   clearChatButton: document.querySelector("#clearChatButton"),
+  chatTitle: document.querySelector("#chatTitle"),
   confirmButton: document.querySelector("#confirmButton"),
   confirmSensitiveButton: document.querySelector("#confirmSensitiveButton"),
   conversationLastTrained: document.querySelector("#conversationLastTrained"),
   conversationLearnedCount: document.querySelector("#conversationLearnedCount"),
   conversationModelBadge: document.querySelector("#conversationModelBadge"),
   conversationResponseCount: document.querySelector("#conversationResponseCount"),
+  conversationSelect: document.querySelector("#conversationSelect"),
+  conversationsList: document.querySelector("#conversationsList"),
   createFavoriteButton: document.querySelector("#createFavoriteButton"),
   createRoutineButton: document.querySelector("#createRoutineButton"),
   debugModeButton: document.querySelector("#debugModeButton"),
@@ -65,6 +68,7 @@ const elements = {
   memorySearchInput: document.querySelector("#memorySearchInput"),
   memoryUpdatedAt: document.querySelector("#memoryUpdatedAt"),
   messageInput: document.querySelector("#messageInput"),
+  newConversationButton: document.querySelector("#newConversationButton"),
   messages: document.querySelector("#messages"),
   pendingBanner: document.querySelector("#pendingBanner"),
   quickCommands: document.querySelector("#quickCommands"),
@@ -143,10 +147,28 @@ elements.cancelSensitiveButton.addEventListener("click", () => {
 });
 
 elements.clearChatButton.addEventListener("click", async () => {
-  const response = await fetch("/api/chat/clear", { method: "POST" });
-  const payload = await response.json();
-  applyState(payload.state);
-  showToast("Chat limpio.", "success");
+  if (state.busy) return;
+  if (!window.confirm("Borrar los mensajes de esta conversacion local?")) return;
+  setBusy(true, "Limpiando conversacion...");
+  try {
+    const response = await fetch("/api/chat/clear", { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude limpiar la conversacion.");
+    applyState(payload.state);
+    showToast("Chat limpio.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+elements.newConversationButton.addEventListener("click", () => {
+  createConversation();
+});
+
+elements.conversationSelect.addEventListener("change", () => {
+  activateConversation(elements.conversationSelect.value);
 });
 
 elements.debugModeButton.addEventListener("click", () => {
@@ -286,6 +308,87 @@ async function sendMessage(message) {
     const errorMessage = `No pude contactar al servidor local: ${error.message}`;
     addTransientAssistantMessage(errorMessage);
     showToast("No pude contactar al servidor local.", "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function createConversation() {
+  setBusy(true, "Creando conversacion...");
+  try {
+    const response = await fetch("/api/conversations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude crear la conversacion.");
+    applyState(payload.state);
+    showToast("Nueva conversacion local creada.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function activateConversation(id) {
+  if (!id || id === state.memory.activeConversationId || state.busy) return;
+  setBusy(true, "Abriendo conversacion...");
+  try {
+    const response = await fetch(`/api/conversations/${encodeURIComponent(id)}/activate`, { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude abrir la conversacion.");
+    applyState(payload.state);
+  } catch (error) {
+    showToast(error.message, "error");
+    renderConversations();
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function renameConversation(id, title) {
+  const value = String(title || "").trim();
+  if (!value) {
+    showToast("El titulo no puede estar vacio.", "warn");
+    return;
+  }
+
+  setBusy(true, "Guardando titulo...");
+  try {
+    const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: value })
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude renombrar la conversacion.");
+    applyState(payload.state);
+    showToast("Conversacion renombrada.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+    renderConversations();
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function deleteConversation(id, title) {
+  if (!window.confirm(`Borrar la conversacion "${title}" y sus mensajes locales?`)) return;
+  setBusy(true, "Borrando conversacion...");
+  try {
+    const response = await fetch(`/api/conversations/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ confirm: true })
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude borrar la conversacion.");
+    applyState(payload.state);
+    showToast("Conversacion borrada.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
   } finally {
     setBusy(false);
   }
@@ -704,6 +807,7 @@ function applyState(nextState) {
   renderAiPanel();
   renderConversationPanel();
   renderUnderstandingPanel();
+  renderConversations();
   renderMemoryPanel();
   renderProductivityPanel();
   renderSettings();
@@ -729,6 +833,92 @@ function renderProductivityPanel() {
   elements.productivityBadge.className = `status-pill ${hasItems ? "status-ok" : "status-warn"}`;
   renderProductivityList(elements.favoritesList, favorites, "favorite");
   renderProductivityList(elements.routinesList, routines, "routine");
+}
+
+function renderConversations() {
+  const conversations = Array.isArray(state.memory.conversations) ? state.memory.conversations : [];
+  const activeId = state.memory.activeConversationId;
+  const active = conversations.find((item) => item.id === activeId);
+  elements.chatTitle.textContent = active?.title || state.memory.activeConversationTitle || "Conversacion local";
+
+  elements.conversationSelect.replaceChildren();
+  conversations.forEach((conversation) => {
+    const option = document.createElement("option");
+    option.value = conversation.id;
+    option.textContent = conversation.title;
+    option.selected = conversation.id === activeId;
+    elements.conversationSelect.append(option);
+  });
+
+  elements.conversationsList.replaceChildren();
+  conversations.forEach((conversation) => {
+    const item = document.createElement("article");
+    item.className = `conversation-item${conversation.id === activeId ? " active" : ""}`;
+
+    const open = document.createElement("button");
+    open.type = "button";
+    open.className = "conversation-open";
+    open.disabled = state.busy;
+    open.setAttribute("aria-label", `Abrir conversacion ${conversation.title}`);
+    open.addEventListener("click", () => activateConversation(conversation.id));
+
+    const title = document.createElement("strong");
+    title.textContent = conversation.title;
+    const meta = document.createElement("span");
+    meta.textContent = `${conversation.messageCount} mensajes · ${formatDateTime(conversation.updatedAt)}`;
+    open.append(title, meta);
+
+    const actions = document.createElement("div");
+    actions.className = "conversation-actions";
+    const edit = createConversationIconButton("Editar titulo", "edit");
+    edit.disabled = state.busy;
+    edit.addEventListener("click", () => showConversationRename(item, conversation));
+    const remove = createConversationIconButton("Borrar conversacion", "trash");
+    remove.classList.add("conversation-delete");
+    remove.disabled = state.busy;
+    remove.addEventListener("click", () => deleteConversation(conversation.id, conversation.title));
+    actions.append(edit, remove);
+
+    item.append(open, actions);
+    elements.conversationsList.append(item);
+  });
+}
+
+function showConversationRename(container, conversation) {
+  const form = document.createElement("form");
+  form.className = "conversation-rename-form";
+  const input = document.createElement("input");
+  input.value = conversation.title;
+  input.maxLength = 60;
+  input.setAttribute("aria-label", "Nuevo titulo de la conversacion");
+  const save = createConversationIconButton("Guardar titulo", "check");
+  save.type = "submit";
+  const cancel = createConversationIconButton("Cancelar edicion", "close");
+  cancel.addEventListener("click", renderConversations);
+  form.append(input, save, cancel);
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    renameConversation(conversation.id, input.value);
+  });
+  container.replaceChildren(form);
+  input.focus();
+  input.select();
+}
+
+function createConversationIconButton(label, icon) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "conversation-icon-button";
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  const paths = {
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    trash: '<path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>',
+    check: '<path d="m5 12 4 4L19 6"/>',
+    close: '<path d="m6 6 12 12"/><path d="m18 6-12 12"/>'
+  };
+  button.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24">${paths[icon]}</svg>`;
+  return button;
 }
 
 function renderProductivityList(container, items, type) {
@@ -1587,8 +1777,11 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   state.busy = value;
   elements.sendButton.disabled = value;
   elements.messageInput.disabled = value;
+  elements.clearChatButton.disabled = value;
   elements.retrainAIButton.disabled = value;
   elements.retrainConversationButton.disabled = value;
+  elements.newConversationButton.disabled = value;
+  elements.conversationSelect.disabled = value;
   elements.evaluateAIButton.disabled = value;
   elements.refreshExamplesButton.disabled = value;
   elements.exportDatasetButton.disabled = value;
@@ -1627,6 +1820,7 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
       }, 2600);
     }
   }
+  renderConversations();
 }
 
 function updateActivityStatus(text, mode = "ready") {

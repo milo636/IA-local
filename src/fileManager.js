@@ -17,6 +17,9 @@ const DEFAULT_SETTINGS = {
 };
 
 const DEFAULT_MEMORY = {
+  version: 2,
+  activeConversationId: null,
+  conversations: [],
   messages: [],
   pendingAction: null,
   pendingClarification: null,

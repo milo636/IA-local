@@ -648,6 +648,82 @@ app.post("/api/conversation/train", (req, res) => {
   }
 });
 
+app.get("/api/conversations", (req, res) => {
+  res.json({
+    activeConversationId: memory.getMemory().activeConversationId,
+    conversations: memory.listConversations()
+  });
+});
+
+app.post("/api/conversations", (req, res) => {
+  try {
+    const title = typeof req.body.title === "string" ? req.body.title.trim() : "";
+    const conversation = memory.createConversation(title);
+    logger.writeLog({
+      level: "info",
+      action: "conversation_history.create",
+      message: "Conversacion local creada",
+      details: { conversationId: conversation.id }
+    });
+    res.status(201).json({ ok: true, conversation, state: buildState() });
+  } catch (error) {
+    handleConversationError(res, error, "conversation_history.create.denied");
+  }
+});
+
+app.post("/api/conversations/:id/activate", (req, res) => {
+  try {
+    const current = memory.activateConversation(String(req.params.id || "").trim());
+    logger.writeLog({
+      level: "info",
+      action: "conversation_history.activate",
+      message: "Conversacion local activada",
+      details: { conversationId: current.activeConversationId }
+    });
+    res.json({ ok: true, state: buildState() });
+  } catch (error) {
+    handleConversationError(res, error, "conversation_history.activate.denied");
+  }
+});
+
+app.put("/api/conversations/:id", (req, res) => {
+  try {
+    const title = typeof req.body.title === "string" ? req.body.title.trim() : "";
+    const conversation = memory.renameConversation(String(req.params.id || "").trim(), title);
+    logger.writeLog({
+      level: "info",
+      action: "conversation_history.rename",
+      message: "Conversacion local renombrada",
+      details: { conversationId: conversation.id }
+    });
+    res.json({ ok: true, conversation, state: buildState() });
+  } catch (error) {
+    handleConversationError(res, error, "conversation_history.rename.denied");
+  }
+});
+
+app.delete("/api/conversations/:id", (req, res) => {
+  if (req.body?.confirm !== true) {
+    return res.status(409).json({
+      error: "Borrar una conversacion necesita confirmacion explicita.",
+      requiresConfirmation: true
+    });
+  }
+
+  try {
+    const result = memory.deleteConversation(String(req.params.id || "").trim());
+    logger.writeLog({
+      level: "warn",
+      action: "conversation_history.delete",
+      message: "Conversacion local borrada con confirmacion",
+      details: { conversationId: result.deleted.id, messageCount: result.deleted.messageCount }
+    });
+    res.json({ ok: true, deleted: result.deleted, state: buildState() });
+  } catch (error) {
+    handleConversationError(res, error, "conversation_history.delete.denied");
+  }
+});
+
 app.post("/api/chat/clear", (req, res) => {
   memory.clearMessages();
   logger.writeLog({
@@ -859,6 +935,16 @@ function handleProductivityError(res, error, action) {
     message: error.message
   });
   res.status(400).json({ error: error.message, state: buildState() });
+}
+
+function handleConversationError(res, error, action) {
+  logger.writeLog({
+    level: "warn",
+    action,
+    message: error.message,
+    details: { findingTypes: (error.findings || []).map((finding) => finding.type) }
+  });
+  res.status(400).json({ error: error.message, findings: error.findings || [], state: buildState() });
 }
 
 function sendJsonDownload(res, prefix, payload) {

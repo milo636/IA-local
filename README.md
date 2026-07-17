@@ -50,6 +50,16 @@ La interfaz esta pensada para uso local y diario:
 - Toasts simples para exito, error y advertencias.
 - Diseno oscuro responsive para desktop y mobile.
 
+La barra lateral incluye un historial de conversaciones locales. Cada chat conserva sus propios mensajes, contexto corto, aclaraciones y confirmaciones pendientes. Se puede:
+
+- crear una conversacion nueva
+- cambiar de conversacion desde la barra lateral o el selector del encabezado
+- renombrar conversaciones en linea
+- borrar una conversacion con confirmacion explicita
+- limpiar solamente el chat activo
+
+Los chats existentes en el formato anterior de `data/memory.json` se migran automaticamente como la primera conversacion. Cambiar de chat no ejecuta acciones y una confirmacion pendiente nunca pasa a otra conversacion.
+
 ## Captura / placeholder de interfaz
 
 ```text
@@ -405,6 +415,12 @@ POST   /api/chat/clear
 POST   /api/settings
 GET    /api/logs/export
 
+GET    /api/conversations
+POST   /api/conversations
+POST   /api/conversations/:id/activate
+PUT    /api/conversations/:id
+DELETE /api/conversations/:id
+
 GET    /api/memory
 GET    /api/memory/search?q=texto
 GET    /api/memory/export
@@ -497,6 +513,13 @@ Fase 6 completada:
 - Contexto corto seguro para continuaciones.
 - Evaluacion reproducible con metricas y matriz de confusion.
 - Panel de comprension y debug ampliado.
+
+Mejoras continuas completadas:
+
+- Historial de conversaciones completamente local.
+- Migracion compatible del chat anterior.
+- Contexto, aclaraciones y confirmaciones aisladas por conversacion.
+- Selector responsive, renombrado en linea y borrado confirmado.
 
 Fase 7:
 
