@@ -4,6 +4,9 @@ const state = {
   busy: false,
   conversation: {},
   conversationIntents: [],
+  conversationSearch: "",
+  conversationSearchResults: null,
+  conversationSearchTimer: null,
   debugMode: localStorage.getItem("sawLocalDebug") === "true",
   evaluation: {},
   examples: [],
@@ -19,6 +22,7 @@ const state = {
   routines: [],
   statusResetTimer: null,
   settings: {},
+  suggestions: [],
   userMemory: { memories: [], profile: {}, stats: {} }
 };
 
@@ -40,6 +44,7 @@ const elements = {
   conversationModelBadge: document.querySelector("#conversationModelBadge"),
   conversationResponseCount: document.querySelector("#conversationResponseCount"),
   conversationSelect: document.querySelector("#conversationSelect"),
+  conversationSearchInput: document.querySelector("#conversationSearchInput"),
   conversationsList: document.querySelector("#conversationsList"),
   createFavoriteButton: document.querySelector("#createFavoriteButton"),
   createRoutineButton: document.querySelector("#createRoutineButton"),
@@ -81,6 +86,7 @@ const elements = {
   sensitiveBanner: document.querySelector("#sensitiveBanner"),
   sensitiveWarningText: document.querySelector("#sensitiveWarningText"),
   settingsList: document.querySelector("#settingsList"),
+  suggestionsBar: document.querySelector("#suggestionsBar"),
   profileStatus: document.querySelector("#profileStatus"),
   profileSummary: document.querySelector("#profileSummary"),
   productivityBadge: document.querySelector("#productivityBadge"),
@@ -169,6 +175,17 @@ elements.newConversationButton.addEventListener("click", () => {
 
 elements.conversationSelect.addEventListener("change", () => {
   activateConversation(elements.conversationSelect.value);
+});
+
+elements.conversationSearchInput.addEventListener("input", () => {
+  state.conversationSearch = elements.conversationSearchInput.value.trim();
+  clearTimeout(state.conversationSearchTimer);
+  if (state.conversationSearch.length < 2) {
+    state.conversationSearchResults = [];
+    renderConversations();
+    return;
+  }
+  state.conversationSearchTimer = setTimeout(searchConversationHistory, 220);
 });
 
 elements.debugModeButton.addEventListener("click", () => {
@@ -323,6 +340,7 @@ async function createConversation() {
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "No pude crear la conversacion.");
+    clearConversationSearch();
     applyState(payload.state);
     showToast("Nueva conversacion local creada.", "success");
   } catch (error) {
@@ -332,14 +350,19 @@ async function createConversation() {
   }
 }
 
-async function activateConversation(id) {
-  if (!id || id === state.memory.activeConversationId || state.busy) return;
+async function activateConversation(id, messageId = null) {
+  if (!id || state.busy) return;
+  if (id === state.memory.activeConversationId) {
+    if (messageId) highlightMessage(messageId);
+    return;
+  }
   setBusy(true, "Abriendo conversacion...");
   try {
     const response = await fetch(`/api/conversations/${encodeURIComponent(id)}/activate`, { method: "POST" });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "No pude abrir la conversacion.");
     applyState(payload.state);
+    if (messageId) highlightMessage(messageId);
   } catch (error) {
     showToast(error.message, "error");
     renderConversations();
@@ -364,6 +387,7 @@ async function renameConversation(id, title) {
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "No pude renombrar la conversacion.");
+    clearConversationSearch();
     applyState(payload.state);
     showToast("Conversacion renombrada.", "success");
   } catch (error) {
@@ -385,6 +409,7 @@ async function deleteConversation(id, title) {
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "No pude borrar la conversacion.");
+    clearConversationSearch();
     applyState(payload.state);
     showToast("Conversacion borrada.", "success");
   } catch (error) {
@@ -392,6 +417,28 @@ async function deleteConversation(id, title) {
   } finally {
     setBusy(false);
   }
+}
+
+async function searchConversationHistory() {
+  const query = state.conversationSearch.trim();
+  if (query.length < 2) return;
+  try {
+    const response = await fetch(`/api/conversations/search?q=${encodeURIComponent(query)}&limit=30`);
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude buscar en el historial.");
+    if (query !== state.conversationSearch.trim()) return;
+    state.conversationSearchResults = payload.results || [];
+    renderConversations();
+  } catch (error) {
+    showToast(error.message, "error");
+  }
+}
+
+function clearConversationSearch() {
+  clearTimeout(state.conversationSearchTimer);
+  state.conversationSearch = "";
+  state.conversationSearchResults = null;
+  elements.conversationSearchInput.value = "";
 }
 
 async function learnIntent(text, intent, options = {}) {
@@ -802,6 +849,7 @@ function applyState(nextState) {
   state.memory = nextState.memory || { messages: [], pendingAction: null };
   state.routines = nextState.routines || state.routines || [];
   state.settings = nextState.settings || {};
+  state.suggestions = nextState.suggestions || [];
   state.userMemory = nextState.userMemory || state.userMemory || { memories: [], profile: {}, stats: {} };
 
   renderAiPanel();
@@ -814,6 +862,7 @@ function applyState(nextState) {
   renderActions();
   renderQuickCommands();
   renderMessages();
+  renderSuggestions();
   renderLogs();
   renderPending();
   renderDebugButton();
@@ -851,6 +900,11 @@ function renderConversations() {
   });
 
   elements.conversationsList.replaceChildren();
+  if (state.conversationSearch) {
+    renderConversationSearchResults();
+    return;
+  }
+
   conversations.forEach((conversation) => {
     const item = document.createElement("article");
     item.className = `conversation-item${conversation.id === activeId ? " active" : ""}`;
@@ -881,6 +935,36 @@ function renderConversations() {
 
     item.append(open, actions);
     elements.conversationsList.append(item);
+  });
+}
+
+function renderConversationSearchResults() {
+  const results = Array.isArray(state.conversationSearchResults) ? state.conversationSearchResults : [];
+  if (state.conversationSearch.length < 2 || !results.length) {
+    const empty = document.createElement("p");
+    empty.className = "conversation-search-empty";
+    empty.textContent = state.conversationSearch.length < 2
+      ? "Escribi al menos 2 caracteres."
+      : "No encontre mensajes con ese texto.";
+    elements.conversationsList.append(empty);
+    return;
+  }
+
+  results.forEach((result) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "conversation-search-result";
+    button.disabled = state.busy;
+    button.addEventListener("click", () => activateConversation(result.conversationId, result.messageId));
+
+    const title = document.createElement("strong");
+    title.textContent = result.conversationTitle;
+    const snippet = document.createElement("span");
+    snippet.textContent = result.snippet;
+    const meta = document.createElement("small");
+    meta.textContent = `${result.role === "user" ? "Vos" : "SAW Local"} · ${formatDateTime(result.timestamp)}`;
+    button.append(title, snippet, meta);
+    elements.conversationsList.append(button);
   });
 }
 
@@ -1207,6 +1291,22 @@ function renderQuickCommands() {
   });
 }
 
+function renderSuggestions() {
+  const suggestions = Array.isArray(state.suggestions) ? state.suggestions : [];
+  elements.suggestionsBar.replaceChildren();
+  elements.suggestionsBar.hidden = suggestions.length === 0;
+  suggestions.forEach((suggestion) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "suggestion-button";
+    button.textContent = suggestion.label;
+    button.title = suggestion.reason || "Enviar como mensaje";
+    button.disabled = state.busy;
+    button.addEventListener("click", () => sendMessage(suggestion.text));
+    elements.suggestionsBar.append(button);
+  });
+}
+
 function renderMessages() {
   elements.messages.replaceChildren();
   const messages = state.memory.messages || [];
@@ -1234,6 +1334,7 @@ function renderMessages() {
 function createMessageNode(message) {
   const article = document.createElement("article");
   article.className = `message ${message.role === "user" ? "user" : "assistant"}`;
+  if (message.id) article.dataset.messageId = message.id;
 
   const meta = document.createElement("div");
   meta.className = "message-meta";
@@ -1260,6 +1361,16 @@ function createMessageNode(message) {
   }
 
   return article;
+}
+
+function highlightMessage(messageId) {
+  const target = [...elements.messages.querySelectorAll("[data-message-id]")]
+    .find((node) => node.dataset.messageId === String(messageId));
+  if (!target) return;
+  elements.messages.querySelectorAll(".search-highlight").forEach((node) => node.classList.remove("search-highlight"));
+  target.classList.add("search-highlight");
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => target.classList.remove("search-highlight"), 1800);
 }
 
 function createMessageActions(message) {
@@ -1782,6 +1893,10 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.retrainConversationButton.disabled = value;
   elements.newConversationButton.disabled = value;
   elements.conversationSelect.disabled = value;
+  elements.conversationSearchInput.disabled = value;
+  elements.suggestionsBar.querySelectorAll("button").forEach((button) => {
+    button.disabled = value;
+  });
   elements.evaluateAIButton.disabled = value;
   elements.refreshExamplesButton.disabled = value;
   elements.exportDatasetButton.disabled = value;

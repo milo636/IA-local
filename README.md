@@ -12,6 +12,8 @@ El objetivo es que cualquier persona pueda clonar el proyecto, ejecutarlo en su 
 - Motor conversacional propio para saludos, despedidas, ayuda y preguntas basicas.
 - Memoria inteligente local con perfil de usuario.
 - Favoritos y rutinas locales con ejecucion controlada.
+- Historial de conversaciones con busqueda local por contenido.
+- Sugerencias contextuales que siempre se envian como mensajes normales.
 - Busqueda de archivos por nombre, extension o categoria.
 - Aprendizaje local desde la UI.
 - Dataset editable, exportable y restaurable.
@@ -57,6 +59,9 @@ La barra lateral incluye un historial de conversaciones locales. Cada chat conse
 - renombrar conversaciones en linea
 - borrar una conversacion con confirmacion explicita
 - limpiar solamente el chat activo
+- buscar texto dentro de todos los mensajes locales y saltar al resultado
+
+Debajo del chat pueden aparecer sugerencias breves, por ejemplo para ver ayuda, filtrar una busqueda anterior o completar una aclaracion. Pulsarlas equivale a escribir ese texto en el chat: no ejecutan codigo directamente y cualquier accion sigue pasando por `safety.js`, `permissions.js` y las confirmaciones correspondientes. Atenea no sugiere `CONFIRMAR` ni acciones de alto riesgo.
 
 Los chats existentes en el formato anterior de `data/memory.json` se migran automaticamente como la primera conversacion. Cambiar de chat no ejecuta acciones y una confirmacion pendiente nunca pasa a otra conversacion.
 
@@ -416,6 +421,7 @@ POST   /api/settings
 GET    /api/logs/export
 
 GET    /api/conversations
+GET    /api/conversations/search?q=texto
 POST   /api/conversations
 POST   /api/conversations/:id/activate
 PUT    /api/conversations/:id
@@ -520,6 +526,8 @@ Mejoras continuas completadas:
 - Migracion compatible del chat anterior.
 - Contexto, aclaraciones y confirmaciones aisladas por conversacion.
 - Selector responsive, renombrado en linea y borrado confirmado.
+- Busqueda de mensajes entre conversaciones con salto al resultado.
+- Sugerencias contextuales explicables y sin ejecucion directa.
 
 Fase 7:
 

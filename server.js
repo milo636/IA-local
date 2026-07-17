@@ -13,6 +13,7 @@ const memory = require("./src/memory");
 const memoryEngine = require("./src/memoryEngine");
 const permissions = require("./src/permissions");
 const routines = require("./src/routines");
+const suggestions = require("./src/suggestions");
 const { detectSensitiveText } = require("./src/sensitiveText");
 
 const app = express();
@@ -655,6 +656,19 @@ app.get("/api/conversations", (req, res) => {
   });
 });
 
+app.get("/api/conversations/search", (req, res) => {
+  const query = typeof req.query.q === "string" ? req.query.q.trim() : "";
+  const limit = Number(req.query.limit || 20);
+  const results = memory.searchConversations(query, { limit });
+  logger.writeLog({
+    level: "info",
+    action: "conversation_history.search",
+    message: "Historial local consultado",
+    details: { queryLength: query.length, resultCount: results.length }
+  });
+  res.json({ query, results });
+});
+
 app.post("/api/conversations", (req, res) => {
   try {
     const title = typeof req.body.title === "string" ? req.body.title.trim() : "";
@@ -912,6 +926,7 @@ if (require.main === module) {
 }
 
 function buildState() {
+  const currentMemory = memory.getMemory();
   return {
     ai: localAI.getModelStatus(),
     evaluation: evaluation.getLastEvaluation(),
@@ -921,10 +936,11 @@ function buildState() {
     favorites: favorites.listFavorites(),
     userMemory: memoryEngine.getMemoryState(),
     settings: permissions.getSettings(),
-    memory: memory.getMemory(),
+    memory: currentMemory,
     logs: logger.getRecentLogs(30),
     routines: routines.listRoutines(),
-    actions: actions.listActions()
+    actions: actions.listActions(),
+    suggestions: suggestions.getSuggestions(currentMemory)
   };
 }
 

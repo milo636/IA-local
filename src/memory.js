@@ -4,6 +4,8 @@ const { detectSensitiveText } = require("./sensitiveText");
 const MAX_CONVERSATIONS = 50;
 const MAX_MESSAGES = 200;
 const MAX_TITLE_LENGTH = 60;
+const MAX_SEARCH_RESULTS = 50;
+const MAX_SEARCH_QUERY_LENGTH = 200;
 
 function getMemory() {
   const state = loadState();
@@ -12,6 +14,41 @@ function getMemory() {
 
 function listConversations() {
   return loadState().conversations.map(conversationSummary);
+}
+
+function searchConversations(query, options = {}) {
+  const rawQuery = compactText(query, MAX_SEARCH_QUERY_LENGTH);
+  if (rawQuery.length < 2) return [];
+
+  const normalizedQuery = normalizeSearchText(rawQuery);
+  const queryTokens = tokenizeSearch(normalizedQuery);
+  if (!normalizedQuery || !queryTokens.length) return [];
+
+  const requestedLimit = Number(options.limit || 20);
+  const limit = Math.min(MAX_SEARCH_RESULTS, Math.max(1, Number.isFinite(requestedLimit) ? requestedLimit : 20));
+  const state = loadState();
+  const results = [];
+
+  for (const conversation of state.conversations) {
+    for (const message of conversation.messages) {
+      const normalizedContent = normalizeSearchText(message.content);
+      const score = searchScore(normalizedContent, normalizedQuery, queryTokens);
+      if (score <= 0) continue;
+      results.push({
+        conversationId: conversation.id,
+        conversationTitle: conversation.title,
+        messageId: message.id,
+        role: message.role === "user" ? "user" : "assistant",
+        snippet: searchSnippet(message.content, rawQuery),
+        timestamp: message.timestamp,
+        score
+      });
+    }
+  }
+
+  return results
+    .sort((left, right) => right.score - left.score || String(right.timestamp).localeCompare(String(left.timestamp)))
+    .slice(0, limit);
 }
 
 function createConversation(title = "") {
@@ -333,6 +370,39 @@ function compactText(value, maxLength) {
   return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLength).trim();
 }
 
+function normalizeSearchText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenizeSearch(value) {
+  return [...new Set(String(value || "").split(" ").filter((token) => token.length > 1))];
+}
+
+function searchScore(content, query, queryTokens) {
+  if (!content) return 0;
+  if (content.includes(query)) return 1;
+  const contentTokens = new Set(tokenizeSearch(content));
+  const matched = queryTokens.filter((token) => contentTokens.has(token)).length;
+  if (!matched) return 0;
+  const coverage = matched / queryTokens.length;
+  return coverage >= 0.5 ? Number((coverage * 0.8).toFixed(4)) : 0;
+}
+
+function searchSnippet(content, rawQuery) {
+  const text = compactText(content, 2000);
+  if (text.length <= 150) return text;
+  const index = text.toLowerCase().indexOf(String(rawQuery || "").toLowerCase());
+  const start = Math.max(0, index >= 0 ? index - 55 : 0);
+  const snippet = text.slice(start, start + 150).trim();
+  return `${start > 0 ? "..." : ""}${snippet}${start + 150 < text.length ? "..." : ""}`;
+}
+
 function countUserMessages(messages) {
   return messages.filter((message) => message.role === "user").length;
 }
@@ -343,6 +413,7 @@ function createId(prefix) {
 
 module.exports = {
   MAX_CONVERSATIONS,
+  MAX_SEARCH_RESULTS,
   activateConversation,
   addMessage,
   clearCommandContext,
@@ -358,6 +429,7 @@ module.exports = {
   listConversations,
   renameConversation,
   saveMemory,
+  searchConversations,
   setCommandContext,
   setPendingAction,
   setPendingClarification
