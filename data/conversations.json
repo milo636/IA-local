@@ -268,6 +268,31 @@
         }
       ]
     },
+    "context_follow_up": {
+      "label": "Seguimiento de contexto",
+      "examples": [
+        "que hiciste recien",
+        "explicame la accion anterior",
+        "que permiso usa esa accion",
+        "por que necesita confirmacion",
+        "cual fue la accion anterior",
+        "que tenes en contexto",
+        "que riesgo tiene esa accion",
+        "eso se llego a ejecutar",
+        "mostrame el contexto activo",
+        "por que no lo hiciste"
+      ],
+      "responses": [
+        {
+          "text": "Puedo explicarte la accion anterior usando su contexto local, sin volver a ejecutarla.",
+          "source": "base"
+        },
+        {
+          "text": "El contexto activo muestra estado, permiso y riesgo sin repetir contenido privado.",
+          "source": "base"
+        }
+      ]
+    },
     "error_feedback": {
       "label": "Errores y correcciones",
       "examples": [

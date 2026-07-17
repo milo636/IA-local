@@ -4,6 +4,7 @@ const state = {
   busy: false,
   conversation: {},
   conversationIntents: [],
+  context: {},
   conversationSearch: "",
   conversationSearchResults: null,
   conversationSearchTimer: null,
@@ -39,6 +40,7 @@ const elements = {
   chatForm: document.querySelector("#chatForm"),
   clearChatButton: document.querySelector("#clearChatButton"),
   chatTitle: document.querySelector("#chatTitle"),
+  clearContextButton: document.querySelector("#clearContextButton"),
   confirmButton: document.querySelector("#confirmButton"),
   confirmSensitiveButton: document.querySelector("#confirmSensitiveButton"),
   conversationLastTrained: document.querySelector("#conversationLastTrained"),
@@ -48,6 +50,11 @@ const elements = {
   conversationSelect: document.querySelector("#conversationSelect"),
   conversationSearchInput: document.querySelector("#conversationSearchInput"),
   conversationsList: document.querySelector("#conversationsList"),
+  contextAction: document.querySelector("#contextAction"),
+  contextBadge: document.querySelector("#contextBadge"),
+  contextPermission: document.querySelector("#contextPermission"),
+  contextStatus: document.querySelector("#contextStatus"),
+  contextSummary: document.querySelector("#contextSummary"),
   createFavoriteButton: document.querySelector("#createFavoriteButton"),
   createRoutineButton: document.querySelector("#createRoutineButton"),
   createScheduledTaskButton: document.querySelector("#createScheduledTaskButton"),
@@ -177,6 +184,22 @@ elements.clearChatButton.addEventListener("click", async () => {
     if (!response.ok) throw new Error(payload.error || "No pude limpiar la conversacion.");
     applyState(payload.state);
     showToast("Chat limpio.", "success");
+  } catch (error) {
+    showToast(error.message, "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+elements.clearContextButton.addEventListener("click", async () => {
+  if (state.busy || !state.context.canClear) return;
+  setBusy(true, "Olvidando contexto...");
+  try {
+    const response = await fetch("/api/context/clear", { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || "No pude olvidar el contexto.");
+    applyState(payload.state);
+    showToast("Contexto de la accion anterior olvidado.", "success");
   } catch (error) {
     showToast(error.message, "error");
   } finally {
@@ -946,6 +969,7 @@ function applyState(nextState) {
   state.actions = nextState.actions || [];
   state.conversation = nextState.conversation || state.conversation || {};
   state.conversationIntents = nextState.conversationIntents || state.conversationIntents || [];
+  state.context = nextState.context || state.context || {};
   state.evaluation = nextState.evaluation || state.evaluation || {};
   state.favorites = nextState.favorites || state.favorites || [];
   state.intents = nextState.intents || state.intents || [];
@@ -959,6 +983,7 @@ function applyState(nextState) {
 
   renderAiPanel();
   renderConversationPanel();
+  renderContextPanel();
   renderUnderstandingPanel();
   renderConversations();
   renderMemoryPanel();
@@ -1376,6 +1401,31 @@ function renderConversationPanel() {
   elements.conversationLastTrained.textContent = state.conversation.lastTrainedAt ? formatDateTime(state.conversation.lastTrainedAt) : "Nunca";
 }
 
+function renderContextPanel() {
+  const context = state.context || {};
+  const pending = ["pending_confirmation", "pending_clarification"].includes(context.status);
+  const active = context.status && context.status !== "empty";
+  elements.contextBadge.textContent = context.badge || "Sin contexto";
+  elements.contextBadge.className = `status-pill ${pending ? "status-warn" : active ? "status-ok" : "status-warn"}`;
+  elements.contextSummary.textContent = context.summary || "No hay una accion local activa en esta conversacion.";
+  elements.contextAction.textContent = context.actionLabel || "Ninguna";
+  elements.contextPermission.textContent = context.permissionKey
+    ? `${context.permissionLabel} (${context.permissionEnabled ? "activo" : "inactivo"})`
+    : context.permissionLabel || "No requerido";
+  elements.contextStatus.textContent = {
+    pending_confirmation: "Espera confirmacion",
+    pending_clarification: "Espera un dato",
+    completed: "Completada",
+    prepared: "Preparada",
+    response: "Solo respuesta",
+    empty: "Vacio"
+  }[context.status] || "Vacio";
+  elements.clearContextButton.disabled = state.busy || !context.canClear;
+  elements.clearContextButton.title = context.canClear
+    ? "Elimina solo el contexto estructurado de la accion anterior"
+    : pending ? "Resolve o cancela primero la accion pendiente" : "No hay contexto para olvidar";
+}
+
 function renderUnderstandingPanel() {
   const report = state.evaluation || {};
   const evaluated = Boolean(report.evaluatedAt);
@@ -1623,7 +1673,7 @@ function createDebugPanel(message) {
 
   debugLine.append(intent, confidence, local, domain);
 
-  if (meta.aiDomain === "conversation") {
+  if (meta.responseOrigin || meta.aiDomain === "conversation") {
     const origin = document.createElement("span");
     origin.textContent = `Origen: ${meta.responseOrigin || "base"}`;
     debugLine.append(origin);
@@ -2095,6 +2145,7 @@ function setBusy(value, label = value ? "Procesando..." : "Atenea esta lista") {
   elements.sendButton.disabled = value;
   elements.messageInput.disabled = value;
   elements.clearChatButton.disabled = value;
+  elements.clearContextButton.disabled = value || !state.context.canClear;
   elements.retrainAIButton.disabled = value;
   elements.retrainConversationButton.disabled = value;
   elements.newConversationButton.disabled = value;

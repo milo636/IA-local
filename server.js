@@ -4,6 +4,7 @@ const path = require("path");
 const { handleMessage, runStoredCommands } = require("./src/agent");
 const actions = require("./src/actions");
 const conversationAI = require("./src/conversationAI");
+const contextExplainer = require("./src/contextExplainer");
 const evaluation = require("./src/evaluateLocalAI");
 const favorites = require("./src/favorites");
 const fileManager = require("./src/fileManager");
@@ -749,6 +750,30 @@ app.post("/api/chat/clear", (req, res) => {
   res.json({ state: buildState() });
 });
 
+app.get("/api/context", (req, res) => {
+  res.json({
+    context: contextExplainer.getContextSnapshot(memory.getMemory(), permissions.getSettings())
+  });
+});
+
+app.post("/api/context/clear", (req, res) => {
+  const current = memory.getMemory();
+  if (current.pendingAction || current.pendingClarification) {
+    return res.status(409).json({
+      error: "Resolve o cancela la accion pendiente antes de olvidar el contexto.",
+      context: contextExplainer.getContextSnapshot(current, permissions.getSettings())
+    });
+  }
+
+  memory.clearCommandContext();
+  logger.writeLog({
+    level: "info",
+    action: "context.clear",
+    message: "Contexto de la accion anterior olvidado por el usuario"
+  });
+  res.json({ ok: true, state: buildState() });
+});
+
 app.get("/api/favorites", (req, res) => {
   logger.writeLog({ level: "info", action: "favorite.list", message: "Favoritos locales listados" });
   res.json({ favorites: favorites.listFavorites(), state: buildState() });
@@ -1047,6 +1072,7 @@ function buildState() {
     intents: localAI.listIntents(),
     conversation: conversationAI.getModelStatus(),
     conversationIntents: conversationAI.listConversationIntents(),
+    context: contextExplainer.getContextSnapshot(currentMemory, permissions.getSettings()),
     favorites: favorites.listFavorites(),
     userMemory: memoryEngine.getMemoryState(),
     settings: permissions.getSettings(),

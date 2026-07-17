@@ -1,6 +1,6 @@
 {
   "modelVersion": 1,
-  "trainedAt": "2026-06-22T16:43:52.695Z",
+  "trainedAt": "2026-07-17T23:45:20.079Z",
   "minConfidence": 0.34,
   "maxContextMessages": 6,
   "intents": [
@@ -13,271 +13,285 @@
     "help",
     "thanks",
     "acknowledgement",
+    "context_follow_up",
     "error_feedback",
     "unknown"
   ],
   "tokenWeights": {
-    "hola": 4.4965,
-    "atenea": 3.5157,
-    "buenas": 4.2088,
-    "buen": 4.902,
-    "dia": 4.902,
-    "tardes": 4.902,
-    "noches": 4.902,
-    "onda": 4.902,
-    "tal": 4.902,
-    "como": 3.0302,
-    "estas": 4.902,
-    "todo": 4.902,
-    "bien": 4.2088,
-    "hey": 4.902,
-    "chau": 4.902,
-    "hasta": 4.4965,
-    "luego": 4.902,
-    "nos": 4.4965,
-    "vemos": 4.902,
-    "adios": 4.902,
-    "voy": 4.902,
-    "despues": 4.4965,
-    "hablamos": 4.4965,
-    "cierro": 4.902,
-    "ahora": 4.4965,
-    "quien": 4.4965,
-    "sos": 3.8034,
-    "eres": 4.902,
-    "te": 4.2088,
-    "llamas": 4.902,
-    "ia": 4.902,
-    "local": 4.2088,
-    "presentate": 4.902,
-    "cual": 4.902,
-    "es": 4.2088,
-    "tu": 4.902,
-    "nombre": 4.902,
-    "podes": 3.2925,
-    "hacer": 4.2088,
-    "sabes": 4.902,
-    "para": 4.4965,
-    "servis": 4.902,
-    "funciones": 4.4965,
-    "tenes": 4.2088,
-    "comandos": 3.9857,
-    "ayudas": 4.902,
-    "ayudar": 4.902,
-    "tareas": 4.902,
-    "controlar": 4.902,
-    "pc": 4.4965,
-    "abrir": 4.902,
-    "programas": 4.902,
-    "manejar": 4.902,
-    "archivos": 4.2088,
-    "funcionas": 4.902,
-    "trabajas": 4.902,
-    "entendes": 4.902,
-    "mensajes": 4.902,
-    "aprende": 4.902,
-    "entrenas": 4.902,
-    "elegis": 4.902,
-    "respuestas": 4.902,
-    "modelo": 4.902,
-    "datos": 4.2088,
-    "salen": 4.902,
-    "usas": 4.4965,
-    "internet": 4.902,
-    "servidores": 4.902,
-    "guardas": 4.4965,
-    "donde": 4.902,
-    "borrar": 4.902,
-    "ejecutar": 4.902,
-    "subir": 4.902,
-    "mandas": 4.902,
-    "informacion": 4.902,
-    "privada": 4.902,
-    "hay": 4.902,
-    "telemetria": 4.902,
-    "seguro": 4.902,
-    "ayuda": 4.902,
-    "no": 3.6492,
-    "entiendo": 4.902,
-    "uso": 4.4965,
-    "explicame": 4.902,
-    "funciona": 4.4965,
-    "hago": 4.902,
-    "mostrar": 4.902,
-    "explicar": 4.4965,
-    "permisos": 4.4965,
-    "ayudame": 4.902,
-    "usar": 4.4965,
-    "puedo": 4.902,
-    "gracias": 3.6492,
-    "muchas": 4.902,
-    "agradezco": 4.902,
-    "mil": 4.902,
-    "buenisimo": 4.902,
-    "joya": 4.902,
-    "perfecto": 4.902,
-    "entendido": 4.902,
-    "genial": 4.902,
-    "ok": 4.902,
-    "dale": 4.902,
-    "listo": 4.902,
-    "esta": 4.4965,
-    "acuerdo": 4.902,
-    "entendiste": 4.902,
-    "equivocaste": 4.902,
-    "eso": 4.902,
-    "era": 4.4965,
-    "fallo": 4.902,
-    "salio": 4.902,
-    "mal": 4.4965,
-    "hiciste": 4.902,
-    "otra": 4.902,
-    "cosa": 4.4965,
-    "esa": 4.902,
-    "respuesta": 4.902,
-    "queria": 4.902,
-    "se": 4.902,
-    "decir": 4.902,
-    "cualquier": 4.902,
-    "rara": 4.902,
-    "texto": 4.902,
-    "sin": 4.902,
-    "sentido": 4.902,
-    "conversar": 4.902
+    "hola": 4.5927,
+    "atenea": 3.6119,
+    "buenas": 4.3051,
+    "buen": 4.9982,
+    "dia": 4.9982,
+    "tardes": 4.9982,
+    "noches": 4.9982,
+    "onda": 4.9982,
+    "tal": 4.9982,
+    "como": 3.1264,
+    "estas": 4.9982,
+    "todo": 4.9982,
+    "bien": 4.3051,
+    "hey": 4.9982,
+    "chau": 4.9982,
+    "hasta": 4.5927,
+    "luego": 4.9982,
+    "nos": 4.5927,
+    "vemos": 4.9982,
+    "adios": 4.9982,
+    "voy": 4.9982,
+    "despues": 4.5927,
+    "hablamos": 4.5927,
+    "cierro": 4.9982,
+    "ahora": 4.5927,
+    "quien": 4.5927,
+    "sos": 3.8996,
+    "eres": 4.9982,
+    "te": 4.3051,
+    "llamas": 4.9982,
+    "ia": 4.9982,
+    "local": 4.3051,
+    "presentate": 4.9982,
+    "cual": 4.5927,
+    "es": 4.3051,
+    "tu": 4.9982,
+    "nombre": 4.9982,
+    "podes": 3.3888,
+    "hacer": 4.3051,
+    "sabes": 4.9982,
+    "para": 4.5927,
+    "servis": 4.9982,
+    "funciones": 4.5927,
+    "tenes": 4.0819,
+    "comandos": 4.0819,
+    "ayudas": 4.9982,
+    "ayudar": 4.9982,
+    "tareas": 4.9982,
+    "controlar": 4.9982,
+    "pc": 4.5927,
+    "abrir": 4.9982,
+    "programas": 4.9982,
+    "manejar": 4.9982,
+    "archivos": 4.3051,
+    "funcionas": 4.9982,
+    "trabajas": 4.9982,
+    "entendes": 4.9982,
+    "mensajes": 4.9982,
+    "aprende": 4.9982,
+    "entrenas": 4.9982,
+    "elegis": 4.9982,
+    "respuestas": 4.9982,
+    "modelo": 4.9982,
+    "datos": 4.3051,
+    "salen": 4.9982,
+    "usas": 4.5927,
+    "internet": 4.9982,
+    "servidores": 4.9982,
+    "guardas": 4.5927,
+    "donde": 4.9982,
+    "borrar": 4.9982,
+    "ejecutar": 4.5927,
+    "subir": 4.9982,
+    "mandas": 4.9982,
+    "informacion": 4.9982,
+    "privada": 4.9982,
+    "hay": 4.9982,
+    "telemetria": 4.9982,
+    "seguro": 4.9982,
+    "ayuda": 4.9982,
+    "no": 3.6119,
+    "entiendo": 4.9982,
+    "uso": 4.5927,
+    "explicame": 4.5927,
+    "funciona": 4.5927,
+    "hago": 4.9982,
+    "mostrar": 4.5927,
+    "explicar": 4.5927,
+    "permisos": 4.5927,
+    "ayudame": 4.9982,
+    "usar": 4.5927,
+    "puedo": 4.9982,
+    "gracias": 3.7454,
+    "muchas": 4.9982,
+    "agradezco": 4.9982,
+    "mil": 4.9982,
+    "buenisimo": 4.9982,
+    "joya": 4.9982,
+    "perfecto": 4.9982,
+    "entendido": 4.9982,
+    "genial": 4.9982,
+    "ok": 4.9982,
+    "dale": 4.9982,
+    "listo": 4.9982,
+    "esta": 4.5927,
+    "acuerdo": 4.9982,
+    "hiciste": 4.3051,
+    "recien": 4.9982,
+    "accion": 4.0819,
+    "anterior": 4.5927,
+    "permiso": 4.9982,
+    "usa": 4.9982,
+    "esa": 4.3051,
+    "necesita": 4.9982,
+    "confirmacion": 4.9982,
+    "fue": 4.9982,
+    "contexto": 4.5927,
+    "riesgo": 4.9982,
+    "tiene": 4.9982,
+    "eso": 4.5927,
+    "se": 4.5927,
+    "llego": 4.9982,
+    "activo": 4.9982,
+    "entendiste": 4.9982,
+    "equivocaste": 4.9982,
+    "era": 4.5927,
+    "fallo": 4.9982,
+    "salio": 4.9982,
+    "mal": 4.5927,
+    "otra": 4.9982,
+    "cosa": 4.5927,
+    "respuesta": 4.9982,
+    "queria": 4.9982,
+    "decir": 4.9982,
+    "cualquier": 4.9982,
+    "rara": 4.9982,
+    "texto": 4.9982,
+    "sin": 4.9982,
+    "sentido": 4.9982,
+    "conversar": 4.9982
   },
   "profiles": {
     "greeting": {
-      "hola": 0.4369,
-      "atenea": 0.2929,
-      "buenas": 0.5627,
-      "buen": 0.1728,
-      "dia": 0.1728,
-      "tardes": 0.1854,
-      "noches": 0.1854,
-      "onda": 0.2444,
-      "tal": 0.2444,
-      "como": 0.1285,
-      "estas": 0.2079,
-      "todo": 0.1854,
-      "bien": 0.1592,
-      "hey": 0.1986
+      "hola": 0.4363,
+      "atenea": 0.2941,
+      "buenas": 0.5631,
+      "buen": 0.1727,
+      "dia": 0.1727,
+      "tardes": 0.1851,
+      "noches": 0.1851,
+      "onda": 0.2443,
+      "tal": 0.2443,
+      "como": 0.1295,
+      "estas": 0.2071,
+      "todo": 0.1851,
+      "bien": 0.1594,
+      "hey": 0.198
     },
     "farewell": {
       "chau": 0.2783,
-      "hasta": 0.3849,
-      "luego": 0.2051,
-      "nos": 0.3849,
-      "vemos": 0.2051,
+      "hasta": 0.3851,
+      "luego": 0.2049,
+      "nos": 0.3851,
+      "vemos": 0.2049,
       "adios": 0.2783,
       "voy": 0.2783,
-      "despues": 0.3936,
-      "hablamos": 0.3936,
-      "cierro": 0.2051,
-      "ahora": 0.1881
+      "despues": 0.3935,
+      "hablamos": 0.3935,
+      "cierro": 0.2049,
+      "ahora": 0.1883
     },
     "identity": {
-      "quien": 0.295,
-      "sos": 0.7509,
-      "eres": 0.151,
-      "como": 0.087,
-      "te": 0.1209,
-      "llamas": 0.1408,
-      "atenea": 0.2434,
-      "ia": 0.1619,
-      "local": 0.2768,
-      "presentate": 0.2049,
-      "cual": 0.106,
-      "es": 0.2158,
-      "tu": 0.106,
-      "nombre": 0.106
+      "quien": 0.2947,
+      "sos": 0.7511,
+      "eres": 0.1508,
+      "como": 0.0877,
+      "te": 0.1208,
+      "llamas": 0.1402,
+      "atenea": 0.2437,
+      "ia": 0.1615,
+      "local": 0.2763,
+      "presentate": 0.2048,
+      "cual": 0.0994,
+      "es": 0.2177,
+      "tu": 0.1082,
+      "nombre": 0.1082
     },
     "capabilities": {
-      "podes": 0.6308,
-      "hacer": 0.4312,
-      "sabes": 0.162,
-      "para": 0.1443,
-      "servis": 0.1573,
-      "funciones": 0.1559,
-      "tenes": 0.301,
-      "comandos": 0.1468,
-      "como": 0.1123,
-      "ayudas": 0.1816,
-      "ayudar": 0.1772,
-      "tareas": 0.1443,
-      "controlar": 0.141,
-      "pc": 0.1294,
-      "abrir": 0.1364,
-      "programas": 0.1364,
-      "manejar": 0.1443,
-      "archivos": 0.1239
+      "podes": 0.6342,
+      "hacer": 0.4307,
+      "sabes": 0.1617,
+      "para": 0.1444,
+      "servis": 0.1571,
+      "funciones": 0.1595,
+      "tenes": 0.2926,
+      "comandos": 0.1509,
+      "como": 0.1131,
+      "ayudas": 0.1809,
+      "ayudar": 0.1766,
+      "tareas": 0.1438,
+      "controlar": 0.1406,
+      "pc": 0.1292,
+      "abrir": 0.136,
+      "programas": 0.136,
+      "manejar": 0.1438,
+      "archivos": 0.1238
     },
     "how_it_works": {
-      "como": 0.7655,
-      "funcionas": 0.2303,
-      "trabajas": 0.2303,
-      "entendes": 0.1754,
-      "mensajes": 0.1754,
-      "aprende": 0.1966,
-      "atenea": 0.141,
-      "entrenas": 0.2303,
-      "elegis": 0.1754,
-      "respuestas": 0.1754,
-      "tenes": 0.1478,
-      "modelo": 0.1721,
-      "local": 0.1478
+      "como": 0.7689,
+      "funcionas": 0.2286,
+      "trabajas": 0.2286,
+      "entendes": 0.1743,
+      "mensajes": 0.1743,
+      "aprende": 0.1949,
+      "atenea": 0.1408,
+      "entrenas": 0.2286,
+      "elegis": 0.1743,
+      "respuestas": 0.1743,
+      "tenes": 0.1419,
+      "modelo": 0.1737,
+      "local": 0.1496
     },
     "security": {
-      "datos": 0.4288,
-      "salen": 0.1523,
-      "pc": 0.1397,
-      "usas": 0.3308,
-      "internet": 0.1803,
-      "servidores": 0.1803,
-      "guardas": 0.3184,
-      "donde": 0.1523,
-      "podes": 0.3352,
-      "borrar": 0.1654,
-      "archivos": 0.284,
-      "ejecutar": 0.1683,
-      "comandos": 0.1369,
-      "subir": 0.1654,
-      "mandas": 0.1413,
-      "informacion": 0.1413,
-      "privada": 0.1413,
-      "hay": 0.173,
-      "telemetria": 0.173,
+      "datos": 0.4287,
+      "salen": 0.1519,
+      "pc": 0.1396,
+      "usas": 0.3305,
+      "internet": 0.1798,
+      "servidores": 0.1798,
+      "guardas": 0.3178,
+      "donde": 0.1519,
+      "podes": 0.3411,
+      "borrar": 0.1646,
+      "archivos": 0.2836,
+      "ejecutar": 0.1599,
+      "comandos": 0.1421,
+      "subir": 0.1646,
+      "mandas": 0.141,
+      "informacion": 0.141,
+      "privada": 0.141,
+      "hay": 0.1727,
+      "telemetria": 0.1727,
       "es": 0.1594,
-      "seguro": 0.1856
+      "seguro": 0.1851
     },
     "help": {
-      "ayuda": 0.2454,
-      "no": 0.1465,
-      "entiendo": 0.1968,
-      "como": 0.3445,
-      "uso": 0.3602,
-      "explicame": 0.1646,
-      "funciona": 0.151,
-      "hago": 0.1808,
-      "ahora": 0.1659,
-      "mostrar": 0.1904,
-      "comandos": 0.281,
-      "explicar": 0.3471,
-      "funciones": 0.1735,
-      "permisos": 0.3302,
-      "ayudame": 0.1599,
-      "usar": 0.289,
-      "atenea": 0.1147,
-      "puedo": 0.1551
+      "ayuda": 0.2448,
+      "no": 0.1434,
+      "entiendo": 0.1984,
+      "como": 0.3501,
+      "uso": 0.3584,
+      "explicame": 0.156,
+      "funciona": 0.156,
+      "hago": 0.1803,
+      "ahora": 0.1657,
+      "mostrar": 0.183,
+      "comandos": 0.2888,
+      "explicar": 0.3462,
+      "funciones": 0.1731,
+      "permisos": 0.3291,
+      "ayudame": 0.1591,
+      "usar": 0.2882,
+      "atenea": 0.115,
+      "puedo": 0.1545
     },
     "thanks": {
-      "gracias": 0.898,
-      "muchas": 0.1753,
+      "gracias": 0.8986,
+      "muchas": 0.1746,
       "te": 0.1424,
-      "agradezco": 0.1658,
-      "mil": 0.1753,
-      "atenea": 0.1516,
-      "buenisimo": 0.1753,
-      "joya": 0.1753
+      "agradezco": 0.1653,
+      "mil": 0.1746,
+      "atenea": 0.1515,
+      "buenisimo": 0.1746,
+      "joya": 0.1746
     },
     "acknowledgement": {
       "perfecto": 0.3106,
@@ -285,42 +299,67 @@
       "genial": 0.3106,
       "ok": 0.3106,
       "dale": 0.3106,
-      "bien": 0.5228,
+      "bien": 0.523,
       "listo": 0.3106,
-      "esta": 0.2268,
+      "esta": 0.2266,
       "acuerdo": 0.3106
     },
+    "context_follow_up": {
+      "hiciste": 0.3607,
+      "recien": 0.1926,
+      "explicame": 0.1522,
+      "accion": 0.4735,
+      "anterior": 0.2798,
+      "permiso": 0.1377,
+      "usa": 0.1377,
+      "esa": 0.2372,
+      "necesita": 0.1798,
+      "confirmacion": 0.1798,
+      "cual": 0.1275,
+      "fue": 0.1388,
+      "tenes": 0.1689,
+      "contexto": 0.3325,
+      "riesgo": 0.1377,
+      "tiene": 0.1377,
+      "eso": 0.1243,
+      "se": 0.1243,
+      "llego": 0.1353,
+      "ejecutar": 0.1243,
+      "mostrar": 0.1425,
+      "activo": 0.1551,
+      "no": 0.1634
+    },
     "error_feedback": {
-      "no": 0.5867,
-      "funciona": 0.2081,
-      "entendiste": 0.2149,
-      "te": 0.1746,
+      "no": 0.5794,
+      "funciona": 0.2109,
+      "entendiste": 0.2175,
+      "te": 0.1751,
       "equivocaste": 0.2033,
-      "eso": 0.1731,
-      "era": 0.3176,
-      "fallo": 0.268,
-      "salio": 0.1975,
-      "mal": 0.3092,
-      "hiciste": 0.159,
-      "otra": 0.159,
-      "cosa": 0.1458,
-      "esa": 0.1396,
-      "respuesta": 0.1396,
-      "esta": 0.1281,
-      "queria": 0.1731
+      "eso": 0.1658,
+      "era": 0.3261,
+      "fallo": 0.2683,
+      "salio": 0.1976,
+      "mal": 0.3146,
+      "hiciste": 0.1437,
+      "otra": 0.1668,
+      "cosa": 0.1533,
+      "esa": 0.1248,
+      "respuesta": 0.1449,
+      "esta": 0.1331,
+      "queria": 0.1744
     },
     "unknown": {
-      "no": 0.2689,
-      "se": 0.3612,
-      "decir": 0.3612,
-      "cualquier": 0.3425,
-      "cosa": 0.3142,
-      "rara": 0.3425,
-      "texto": 0.2624,
-      "sin": 0.2624,
-      "sentido": 0.2624,
-      "para": 0.2407,
-      "conversar": 0.2624
+      "no": 0.2712,
+      "se": 0.3449,
+      "decir": 0.3753,
+      "cualquier": 0.3423,
+      "cosa": 0.3146,
+      "rara": 0.3423,
+      "texto": 0.2623,
+      "sin": 0.2623,
+      "sentido": 0.2623,
+      "para": 0.2411,
+      "conversar": 0.2623
     }
   },
   "examples": [
@@ -342,8 +381,8 @@
         "atenea"
       ],
       "vector": {
-        "hola": 0.7878,
-        "atenea": 0.6159
+        "hola": 0.786,
+        "atenea": 0.6182
       }
     },
     {
@@ -376,8 +415,8 @@
         "tardes"
       ],
       "vector": {
-        "buenas": 0.6514,
-        "tardes": 0.7587
+        "buenas": 0.6526,
+        "tardes": 0.7577
       }
     },
     {
@@ -388,8 +427,8 @@
         "noches"
       ],
       "vector": {
-        "buenas": 0.6514,
-        "noches": 0.7587
+        "buenas": 0.6526,
+        "noches": 0.7577
       }
     },
     {
@@ -420,8 +459,8 @@
         "estas"
       ],
       "vector": {
-        "como": 0.5258,
-        "estas": 0.8506
+        "como": 0.5303,
+        "estas": 0.8478
       }
     },
     {
@@ -432,8 +471,8 @@
         "bien"
       ],
       "vector": {
-        "todo": 0.7587,
-        "bien": 0.6514
+        "todo": 0.7577,
+        "bien": 0.6526
       }
     },
     {
@@ -444,8 +483,8 @@
         "atenea"
       ],
       "vector": {
-        "hey": 0.8126,
-        "atenea": 0.5828
+        "hey": 0.8105,
+        "atenea": 0.5857
       }
     },
     {
@@ -466,8 +505,8 @@
         "luego"
       ],
       "vector": {
-        "hasta": 0.676,
-        "luego": 0.7369
+        "hasta": 0.6766,
+        "luego": 0.7363
       }
     },
     {
@@ -478,8 +517,8 @@
         "vemos"
       ],
       "vector": {
-        "nos": 0.676,
-        "vemos": 0.7369
+        "nos": 0.6766,
+        "vemos": 0.7363
       }
     },
     {
@@ -546,8 +585,8 @@
         "ahora"
       ],
       "vector": {
-        "cierro": 0.7369,
-        "ahora": 0.676
+        "cierro": 0.7363,
+        "ahora": 0.6766
       }
     },
     {
@@ -558,8 +597,8 @@
         "sos"
       ],
       "vector": {
-        "quien": 0.7635,
-        "sos": 0.6458
+        "quien": 0.7623,
+        "sos": 0.6472
       }
     },
     {
@@ -570,8 +609,8 @@
         "eres"
       ],
       "vector": {
-        "quien": 0.676,
-        "eres": 0.7369
+        "quien": 0.6766,
+        "eres": 0.7363
       }
     },
     {
@@ -593,9 +632,9 @@
         "llamas"
       ],
       "vector": {
-        "como": 0.4246,
-        "te": 0.5898,
-        "llamas": 0.6869
+        "como": 0.4283,
+        "te": 0.5897,
+        "llamas": 0.6847
       }
     },
     {
@@ -606,8 +645,8 @@
         "atenea"
       ],
       "vector": {
-        "sos": 0.7343,
-        "atenea": 0.6788
+        "sos": 0.7337,
+        "atenea": 0.6795
       }
     },
     {
@@ -618,8 +657,8 @@
         "ia"
       ],
       "vector": {
-        "sos": 0.613,
-        "ia": 0.7901
+        "sos": 0.6151,
+        "ia": 0.7884
       }
     },
     {
@@ -630,8 +669,8 @@
         "local"
       ],
       "vector": {
-        "sos": 0.6705,
-        "local": 0.7419
+        "sos": 0.6713,
+        "local": 0.7411
       }
     },
     {
@@ -654,10 +693,10 @@
         "nombre"
       ],
       "vector": {
-        "cual": 0.5173,
-        "es": 0.4441,
-        "tu": 0.5173,
-        "nombre": 0.5173
+        "cual": 0.4852,
+        "es": 0.4548,
+        "tu": 0.5281,
+        "nombre": 0.5281
       }
     },
     {
@@ -669,9 +708,9 @@
         "local"
       ],
       "vector": {
-        "es": 0.6088,
-        "atenea": 0.5086,
-        "local": 0.6088
+        "es": 0.6081,
+        "atenea": 0.5102,
+        "local": 0.6081
       }
     },
     {
@@ -682,8 +721,8 @@
         "hacer"
       ],
       "vector": {
-        "podes": 0.6162,
-        "hacer": 0.7876
+        "podes": 0.6185,
+        "hacer": 0.7858
       }
     },
     {
@@ -694,8 +733,8 @@
         "hacer"
       ],
       "vector": {
-        "sabes": 0.7587,
-        "hacer": 0.6514
+        "sabes": 0.7577,
+        "hacer": 0.6526
       }
     },
     {
@@ -706,8 +745,8 @@
         "servis"
       ],
       "vector": {
-        "para": 0.676,
-        "servis": 0.7369
+        "para": 0.6766,
+        "servis": 0.7363
       }
     },
     {
@@ -718,8 +757,8 @@
         "tenes"
       ],
       "vector": {
-        "funciones": 0.7301,
-        "tenes": 0.6834
+        "funciones": 0.7474,
+        "tenes": 0.6643
       }
     },
     {
@@ -730,8 +769,8 @@
         "tenes"
       ],
       "vector": {
-        "comandos": 0.6876,
-        "tenes": 0.7261
+        "comandos": 0.7071,
+        "tenes": 0.7071
       }
     },
     {
@@ -742,8 +781,8 @@
         "ayudas"
       ],
       "vector": {
-        "como": 0.5258,
-        "ayudas": 0.8506
+        "como": 0.5303,
+        "ayudas": 0.8478
       }
     },
     {
@@ -754,8 +793,8 @@
         "ayudar"
       ],
       "vector": {
-        "podes": 0.5576,
-        "ayudar": 0.8301
+        "podes": 0.5612,
+        "ayudar": 0.8277
       }
     },
     {
@@ -767,9 +806,9 @@
         "hacer"
       ],
       "vector": {
-        "tareas": 0.676,
-        "podes": 0.454,
-        "hacer": 0.5804
+        "tareas": 0.674,
+        "podes": 0.4569,
+        "hacer": 0.5805
       }
     },
     {
@@ -781,9 +820,9 @@
         "pc"
       ],
       "vector": {
-        "podes": 0.4436,
-        "controlar": 0.6605,
-        "pc": 0.6058
+        "podes": 0.4467,
+        "controlar": 0.6588,
+        "pc": 0.6054
       }
     },
     {
@@ -795,9 +834,9 @@
         "programas"
       ],
       "vector": {
-        "podes": 0.429,
-        "abrir": 0.6387,
-        "programas": 0.6387
+        "podes": 0.4323,
+        "abrir": 0.6376,
+        "programas": 0.6376
       }
     },
     {
@@ -809,9 +848,9 @@
         "archivos"
       ],
       "vector": {
-        "podes": 0.454,
-        "manejar": 0.676,
-        "archivos": 0.5804
+        "podes": 0.4569,
+        "manejar": 0.674,
+        "archivos": 0.5805
       }
     },
     {
@@ -822,8 +861,8 @@
         "funcionas"
       ],
       "vector": {
-        "como": 0.5258,
-        "funcionas": 0.8506
+        "como": 0.5303,
+        "funcionas": 0.8478
       }
     },
     {
@@ -834,8 +873,8 @@
         "trabajas"
       ],
       "vector": {
-        "como": 0.5258,
-        "trabajas": 0.8506
+        "como": 0.5303,
+        "trabajas": 0.8478
       }
     },
     {
@@ -847,9 +886,9 @@
         "mensajes"
       ],
       "vector": {
-        "como": 0.4005,
-        "entendes": 0.6479,
-        "mensajes": 0.6479
+        "como": 0.4045,
+        "entendes": 0.6467,
+        "mensajes": 0.6467
       }
     },
     {
@@ -861,9 +900,9 @@
         "atenea"
       ],
       "vector": {
-        "como": 0.4489,
-        "aprende": 0.7261,
-        "atenea": 0.5208
+        "como": 0.4522,
+        "aprende": 0.7229,
+        "atenea": 0.5224
       }
     },
     {
@@ -874,8 +913,8 @@
         "entrenas"
       ],
       "vector": {
-        "como": 0.5258,
-        "entrenas": 0.8506
+        "como": 0.5303,
+        "entrenas": 0.8478
       }
     },
     {
@@ -887,9 +926,9 @@
         "respuestas"
       ],
       "vector": {
-        "como": 0.4005,
-        "elegis": 0.6479,
-        "respuestas": 0.6479
+        "como": 0.4045,
+        "elegis": 0.6467,
+        "respuestas": 0.6467
       }
     },
     {
@@ -901,9 +940,9 @@
         "local"
       ],
       "vector": {
-        "tenes": 0.5458,
-        "modelo": 0.6357,
-        "local": 0.5458
+        "tenes": 0.5262,
+        "modelo": 0.6443,
+        "local": 0.555
       }
     },
     {
@@ -915,9 +954,9 @@
         "pc"
       ],
       "vector": {
-        "datos": 0.5347,
-        "salen": 0.6227,
-        "pc": 0.5712
+        "datos": 0.5356,
+        "salen": 0.6218,
+        "pc": 0.5714
       }
     },
     {
@@ -928,8 +967,8 @@
         "internet"
       ],
       "vector": {
-        "usas": 0.676,
-        "internet": 0.7369
+        "usas": 0.6766,
+        "internet": 0.7363
       }
     },
     {
@@ -940,8 +979,8 @@
         "servidores"
       ],
       "vector": {
-        "usas": 0.676,
-        "servidores": 0.7369
+        "usas": 0.6766,
+        "servidores": 0.7363
       }
     },
     {
@@ -952,8 +991,8 @@
         "datos"
       ],
       "vector": {
-        "guardas": 0.7301,
-        "datos": 0.6834
+        "guardas": 0.7296,
+        "datos": 0.6839
       }
     },
     {
@@ -965,9 +1004,9 @@
         "datos"
       ],
       "vector": {
-        "donde": 0.6227,
-        "guardas": 0.5712,
-        "datos": 0.5347
+        "donde": 0.6218,
+        "guardas": 0.5714,
+        "datos": 0.5356
       }
     },
     {
@@ -979,9 +1018,9 @@
         "archivos"
       ],
       "vector": {
-        "podes": 0.454,
-        "borrar": 0.676,
-        "archivos": 0.5804
+        "podes": 0.4569,
+        "borrar": 0.674,
+        "archivos": 0.5805
       }
     },
     {
@@ -993,9 +1032,9 @@
         "comandos"
       ],
       "vector": {
-        "podes": 0.4621,
-        "ejecutar": 0.6881,
-        "comandos": 0.5594
+        "podes": 0.4829,
+        "ejecutar": 0.6545,
+        "comandos": 0.5817
       }
     },
     {
@@ -1007,9 +1046,9 @@
         "archivos"
       ],
       "vector": {
-        "podes": 0.454,
-        "subir": 0.676,
-        "archivos": 0.5804
+        "podes": 0.4569,
+        "subir": 0.674,
+        "archivos": 0.5805
       }
     },
     {
@@ -1046,8 +1085,8 @@
         "seguro"
       ],
       "vector": {
-        "es": 0.6514,
-        "seguro": 0.7587
+        "es": 0.6526,
+        "seguro": 0.7577
       }
     },
     {
@@ -1068,8 +1107,8 @@
         "entiendo"
       ],
       "vector": {
-        "no": 0.5971,
-        "entiendo": 0.8021
+        "no": 0.5857,
+        "entiendo": 0.8105
       }
     },
     {
@@ -1080,8 +1119,8 @@
         "uso"
       ],
       "vector": {
-        "como": 0.5588,
-        "uso": 0.8293
+        "como": 0.5627,
+        "uso": 0.8266
       }
     },
     {
@@ -1093,9 +1132,9 @@
         "funciona"
       ],
       "vector": {
-        "explicame": 0.6706,
-        "como": 0.4146,
-        "funciona": 0.6152
+        "explicame": 0.6371,
+        "como": 0.4337,
+        "funciona": 0.6371
       }
     },
     {
@@ -1106,8 +1145,8 @@
         "ahora"
       ],
       "vector": {
-        "hago": 0.7369,
-        "ahora": 0.676
+        "hago": 0.7363,
+        "ahora": 0.6766
       }
     },
     {
@@ -1118,8 +1157,8 @@
         "comandos"
       ],
       "vector": {
-        "mostrar": 0.7759,
-        "comandos": 0.6309
+        "mostrar": 0.7474,
+        "comandos": 0.6643
       }
     },
     {
@@ -1155,9 +1194,9 @@
         "atenea"
       ],
       "vector": {
-        "ayudame": 0.6515,
-        "usar": 0.5976,
-        "atenea": 0.4673
+        "ayudame": 0.65,
+        "usar": 0.5973,
+        "atenea": 0.4697
       }
     },
     {
@@ -1169,9 +1208,9 @@
         "permisos"
       ],
       "vector": {
-        "como": 0.4302,
-        "uso": 0.6383,
-        "permisos": 0.6383
+        "como": 0.4337,
+        "uso": 0.6371,
+        "permisos": 0.6371
       }
     },
     {
@@ -1183,8 +1222,8 @@
         "usar"
       ],
       "vector": {
-        "comandos": 0.514,
-        "puedo": 0.6321,
+        "comandos": 0.5153,
+        "puedo": 0.631,
         "usar": 0.5798
       }
     },
@@ -1206,8 +1245,8 @@
         "gracias"
       ],
       "vector": {
-        "muchas": 0.8021,
-        "gracias": 0.5971
+        "muchas": 0.8002,
+        "gracias": 0.5997
       }
     },
     {
@@ -1218,8 +1257,8 @@
         "agradezco"
       ],
       "vector": {
-        "te": 0.6514,
-        "agradezco": 0.7587
+        "te": 0.6526,
+        "agradezco": 0.7577
       }
     },
     {
@@ -1230,8 +1269,8 @@
         "gracias"
       ],
       "vector": {
-        "mil": 0.8021,
-        "gracias": 0.5971
+        "mil": 0.8002,
+        "gracias": 0.5997
       }
     },
     {
@@ -1242,8 +1281,8 @@
         "atenea"
       ],
       "vector": {
-        "gracias": 0.7202,
-        "atenea": 0.6938
+        "gracias": 0.7198,
+        "atenea": 0.6942
       }
     },
     {
@@ -1254,8 +1293,8 @@
         "gracias"
       ],
       "vector": {
-        "buenisimo": 0.8021,
-        "gracias": 0.5971
+        "buenisimo": 0.8002,
+        "gracias": 0.5997
       }
     },
     {
@@ -1266,8 +1305,8 @@
         "gracias"
       ],
       "vector": {
-        "joya": 0.8021,
-        "gracias": 0.5971
+        "joya": 0.8002,
+        "gracias": 0.5997
       }
     },
     {
@@ -1348,8 +1387,8 @@
         "bien"
       ],
       "vector": {
-        "esta": 0.7301,
-        "bien": 0.6834
+        "esta": 0.7296,
+        "bien": 0.6839
       }
     },
     {
@@ -1363,6 +1402,146 @@
       }
     },
     {
+      "intent": "context_follow_up",
+      "text": "que hiciste recien",
+      "tokens": [
+        "hiciste",
+        "recien"
+      ],
+      "vector": {
+        "hiciste": 0.6526,
+        "recien": 0.7577
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "explicame la accion anterior",
+      "tokens": [
+        "explicame",
+        "accion",
+        "anterior"
+      ],
+      "vector": {
+        "explicame": 0.5987,
+        "accion": 0.5321,
+        "anterior": 0.5987
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "que permiso usa esa accion",
+      "tokens": [
+        "permiso",
+        "usa",
+        "esa",
+        "accion"
+      ],
+      "vector": {
+        "permiso": 0.5416,
+        "usa": 0.5416,
+        "esa": 0.4665,
+        "accion": 0.4423
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "por que necesita confirmacion",
+      "tokens": [
+        "necesita",
+        "confirmacion"
+      ],
+      "vector": {
+        "necesita": 0.7071,
+        "confirmacion": 0.7071
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "cual fue la accion anterior",
+      "tokens": [
+        "cual",
+        "fue",
+        "accion",
+        "anterior"
+      ],
+      "vector": {
+        "cual": 0.5016,
+        "fue": 0.5459,
+        "accion": 0.4458,
+        "anterior": 0.5016
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "que tenes en contexto",
+      "tokens": [
+        "tenes",
+        "contexto"
+      ],
+      "vector": {
+        "tenes": 0.6643,
+        "contexto": 0.7474
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "que riesgo tiene esa accion",
+      "tokens": [
+        "riesgo",
+        "tiene",
+        "esa",
+        "accion"
+      ],
+      "vector": {
+        "riesgo": 0.5416,
+        "tiene": 0.5416,
+        "esa": 0.4665,
+        "accion": 0.4423
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "eso se llego a ejecutar",
+      "tokens": [
+        "eso",
+        "se",
+        "llego",
+        "ejecutar"
+      ],
+      "vector": {
+        "eso": 0.4889,
+        "se": 0.4889,
+        "llego": 0.532,
+        "ejecutar": 0.4889
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "mostrame el contexto activo",
+      "tokens": [
+        "mostrar",
+        "contexto",
+        "activo"
+      ],
+      "vector": {
+        "mostrar": 0.5604,
+        "contexto": 0.5604,
+        "activo": 0.6099
+      }
+    },
+    {
+      "intent": "context_follow_up",
+      "text": "por que no lo hiciste",
+      "tokens": [
+        "no",
+        "hiciste"
+      ],
+      "vector": {
+        "no": 0.6427,
+        "hiciste": 0.7661
+      }
+    },
+    {
       "intent": "error_feedback",
       "text": "no funciona",
       "tokens": [
@@ -1370,8 +1549,8 @@
         "funciona"
       ],
       "vector": {
-        "no": 0.6302,
-        "funciona": 0.7765
+        "no": 0.6182,
+        "funciona": 0.786
       }
     },
     {
@@ -1382,8 +1561,8 @@
         "entendiste"
       ],
       "vector": {
-        "no": 0.5971,
-        "entendiste": 0.8021
+        "no": 0.5857,
+        "entendiste": 0.8105
       }
     },
     {
@@ -1394,8 +1573,8 @@
         "equivocaste"
       ],
       "vector": {
-        "te": 0.6514,
-        "equivocaste": 0.7587
+        "te": 0.6526,
+        "equivocaste": 0.7577
       }
     },
     {
@@ -1407,9 +1586,9 @@
         "era"
       ],
       "vector": {
-        "eso": 0.6461,
-        "no": 0.481,
-        "era": 0.5926
+        "eso": 0.618,
+        "no": 0.486,
+        "era": 0.618
       }
     },
     {
@@ -1430,8 +1609,8 @@
         "mal"
       ],
       "vector": {
-        "salio": 0.7369,
-        "mal": 0.676
+        "salio": 0.7363,
+        "mal": 0.6766
       }
     },
     {
@@ -1443,9 +1622,9 @@
         "cosa"
       ],
       "vector": {
-        "hiciste": 0.5932,
-        "otra": 0.5932,
-        "cosa": 0.5442
+        "hiciste": 0.5356,
+        "otra": 0.6218,
+        "cosa": 0.5714
       }
     },
     {
@@ -1458,10 +1637,10 @@
         "mal"
       ],
       "vector": {
-        "esa": 0.5211,
-        "respuesta": 0.5211,
-        "esta": 0.478,
-        "mal": 0.478
+        "esa": 0.465,
+        "respuesta": 0.5399,
+        "esta": 0.4961,
+        "mal": 0.4961
       }
     },
     {
@@ -1473,9 +1652,9 @@
         "queria"
       ],
       "vector": {
-        "no": 0.481,
-        "era": 0.5926,
-        "queria": 0.6461
+        "no": 0.4697,
+        "era": 0.5973,
+        "queria": 0.65
       }
     },
     {
@@ -1487,9 +1666,9 @@
         "decir"
       ],
       "vector": {
-        "no": 0.4658,
-        "se": 0.6257,
-        "decir": 0.6257
+        "no": 0.4697,
+        "se": 0.5973,
+        "decir": 0.65
       }
     },
     {
@@ -1501,9 +1680,9 @@
         "rara"
       ],
       "vector": {
-        "cualquier": 0.5932,
-        "cosa": 0.5442,
-        "rara": 0.5932
+        "cualquier": 0.5929,
+        "cosa": 0.5448,
+        "rara": 0.5929
       }
     },
     {
@@ -1517,14 +1696,14 @@
         "conversar"
       ],
       "vector": {
-        "texto": 0.4545,
-        "sin": 0.4545,
-        "sentido": 0.4545,
-        "para": 0.4169,
-        "conversar": 0.4545
+        "texto": 0.4543,
+        "sin": 0.4543,
+        "sentido": 0.4543,
+        "para": 0.4175,
+        "conversar": 0.4543
       }
     }
   ],
-  "responseCount": 34,
+  "responseCount": 36,
   "learnedResponseCount": 0
 }

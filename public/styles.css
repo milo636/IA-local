@@ -954,6 +954,48 @@ textarea:focus-visible {
   color: var(--muted);
 }
 
+.context-summary {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 2px solid rgba(101, 168, 255, 0.5);
+  color: var(--soft);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.context-details {
+  display: grid;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.context-detail-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(52, 66, 85, 0.46);
+}
+
+.context-detail-row span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.context-detail-row strong {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
 .correction-box {
   display: grid;
   gap: 8px;

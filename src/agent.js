@@ -1,5 +1,6 @@
 const actions = require("./actions");
 const conversationAI = require("./conversationAI");
+const contextExplainer = require("./contextExplainer");
 const favorites = require("./favorites");
 const logger = require("./logger");
 const localAI = require("./localAI");
@@ -28,12 +29,20 @@ async function handleMessage(message) {
     return executePendingAction();
   }
 
-  cancelPendingActionIfUserContinues(text);
-
   const incomingSafety = safety.validateIncomingText(text);
   if (!incomingSafety.ok) {
+    cancelPendingActionIfUserContinues(text);
     return respondBlocked(incomingSafety.reason, "input.blocked", buildAiMeta(null, text, false));
   }
+
+  const contextResult = contextExplainer.explainContext(
+    text,
+    memory.getMemory(),
+    permissions.getSettings()
+  );
+  if (contextResult) return respondContext(contextResult, text);
+
+  cancelPendingActionIfUserContinues(text);
 
   const clarificationResponse = await handlePendingClarification(text);
   if (clarificationResponse) return clarificationResponse;
@@ -644,6 +653,24 @@ function respondConversation(conversationResult, originalText, commandAiResult) 
   );
 }
 
+function respondContext(contextResult, originalText) {
+  const snapshot = contextResult.snapshot;
+  return respond(
+    contextResult.reply,
+    {
+      level: "info",
+      action: "context.explained",
+      summary: "Contexto local explicado.",
+      details: {
+        contextIntent: contextResult.intent,
+        contextStatus: snapshot.status,
+        actionType: snapshot.actionType
+      }
+    },
+    { aiMeta: buildContextMeta(contextResult, originalText) }
+  );
+}
+
 function respondMemory(memoryRequest, originalText) {
   const memoryMeta = buildMemoryMeta(memoryRequest, originalText);
 
@@ -843,6 +870,25 @@ function buildMemoryMeta(memoryRequest, originalText) {
     responseOrigin: "profile",
     commandIntent: null,
     commandConfidence: 0
+  };
+}
+
+function buildContextMeta(contextResult, originalText) {
+  const snapshot = contextResult.snapshot;
+  return {
+    aiDomain: "context",
+    detectedIntent: contextResult.intent,
+    confidence: Number(contextResult.confidence || 0),
+    usedLocalAI: true,
+    canLearn: false,
+    canLearnResponse: false,
+    originalText: originalText || null,
+    responseOrigin: contextResult.responseOrigin || "structured_context",
+    commandIntent: snapshot.intent || null,
+    commandConfidence: 0,
+    contextUsed: [snapshot.status, snapshot.actionType].filter(Boolean),
+    requiresClarification: snapshot.status === "pending_clarification",
+    requiresConfirmation: snapshot.status === "pending_confirmation"
   };
 }
 

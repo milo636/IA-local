@@ -13,6 +13,7 @@ El objetivo es que cualquier persona pueda clonar el proyecto, ejecutarlo en su 
 - Memoria inteligente local con perfil de usuario.
 - Favoritos y rutinas locales con ejecucion controlada.
 - Agenda local con tareas unicas, diarias o semanales.
+- Contexto explicable para consultar la accion anterior, sus permisos y su estado.
 - Historial de conversaciones con busqueda local por contenido.
 - Sugerencias contextuales que siempre se envian como mensajes normales.
 - Busqueda de archivos por nombre, extension o categoria.
@@ -46,7 +47,7 @@ La interfaz esta pensada para uso local y diario:
 
 - Chat principal con estados como `Atenea esta lista`, `Entrenando modelo...` y `Modelo actualizado`.
 - Panel izquierdo con modo seguro, permisos y acciones disponibles.
-- Panel derecho con IA local, conversacion, memoria, productividad, agenda, ejemplos aprendidos, comandos rapidos y logs.
+- Panel derecho con IA local, comprension, contexto activo, conversacion, memoria, productividad, agenda, ejemplos aprendidos, comandos rapidos y logs.
 - Panel de memoria con perfil, recuerdos editables, busqueda y exportacion.
 - Modo debug para inspeccionar intencion, confidence y origen de respuesta.
 - Boton para copiar respuestas del asistente.
@@ -179,6 +180,22 @@ Crear, editar, pausar o borrar una tarea no ejecuta su comando. Desde la interfa
 La ejecucion automatica esta desactivada por defecto mediante `allowScheduledActions: false`. Si el usuario activa ese permiso, el temporizador solo admite acciones de lectura: ayuda, estado del sistema, listar Descargas y buscar archivos. Abrir aplicaciones, crear carpetas o notas y organizar archivos siempre queda en modo manual. Toda ejecucion vuelve a pasar por la allowlist, `safety.js` y `permissions.js`.
 
 El temporizador funciona solamente mientras el servidor de Atenea esta abierto. Esta fase no instala servicios, tareas de Windows ni procesos persistentes ocultos.
+
+## Contexto explicable
+
+Atenea conserva un contexto estructurado separado para la ultima accion de cada conversacion. Este contexto no reemplaza la memoria de largo plazo y no guarda una copia adicional del texto privado. Permite preguntar:
+
+```text
+que hiciste recien
+eso es seguro
+que permiso usa esa accion
+por que necesita confirmacion
+mostrame el contexto activo
+```
+
+La respuesta se genera con metadatos allowlisted: tipo de accion, estado, permiso y necesidad de confirmacion. Nunca repite el comando original, entidades, rutas ni contenido de notas. Preguntar por el contexto no ejecuta ni repite acciones.
+
+Si hay una confirmacion pendiente, una pregunta contextual la mantiene detenida. El panel `Contexto activo` permite olvidar la accion anterior sin borrar mensajes, recuerdos ni perfil. No se puede limpiar ese contexto mientras haya una confirmacion o aclaracion pendiente.
 
 ## Conversacion basica
 
@@ -401,6 +418,7 @@ IA-local/
     actions.js
     commandParser.js
     conversationAI.js
+    contextExplainer.js
     entityExtractor.js
     evaluateLocalAI.js
     favorites.js
@@ -470,6 +488,9 @@ POST   /api/ai/dataset/restore-base
 GET    /api/conversation/intents
 POST   /api/conversation/learn
 POST   /api/conversation/train
+
+GET    /api/context
+POST   /api/context/clear
 
 GET    /api/favorites
 POST   /api/favorites
@@ -558,6 +579,8 @@ Mejoras continuas completadas:
 - Selector responsive, renombrado en linea y borrado confirmado.
 - Busqueda de mensajes entre conversaciones con salto al resultado.
 - Sugerencias contextuales explicables y sin ejecucion directa.
+- Contexto activo sanitizado para explicar acciones, permisos y confirmaciones.
+- Seguimientos conversacionales que no repiten la ejecucion anterior.
 
 Fase 7 completada:
 

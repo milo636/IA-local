@@ -20,7 +20,7 @@ https://github.com/milo636/IA-local
 
 ## Estado de continuidad actualizado
 
-Las Fases 5, 6 y 7 ya estan implementadas. Las especificaciones historicas de Fase 5 que aparecen mas abajo sirven como referencia y no deben volver a implementarse.
+Las Fases 5, 6, 7 y 7.1 ya estan implementadas. Las especificaciones historicas de Fase 5 que aparecen mas abajo sirven como referencia y no deben volver a implementarse.
 
 Estado agregado desde ese documento:
 
@@ -31,7 +31,9 @@ Estado agregado desde ese documento:
 - sugerencias contextuales sin ejecucion directa
 - agenda local con tareas unicas, diarias y semanales
 - autoejecucion apagada por defecto y limitada a lectura
-- `99` pruebas automatizadas aprobadas al completar Fase 7
+- contexto explicable sanitizado por conversacion
+- preguntas sobre acciones, permisos y confirmaciones sin reejecucion
+- `110` pruebas automatizadas aprobadas al completar Fase 7.1
 
 Antes de desarrollar una fase nueva, revisar `README.md`, `SECURITY.md`, el estado de Git y los tests actuales. No incluir `data/logs.json`, `data/memory.json` ni resultados locales de evaluacion en commits.
 
